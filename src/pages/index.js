@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <Container className="text-center mt-5">
       <h1>
-        Welcome to our application! <i className='bi bi-heart-fill' style={{ color: 'red' }}></i>
+        Welcome to our application! ABC <i className='bi bi-heart-fill' style={{ color: 'red' }}></i>
       </h1>
       {session ? (
         <>
