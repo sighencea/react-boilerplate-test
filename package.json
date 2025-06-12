@@ -4,14 +4,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.6",
     "bootstrap": "^5.3.3",
-    "next": "^15.3.3",
-    "react": "^18.2.0",
+    "next": "latest",
+    "react": "latest",
     "react-bootstrap": "^2.10.2",
-    "react-dom": "^18.2.0"
+    "react-dom": "latest"
   }
 }
