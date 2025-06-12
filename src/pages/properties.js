@@ -31,12 +31,12 @@ const PropertiesPage = () => {
 
       let query = supabase
         .from('properties')
-        .select('id, property_name, name, address, address_street, address_city, property_image_url, property_type, qr_code_image_url, created_at', { count: 'exact' })
+        .select('id, property_name, address, address_street, address_city, property_image_url, property_type, qr_code_image_url, created_at', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
       if (searchQuery) {
-        query = query.or(`name.ilike.%${searchQuery}%,address_street.ilike.%${searchQuery}%`);
+        query = query.or(`property_name.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%`);
       }
 
       const { data, error: dbError, count } = await query;
