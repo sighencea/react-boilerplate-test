@@ -7,7 +7,7 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
     address: '', // New single address field
     property_type: '', // New field
     occupier: '', // New field
-    description: '',
+    property_details: '', // Renamed from description
     image_url: '', // Keep for now, for existing data and URL input fallback
     property_image_file: null, // For the new file input
   });
@@ -21,7 +21,7 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         address: [property.address_street, property.address_city, property.address_state, property.address_zip].filter(Boolean).join(', ') || '',
         property_type: property.property_type || '',
         occupier: property.occupier || '',
-        description: property.description || '',
+        property_details: property.property_details || '', // Renamed
         image_url: property.image_url || '',
         property_image_file: null,
       });
@@ -31,7 +31,7 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         address: '',
         property_type: '',
         occupier: '',
-        description: '',
+        property_details: '', // Renamed
         image_url: '',
         property_image_file: null,
       });
@@ -59,7 +59,7 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         address: formData.address,
         property_type: formData.property_type,
         occupier: formData.occupier,
-        description: formData.description,
+        property_details: formData.property_details, // Renamed
         image_url: formData.image_url, // Retain existing image_url or if user manually enters one
         // company_id should be handled here if applicable, e.g. from auth context
       };
@@ -154,8 +154,8 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="description" className="form-label">Description</label>
-                <textarea className="form-control" id="description" name="description" rows="3" value={formData.description} onChange={handleChange} disabled={loading}></textarea>
+                <label htmlFor="property_details" className="form-label">Property Details</label>
+                <textarea className="form-control" id="property_details" name="property_details" rows="3" value={formData.property_details} onChange={handleChange} disabled={loading}></textarea>
               </div>
 
               <div className="mb-3">
