@@ -97,7 +97,10 @@ const StaffPage = () => {
         <div className="table-responsive"><table className="table table-hover">
             <thead className="table-light"><tr><th>Profile</th><th>Name</th><th>Email</th><th>Role</th><th>Assigned Tasks</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>{staffList.map(staff => ( <tr key={staff.id}>
-                <td><img src={staff.avatar_url || '/assets/images/placeholder-avatar.png'} alt={`${`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Staff'}'s profile`} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} onError={(e)=>{e.target.src='/assets/images/placeholder-avatar.png';}} /></td>
+                <td><img src={staff.avatar_url || '/assets/images/placeholder-avatar.png'} alt={`${`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Staff'}'s profile`} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} onError={(e) => {
+                  e.target.onerror = null; // Prevent future errors on this image element from re-triggering
+                  e.target.src = '/assets/images/placeholder-avatar.png'; // Attempt to load placeholder
+                }} /></td>
                 <td>{`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'N/A'}</td><td>{staff.email}</td><td>{staff.user_role || 'N/A'}</td>
                 <td className="text-center">N/A</td>
                 <td><span className={`badge bg-${staff.user_status === 'Active' ? 'success' : (staff.user_status === 'Invited' || staff.user_status === 'New' ? 'warning text-dark' : 'secondary')}`}>{staff.user_status || 'N/A'}</span></td>
