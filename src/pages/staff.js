@@ -30,11 +30,11 @@ const StaffPage = () => {
     try {
       const from = (page - 1) * ITEMS_PER_PAGE; const to = from + ITEMS_PER_PAGE - 1;
       let query = supabase.from('profiles')
-        .select('id, first_name, last_name, email, role, user_status, profile_image_url, created_at', { count: 'exact' })
+        .select('id, first_name, last_name, email, user_role, user_status, avatar_url, created_at', { count: 'exact' })
         .eq('company_id', user.app_metadata.company_id).eq('is_admin', false)
         .order('first_name', { ascending: true }).order('last_name', { ascending: true });
       if (searchQuery) query = query.or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
-      if (roleFilter) query = query.eq('role', roleFilter);
+      if (roleFilter) query = query.eq('user_role', roleFilter); // Changed 'role' to 'user_role'
       if (statusFilter) query = query.eq('user_status', statusFilter);
       query = query.range(from, to);
       const { data, error: dbError, count } = await query; if (dbError) throw dbError;
@@ -97,8 +97,8 @@ const StaffPage = () => {
         <div className="table-responsive"><table className="table table-hover">
             <thead className="table-light"><tr><th>Profile</th><th>Name</th><th>Email</th><th>Role</th><th>Assigned Tasks</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>{staffList.map(staff => ( <tr key={staff.id}>
-                <td><img src={staff.profile_image_url || '/assets/images/placeholder-avatar.png'} alt={`${`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Staff'}'s profile`} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} onError={(e)=>{e.target.src='/assets/images/placeholder-avatar.png';}} /></td>
-                <td>{`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'N/A'}</td><td>{staff.email}</td><td>{staff.role || 'N/A'}</td>
+                <td><img src={staff.avatar_url || '/assets/images/placeholder-avatar.png'} alt={`${`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Staff'}'s profile`} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} onError={(e)=>{e.target.src='/assets/images/placeholder-avatar.png';}} /></td>
+                <td>{`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'N/A'}</td><td>{staff.email}</td><td>{staff.user_role || 'N/A'}</td>
                 <td className="text-center">N/A</td>
                 <td><span className={`badge bg-${staff.user_status === 'Active' ? 'success' : (staff.user_status === 'Invited' || staff.user_status === 'New' ? 'warning text-dark' : 'secondary')}`}>{staff.user_status || 'N/A'}</span></td>
                 <td>{isAdmin && (<span> <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => handleOpenEditModal(staff)} title="Edit"><i className="bi bi-pencil"></i></button> <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteStaff(staff)} title="Deactivate"><i className="bi bi-person-x"></i></button> </span>)}</td>
