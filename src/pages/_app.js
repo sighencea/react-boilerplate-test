@@ -2,14 +2,28 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.css';
 import Head from 'next/head';
 import { AuthProvider } from '../context/AuthContext';
+import MainLayout from '../components/layout/MainLayout.js';
+import { useRouter } from 'next/router';
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
+  const authPaths = ['/']; // Sign-in page is at the root
+
   return (
     <AuthProvider>
       <Head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+        {/* Add other global head elements here if needed */}
       </Head>
-      <Component {...pageProps} />
+      {authPaths.includes(router.pathname) ? (
+        // Pages that should not have MainLayout (e.g., sign-in, sign-up)
+        <Component {...pageProps} />
+      ) : (
+        // Pages that should have MainLayout
+        <MainLayout>
+          <Component {...pageProps} />
+        </MainLayout>
+      )}
     </AuthProvider>
   );
 }

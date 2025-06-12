@@ -6,16 +6,18 @@ import TopBar from './TopBar';
 const MainLayout = ({ children }) => {
   return (
     <>
-      <Sidebar />
-      <div id="mainContent" className="main-content">
-        <TopBar />
-        <div id="pageSpecificContent"> {/* Content will be passed as children */}
-          {children}
+      <div className="d-flex main-layout-container"> {/* Flex container for sidebar and main content */}
+        <Sidebar />
+        <div className="flex-grow-1 main-content-area"> {/* Main content area takes remaining space */}
+          <TopBar />
+          <main className="p-3 page-content"> {/* Padding for content area */}
+            {children}
+          </main>
         </div>
       </div>
-      <div className="sidebar-overlay d-lg-none"></div> {/* From dashboard.html */}
+      <div className="sidebar-overlay d-lg-none"></div> {/* Kept outside main flex layout for now */}
 
-      {/* Access Denied Modal (Example, will need proper component later) */}
+      {/* Access Denied Modal (Kept outside main flex layout for now) */}
       <div className="modal fade" id="accessDeniedModal" tabIndex="-1" aria-labelledby="accessDeniedModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
