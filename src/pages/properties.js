@@ -31,7 +31,7 @@ const PropertiesPage = () => {
 
       let query = supabase
         .from('properties')
-        .select('id, property_name, address, address_street, address_city, property_image_url, property_type, qr_code_image_url, created_at', { count: 'exact' })
+        .select('id, property_name, address, property_image_url, property_type, qr_code_image_url, created_at', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
