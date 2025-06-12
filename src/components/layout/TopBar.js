@@ -98,7 +98,7 @@ const TopBar = () => {
           <a className="dropdown-toggle dropdown-toggle-no-caret" href="#!" role="button" onClick={(e) => { e.preventDefault(); setIsDropdownOpen(!isDropdownOpen); }} aria-expanded={isDropdownOpen}>
             <i className="bi bi-person-gear"></i>
           </a>
-          <ul className={`dropdown-menu dropdown-menu-end ${isDropdownOpen ? 'show' : ''}`}>
+          <ul className={`dropdown-menu dropdown-menu-start ${isDropdownOpen ? 'show' : ''}`}>
             <li>
               <Link href="/account" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                 <i className="bi bi-gear-fill me-2"></i>Account Settings
