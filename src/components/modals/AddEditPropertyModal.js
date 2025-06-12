@@ -1,6 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import QRCode from 'qrcode'; // Import QRCode library
+import { supabase } from '@/lib/supabaseClient'; // supabase client is already imported
 import { useAuth } from '../../context/AuthContext'; // Import useAuth
+
+// Helper function for QR Code processing
+async function processQrCodeForProperty(newProperty, currentUser, supabaseClient) {
+  if (!newProperty || !newProperty.id || !currentUser || !currentUser.id || !supabaseClient) {
+    console.warn('Missing data for QR code processing. Property ID:', newProperty?.id, 'User ID:', currentUser?.id);
+    return newProperty;
+  }
+
+  let updatedProperty = { ...newProperty };
+
+  try {
+    const propertyDetailUrl = `${window.location.origin}/property-details/${updatedProperty.id}`;
+    const qrDataURLGenerated = await QRCode.toDataURL(propertyDetailUrl, {
+      errorCorrectionLevel: 'H', type: 'image/png', quality: 0.9, margin: 1,
+    });
+
+    if (!qrDataURLGenerated) {
+      console.warn(`QR code dataURL generation returned empty for property ID: ${updatedProperty.id}`);
+      return updatedProperty; // Return original property, no QR URL
+    }
+    console.log('QR Data URL generated for property ID:', updatedProperty.id);
+
+
+    const response = await fetch(qrDataURLGenerated);
+    const blob = await response.blob();
+
+    if (!blob) {
+      console.warn(`Failed to convert QR dataURL to Blob for property ID: ${updatedProperty.id}`);
+      return updatedProperty; // Return original property
+    }
+    console.log('QR Blob created for property ID:', updatedProperty.id);
+
+
+    const qrFilePath = `users/${currentUser.id}/qr_codes/qr_${updatedProperty.id}.png`;
+    const { data: qrUploadData, error: qrUploadError } = await supabaseClient.storage
+      .from('property-qr-codes')
+      .upload(qrFilePath, blob, { cacheControl: '3600', upsert: true });
+
+    if (qrUploadError) {
+      console.error(`Non-critical: Error uploading QR code for property ${updatedProperty.id}.`, qrUploadError);
+      return updatedProperty; // Return original property
+    }
+    console.log('QR code uploaded successfully for property ID:', updatedProperty.id, 'Path:', qrUploadData.path);
+
+
+    const { data: publicUrlData } = supabaseClient.storage
+      .from('property-qr-codes')
+      .getPublicUrl(qrUploadData.path);
+
+    if (!publicUrlData || !publicUrlData.publicUrl) {
+      console.error(`Non-critical: Error getting public URL for QR code from path ${qrUploadData.path} for property ${updatedProperty.id}.`);
+      return updatedProperty; // Return original property
+    }
+
+    const qrCodeImageUrl = publicUrlData.publicUrl;
+    console.log('Public QR Code URL obtained for property ID:', updatedProperty.id, qrCodeImageUrl);
+
+    const { error: updateError } = await supabaseClient
+      .from('properties')
+      .update({ qr_code_image_url: qrCodeImageUrl, generate_qr_on_creation: true })
+      .eq('id', updatedProperty.id);
+
+    if (updateError) {
+      console.error(`Non-critical: Error updating property ${updatedProperty.id} with QR code URL.`, updateError);
+      // Return property without QR URL if DB update fails
+    } else {
+      console.log(`Property ${updatedProperty.id} updated successfully with QR code URL.`);
+      updatedProperty.qr_code_image_url = qrCodeImageUrl;
+      updatedProperty.generate_qr_on_creation = true;
+    }
+  } catch (qrProcessError) {
+    console.error(`Non-critical: Overall error during QR code processing for property ${updatedProperty.id}.`, qrProcessError);
+    // In case of any error during the process, return the property object as it was before this attempt
+  }
+  return updatedProperty;
+}
+
 
 const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
   const { user } = useAuth(); // Get user from AuthContext
@@ -170,7 +248,15 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
 
       if (supaResponse.error) throw supaResponse.error;
 
-      onSave(supaResponse.data); // Pass saved data back (optional)
+      let finalPropertyData = supaResponse.data;
+
+      if (!property && finalPropertyData && finalPropertyData.id && user && user.id) { // Only for new properties
+        // Call the refactored QR code processing function
+        // supabase client is passed from the import at the top of the file
+        finalPropertyData = await processQrCodeForProperty(finalPropertyData, user, supabase);
+      }
+
+      onSave(finalPropertyData); // Pass the potentially updated property data
       handleClose();
     } catch (err) {
       console.error('Error saving property:', err);
