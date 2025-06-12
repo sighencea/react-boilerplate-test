@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
-  const authPaths = ['/']; // Sign-in page is at the root
+  const authPaths = ['/', '/404']; // Sign-in page and 404 page
 
   return (
     <AuthProvider>
