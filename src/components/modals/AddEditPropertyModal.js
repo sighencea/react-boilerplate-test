@@ -149,7 +149,6 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
           </form>
         </div>
       </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
     </div>
   );
 };
