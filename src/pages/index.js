@@ -305,18 +305,22 @@ const SignInPage = () => {
   const bgImageUrl = '/assets/images/auth-background.png';
   return (
     <>
-      <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-start p-5 text-white position-relative" style={{ backgroundImage: `url(${bgImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
-        <div className="position-relative"><h1 className="display-4 fw-bold mb-3">Property Hub</h1><p className="lead">DEBUG TEST - Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!</p></div>
-      </div>
-      <div className="col-lg-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5">
-        <div className="w-100" style={{ maxWidth: '450px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-          <div className="d-flex justify-content-end" style={{ position: 'absolute', top: 0, right: 0 }}>{renderAuthToggle()}</div>
-          {currentView === 'signIn' && renderSignInForm()}
-          {currentView === 'signUp_accountType' && renderAccountTypeSelection()}
-          {currentView === 'signUp_userInfo' && renderUserAccountInfo()}
-          {currentView === 'signUp_agencyForm' && renderAgencySignupForm()}
-          <p className="mt-5 mb-3 text-muted text-center">&copy; <span id="currentYearInReact"></span> Property Hub</p>
+      <div className="container-fluid vh-100">
+        <div className="row h-100">
+          <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-start p-5 text-white position-relative" style={{ backgroundImage: `url(${bgImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
+            <div className="position-relative"><h1 className="display-4 fw-bold mb-3">Property Hub</h1><p className="lead">DEBUG TEST - Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!</p></div>
+          </div>
+          <div className="col-lg-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5">
+            <div className="w-100" style={{ maxWidth: '450px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+              <div className="d-flex justify-content-end" style={{ position: 'absolute', top: 0, right: 0 }}>{renderAuthToggle()}</div>
+              {currentView === 'signIn' && renderSignInForm()}
+              {currentView === 'signUp_accountType' && renderAccountTypeSelection()}
+              {currentView === 'signUp_userInfo' && renderUserAccountInfo()}
+              {currentView === 'signUp_agencyForm' && renderAgencySignupForm()}
+              <p className="mt-5 mb-3 text-muted text-center">&copy; <span id="currentYearInReact"></span> Property Hub</p>
+            </div>
+          </div>
         </div>
       </div>
 
