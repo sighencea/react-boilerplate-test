@@ -475,30 +475,3 @@ The original request was "stroke of all borders", not necessarily hover/active s
 #profileLoadingIndicator.visible {
     display: block !important; /* Or 'flex', etc. !important to ensure override. */
 }
-
-/* Ensure the .dropdown container in top-bar-icons is a clear positioning context */
-.top-bar .top-bar-icons .dropdown {
-  position: relative; /* Should be default from Bootstrap, but explicit can help */
-}
-
-/* For dropdown-menu-end within the top-bar, if it's going off-screen:
-   This attempts to ensure it respects the right boundary a bit more forcefully.
-   Bootstrap's own 'dropdown-menu-end' sets 'right: 0; left: auto;'.
-   If this is still problematic, it might be due to lack of JS-based dynamic adjustment.
-   A slight negative margin can sometimes pull it back if it's only slightly off.
-   Or, ensuring it doesn't exceed the viewport width from its calculated 'right: 0' position.
-*/
-.top-bar .dropdown-menu.dropdown-menu-end.show { /* Target only when shown */
-  /* Try ensuring it doesn't get pushed out if the content inside is too wide */
-  /* max-width: calc(100vw - 40px); */ /* Commented out, can be too aggressive */
-
-  /* If it's purely a case of it not "seeing" the edge of the viewport correctly,
-     and `right: 0` (relative to the .dropdown div) is the issue because the .dropdown
-     div is too far right within a container that doesn't constrain it.
-
-     Let's try a small adjustment to pull it left only if it's 'dropdown-menu-end'.
-     This is a common tweak.
-  */
-  margin-right: 10px; /* Pulls the menu slightly to the left from its calculated right:0 position */
-                       /* This is a bit of a magic number, adjust if needed */
-}
