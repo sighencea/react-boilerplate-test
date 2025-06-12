@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../supabaseClient'; // Direct Supabase client for non-auth specific calls (e.g. RPC, profiles)
+import { supabase } from '@/lib/supabaseClient'; // Direct Supabase client for non-auth specific calls (e.g. RPC, profiles)
 
 import ResendVerificationModal from '../components/modals/ResendVerificationModal';
 import SixDigitCodeModal from '../components/modals/SixDigitCodeModal';

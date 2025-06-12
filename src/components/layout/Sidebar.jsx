@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useLocation } from 'react-router-dom'; // Keep useLocation for now
 
 const Sidebar = () => {
-  const location = useLocation();
+  const location = useLocation(); // This will need to be replaced with Next.js router equivalent
   // Placeholder for admin status - replace with actual auth context or prop
   const isAdmin = localStorage.getItem('userIsAdmin') === 'true'; // Simple check from original logic
 
@@ -39,7 +40,7 @@ const Sidebar = () => {
           }
           return (
             <li key={link.path}>
-              <Link to={link.path} className={isActive(link.path) ? 'active' : ''}>
+              <Link href={link.path} className={isActive(link.path) ? 'active' : ''}>
                 <i className={`bi ${link.icon}`}></i><span data-i18n={link.labelKey}>{link.labelKey.split('.')[1].charAt(0).toUpperCase() + link.labelKey.split('.')[1].slice(1)}</span>
               </Link>
             </li>

@@ -1,13 +1,20 @@
+import Link from 'next/link';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 
 export default function AppNavbar() {
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <Navbar.Brand href="/">My App</Navbar.Brand>
+        <Link href="/" passHref>
+          <Navbar.Brand>My App</Navbar.Brand>
+        </Link>
         <Nav className="me-auto">
-          <Nav.Link href="/">Home</Nav.Link>
-          <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+          <Link href="/" passHref>
+            <Nav.Link>Home</Nav.Link>
+          </Link>
+          <Link href="/dashboard" passHref>
+            <Nav.Link>Dashboard</Nav.Link>
+          </Link>
         </Nav>
       </Container>
     </Navbar>

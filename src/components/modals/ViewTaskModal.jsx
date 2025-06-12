@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext'; // For user ID if needed for RLS on files or getting signed URLs
 
 const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdated }) => {

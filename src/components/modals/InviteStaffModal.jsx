@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext'; // To get company_id
 
 const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
