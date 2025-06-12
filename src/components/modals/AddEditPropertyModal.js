@@ -3,46 +3,68 @@ import { supabase } from '@/lib/supabaseClient';
 
 const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    address: '', // New single address field
-    property_type: '', // New field
-    occupier: '', // New field
-    property_details: '', // Renamed from description
-    image_url: '', // Keep for now, for existing data and URL input fallback
-    property_image_file: null, // For the new file input
+    property_name: '', // Renamed from name
+    address: '',
+    property_type: '',
+    property_occupier: '', // Renamed from occupier
+    property_details: '',
+    property_image_url: '', // Renamed from image_url
+    property_image_file: null,
   });
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (property) { // Editing existing property
       setFormData({
-        name: property.name || '',
-        address: [property.address_street, property.address_city, property.address_state, property.address_zip].filter(Boolean).join(', ') || '',
+        property_name: property.property_name || property.name || '',
+        address: [property.address_street, property.address_city, property.address_state, property.address_zip].filter(Boolean).join(', ') || property.address || '',
         property_type: property.property_type || '',
-        occupier: property.occupier || '',
-        property_details: property.property_details || '', // Renamed
-        image_url: property.image_url || '',
+        property_occupier: property.property_occupier || property.occupier || '',
+        property_details: property.property_details || '',
+        property_image_url: property.property_image_url || property.image_url || '',
         property_image_file: null,
       });
+      setImagePreviewUrl(property.property_image_url || property.image_url || null);
     } else { // Adding new property, reset form
       setFormData({
-        name: '',
+        property_name: '',
         address: '',
         property_type: '',
-        occupier: '',
-        property_details: '', // Renamed
-        image_url: '',
+        property_occupier: '',
+        property_details: '',
+        property_image_url: '',
         property_image_file: null,
       });
+      setImagePreviewUrl(null);
     }
     setError(null); // Clear error when modal opens or property changes
   }, [property, isOpen]);
 
+  // useEffect for revoking object URL (cleanup)
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, [imagePreviewUrl]);
+
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-    if (type === 'file') {
-      setFormData(prev => ({ ...prev, property_image_file: files && files.length > 0 ? files[0] : null }));
+    if (type === 'file' && name === 'property_image_file') {
+      const file = files && files.length > 0 ? files[0] : null;
+      setFormData(prev => ({ ...prev, property_image_file: file, property_image_url: '' })); // Clear old URL
+      if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreviewUrl); // Revoke old blob URL
+      }
+      if (file) {
+        setImagePreviewUrl(URL.createObjectURL(file));
+      } else {
+        // If file is cleared, try to show original image_url if available (during edit)
+        setImagePreviewUrl(property ? (property.property_image_url || property.image_url || null) : null);
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -54,22 +76,60 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
     setError(null);
     try {
       let supaResponse;
-      const propertyData = {
-        name: formData.name,
+      const propertyDataToSave = {
+        property_name: formData.property_name,
         address: formData.address,
         property_type: formData.property_type,
-        occupier: formData.occupier,
-        property_details: formData.property_details, // Renamed
-        image_url: formData.image_url, // Retain existing image_url or if user manually enters one
-        // company_id should be handled here if applicable, e.g. from auth context
+        property_occupier: formData.property_occupier,
+        property_details: formData.property_details,
+        // property_image_url will be set below after file handling
       };
+
+      let finalImageUrl = formData.property_image_url; // Default to existing/previous URL
+
+      if (formData.property_image_file) {
+        const file = formData.property_image_file;
+        const fileName = `property_images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`; // Sanitize and make unique
+
+        // setLoading(true); // Already set at the beginning of handleSubmit
+        // setError(null); // Already set at the beginning of handleSubmit
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('property-images') // Your specified bucket name
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false // Consider true if updates should replace, false if new name always
+          });
+
+        if (uploadError) {
+          console.error('Error uploading image:', uploadError);
+          setError(`Image upload failed: ${uploadError.message}`);
+          // setLoading(false); // This will be handled by the finally block
+          return; // Stop submission if image upload fails
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('property-images')
+          .getPublicUrl(uploadData.path);
+
+        if (!publicUrlData || !publicUrlData.publicUrl) {
+            console.error('Error getting public URL for image:', publicUrlData);
+            setError('Failed to get image URL after upload.');
+            // setLoading(false); // This will be handled by the finally block
+            return; // Stop submission
+        }
+        finalImageUrl = publicUrlData.publicUrl;
+      }
+
+      propertyDataToSave.property_image_url = finalImageUrl;
+
       // Ensure numeric fields are numbers if your DB expects them (e.g., num_bedrooms)
-      // Example: propertyData.num_bedrooms = parseInt(propertyData.num_bedrooms, 10) || 0;
+      // Example: propertyDataToSave.num_bedrooms = parseInt(propertyDataToSave.num_bedrooms, 10) || 0;
 
       if (property && property.id) { // Editing
         supaResponse = await supabase
           .from('properties')
-          .update(propertyData)
+          .update(propertyDataToSave)
           .eq('id', property.id)
           .select() // select() to get the updated row back if needed
           .single(); // if expecting a single row
@@ -79,12 +139,12 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         // const { data: { user } } = await supabase.auth.getUser();
         // const companyId = user?.user_metadata?.company_id; // Or app_metadata
         // if (!companyId) throw new Error("Company ID not found for the user.");
-        // propertyData.company_id = companyId;
+        // propertyDataToSave.company_id = companyId;
         // For now, let's assume company_id might be optional or handled by RLS/default value in DB
 
         supaResponse = await supabase
           .from('properties')
-          .insert(propertyData)
+          .insert(propertyDataToSave)
           .select()
           .single();
       }
@@ -121,8 +181,8 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
               {error && <div className="alert alert-danger">{error}</div>}
 
               <div className="mb-3">
-                <label htmlFor="name" className="form-label">Property Name*</label>
-                <input type="text" className="form-control" id="name" name="name" value={formData.name} onChange={handleChange} required disabled={loading} />
+                <label htmlFor="property_name" className="form-label">Property Name*</label>
+                <input type="text" className="form-control" id="property_name" name="property_name" value={formData.property_name} onChange={handleChange} required disabled={loading} />
               </div>
 
               <div className="mb-3">
@@ -143,8 +203,8 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="occupier" className="form-label">Occupier*</label>
-                <select className="form-select" id="occupier" name="occupier" value={formData.occupier} onChange={handleChange} required disabled={loading}>
+                <label htmlFor="property_occupier" className="form-label">Occupier*</label>
+                <select className="form-select" id="property_occupier" name="property_occupier" value={formData.property_occupier} onChange={handleChange} required disabled={loading}>
                   <option value="">Select occupier...</option>
                   <option value="Owner-Occupied">Owner-Occupied</option>
                   <option value="Tenant-Occupied">Tenant-Occupied</option>
@@ -161,13 +221,12 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
               <div className="mb-3">
                 <label htmlFor="property_image_file" className="form-label">Property Image</label>
                 <input type="file" className="form-control" id="property_image_file" name="property_image_file" onChange={handleChange} disabled={loading} accept="image/*" />
-                <div className="mt-2" id="imagePreviewPlaceholder" style={{minHeight: '50px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><small>Image preview</small></div>
-                {/* Display existing image_url if no new file is selected and image_url exists */}
-                {!formData.property_image_file && formData.image_url && (
-                  <div className="mt-2">
-                    <small>Current image:</small>
-                    <img src={formData.image_url} alt="Current property" style={{maxWidth: '100px', maxHeight: '100px', display: 'block'}} />
-                  </div>
+                {imagePreviewUrl ? (
+                  <img src={imagePreviewUrl} alt="Image Preview" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
+                ) : formData.property_image_url ? ( // Show existing image if no new preview and existing URL
+                  <img src={formData.property_image_url} alt="Current property" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
+                ) : (
+                  <div className="mt-2" id="imagePreviewPlaceholder" style={{minHeight: '50px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><small>Image preview</small></div>
                 )}
               </div>
               {/* Add other form fields here based on your properties table schema */}
