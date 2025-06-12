@@ -4,13 +4,12 @@ import { supabase } from '@/lib/supabaseClient';
 const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
-    address_street: '',
-    address_city: '',
-    address_state: '',
-    address_zip: '',
+    address: '', // New single address field
+    property_type: '', // New field
+    occupier: '', // New field
     description: '',
-    image_url: '', // Or handle file upload separately
-    // Add other relevant fields from your 'properties' table
+    image_url: '', // Keep for now, for existing data and URL input fallback
+    property_image_file: null, // For the new file input
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,25 +18,34 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
     if (property) { // Editing existing property
       setFormData({
         name: property.name || '',
-        address_street: property.address_street || '',
-        address_city: property.address_city || '',
-        address_state: property.address_state || '',
-        address_zip: property.address_zip || '',
+        address: [property.address_street, property.address_city, property.address_state, property.address_zip].filter(Boolean).join(', ') || '',
+        property_type: property.property_type || '',
+        occupier: property.occupier || '',
         description: property.description || '',
         image_url: property.image_url || '',
+        property_image_file: null,
       });
     } else { // Adding new property, reset form
       setFormData({
-        name: '', address_street: '', address_city: '', address_state: '',
-        address_zip: '', description: '', image_url: '',
+        name: '',
+        address: '',
+        property_type: '',
+        occupier: '',
+        description: '',
+        image_url: '',
+        property_image_file: null,
       });
     }
     setError(null); // Clear error when modal opens or property changes
   }, [property, isOpen]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, files } = e.target;
+    if (type === 'file') {
+      setFormData(prev => ({ ...prev, property_image_file: files && files.length > 0 ? files[0] : null }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -46,7 +54,15 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
     setError(null);
     try {
       let supaResponse;
-      const propertyData = { ...formData };
+      const propertyData = {
+        name: formData.name,
+        address: formData.address,
+        property_type: formData.property_type,
+        occupier: formData.occupier,
+        description: formData.description,
+        image_url: formData.image_url, // Retain existing image_url or if user manually enters one
+        // company_id should be handled here if applicable, e.g. from auth context
+      };
       // Ensure numeric fields are numbers if your DB expects them (e.g., num_bedrooms)
       // Example: propertyData.num_bedrooms = parseInt(propertyData.num_bedrooms, 10) || 0;
 
@@ -108,34 +124,51 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
                 <label htmlFor="name" className="form-label">Property Name*</label>
                 <input type="text" className="form-control" id="name" name="name" value={formData.name} onChange={handleChange} required disabled={loading} />
               </div>
-              <div className="row">
-                <div className="col-md-8 mb-3">
-                  <label htmlFor="address_street" className="form-label">Street Address*</label>
-                  <input type="text" className="form-control" id="address_street" name="address_street" value={formData.address_street} onChange={handleChange} required disabled={loading} />
-                </div>
-                <div className="col-md-4 mb-3">
-                  <label htmlFor="address_city" className="form-label">City*</label>
-                  <input type="text" className="form-control" id="address_city" name="address_city" value={formData.address_city} onChange={handleChange} required disabled={loading} />
-                </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">Address*</label>
+                <textarea className="form-control" id="address" name="address" value={formData.address} onChange={handleChange} required disabled={loading} rows="3"></textarea>
               </div>
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="address_state" className="form-label">State/Province*</label>
-                  <input type="text" className="form-control" id="address_state" name="address_state" value={formData.address_state} onChange={handleChange} required disabled={loading} />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="address_zip" className="form-label">Zip/Postal Code*</label>
-                  <input type="text" className="form-control" id="address_zip" name="address_zip" value={formData.address_zip} onChange={handleChange} required disabled={loading} />
-                </div>
+
+              <div className="mb-3">
+                <label htmlFor="property_type" className="form-label">Property Type*</label>
+                <select className="form-select" id="property_type" name="property_type" value={formData.property_type} onChange={handleChange} required disabled={loading}>
+                  <option value="">Select type...</option>
+                  <option value="Residential">Residential</option>
+                  <option value="Commercial">Commercial</option>
+                  <option value="Industrial">Industrial</option>
+                  <option value="Land">Land</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
+
+              <div className="mb-3">
+                <label htmlFor="occupier" className="form-label">Occupier*</label>
+                <select className="form-select" id="occupier" name="occupier" value={formData.occupier} onChange={handleChange} required disabled={loading}>
+                  <option value="">Select occupier...</option>
+                  <option value="Owner-Occupied">Owner-Occupied</option>
+                  <option value="Tenant-Occupied">Tenant-Occupied</option>
+                  <option value="Vacant">Vacant</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
               <div className="mb-3">
                 <label htmlFor="description" className="form-label">Description</label>
                 <textarea className="form-control" id="description" name="description" rows="3" value={formData.description} onChange={handleChange} disabled={loading}></textarea>
               </div>
+
               <div className="mb-3">
-                <label htmlFor="image_url" className="form-label">Image URL</label>
-                <input type="url" className="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.png" value={formData.image_url} onChange={handleChange} disabled={loading} />
-                {/* TODO: Implement file upload for images for better UX */}
+                <label htmlFor="property_image_file" className="form-label">Property Image</label>
+                <input type="file" className="form-control" id="property_image_file" name="property_image_file" onChange={handleChange} disabled={loading} accept="image/*" />
+                <div className="mt-2" id="imagePreviewPlaceholder" style={{minHeight: '50px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><small>Image preview</small></div>
+                {/* Display existing image_url if no new file is selected and image_url exists */}
+                {!formData.property_image_file && formData.image_url && (
+                  <div className="mt-2">
+                    <small>Current image:</small>
+                    <img src={formData.image_url} alt="Current property" style={{maxWidth: '100px', maxHeight: '100px', display: 'block'}} />
+                  </div>
+                )}
               </div>
               {/* Add other form fields here based on your properties table schema */}
 
