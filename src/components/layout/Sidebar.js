@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
   const router = useRouter();
-  // Placeholder for admin status - replace with actual auth context or prop
-  const isAdmin = localStorage.getItem('userIsAdmin') === 'true'; // Simple check from original logic
+  const { isAdmin, loading: authLoading, user } = useAuth(); // Get isAdmin and auth state
 
   const isActive = (path) => router.pathname === path;
 
