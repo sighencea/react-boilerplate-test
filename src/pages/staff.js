@@ -30,7 +30,7 @@ const StaffPage = () => {
     try {
       const from = (page - 1) * ITEMS_PER_PAGE; const to = from + ITEMS_PER_PAGE - 1;
       let query = supabase.from('profiles')
-        .select('id, full_name, email, role, user_status, profile_image_url, created_at, task_assignments ( count )', { count: 'exact' })
+        .select('id, full_name, email, role, user_status, profile_image_url, created_at', { count: 'exact' })
         .eq('company_id', user.app_metadata.company_id).eq('is_admin', false)
         .order('full_name', { ascending: true });
       if (searchQuery) query = query.or(`full_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
@@ -98,7 +98,7 @@ const StaffPage = () => {
             <tbody>{staffList.map(staff => ( <tr key={staff.id}>
                 <td><img src={staff.profile_image_url || '/assets/images/placeholder-avatar.png'} alt={`${staff.full_name || 'Staff'}'s profile`} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} onError={(e)=>{e.target.src='/assets/images/placeholder-avatar.png';}} /></td>
                 <td>{staff.full_name || 'N/A'}</td><td>{staff.email}</td><td>{staff.role || 'N/A'}</td>
-                <td className="text-center">{staff.task_assignments && staff.task_assignments.length > 0 ? staff.task_assignments[0].count : 0}</td>
+                <td className="text-center">N/A</td>
                 <td><span className={`badge bg-${staff.user_status === 'Active' ? 'success' : (staff.user_status === 'Invited' || staff.user_status === 'New' ? 'warning text-dark' : 'secondary')}`}>{staff.user_status || 'N/A'}</span></td>
                 <td>{isAdmin && (<span> <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => handleOpenEditModal(staff)} title="Edit"><i className="bi bi-pencil"></i></button> <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteStaff(staff)} title="Deactivate"><i className="bi bi-person-x"></i></button> </span>)}</td>
             </tr>))}</tbody>
