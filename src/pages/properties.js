@@ -18,8 +18,8 @@ const PropertiesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
 
-  const handleShowQrCode = (qrUrl) => {
-    alert('QR Code URL: ' + qrUrl); // Placeholder action
+  const handleShowQrCode = (qrUrl, propertyName) => {
+    alert('QR Code URL: ' + qrUrl + (propertyName ? '\nProperty: ' + propertyName : '')); // Placeholder action
   };
 
   const fetchProperties = useCallback(async () => {
@@ -160,48 +160,50 @@ const PropertiesPage = () => {
       {!loading && properties.length === 0 ? (
         <p data-i18n="propertiesPage.noPropertiesFound">No properties found.</p>
       ) : (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="propertyCardsContainer">
+        <div className="row g-4" id="propertyCardsContainer">
           {properties.map(property => (
-            <div className="col" key={property.id}>
-              <div className="card h-100 shadow-sm">
-                <img
-                  src={property.property_image_url || '/assets/images/card1.png'}
+            <div className="col-lg-4 col-md-6 mb-4" key={property.id}>
+              <Link href={`/property-details/${property.id}`} passHref legacyBehavior>
+                <a className="card property-card-link h-100 shadow-sm text-decoration-none d-block">
+                  <img
+                    src={property.property_image_url || '/assets/images/card1.png'}
                   className="card-img-top property-card-img"
                   alt={`Property ${property.property_name || 'Unnamed'}`}
                   onError={(e) => { e.target.onerror = null; e.target.src='/assets/images/card_placeholder.png'; }}
                 />
                 <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{property.property_name || 'N/A'}</h5>
-                  <p className="card-text text-muted small">
+                  <h5 className="card-title text-primary">{property.property_name || 'N/A'}</h5>
+                  <p className="card-text text-secondary flex-grow-1">
                     {property.address || 'N/A'}
                   </p>
-                  <p className="card-text text-muted small">
-                    <strong data-i18n="propertiesPage.card.propertyTypeLabel" className="text-dark">Type:</strong> {property.property_type || 'N/A'}
+                  <p className="card-text">
+                    <small className="text-muted">Type: {property.property_type || 'N/A'}</small>
                   </p>
                   <div className="mt-auto d-flex justify-content-between align-items-center pt-2">
                     {property.qr_code_image_url && (
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => handleShowQrCode(property.qr_code_image_url)}
-                        aria-label="Show QR Code"
-                        data-i18n="propertiesPage.card.showQrButton"
+                        className="btn btn-sm btn-outline-secondary qr-code-button"
+                        title="Show QR Code"
+                        data-qr-url={property.qr_code_image_url}
+                        data-property-name={property.property_name}
+                        onClick={(e) => { e.stopPropagation(); handleShowQrCode(property.qr_code_image_url, property.property_name); }}
+                        // data-i18n="propertiesPage.card.showQrButton" // data-i18n can be added if needed
                       >
                         <i className="bi bi-qr-code"></i>
                       </button>
                     )}
-                    {/* If QR button is not shown, Link will be the only item and justify-content-between will effectively act as justify-content-start */}
-                    {/* If QR button IS shown, justify-content-between will place QR left, Link right. */}
-                    <Link href={`/property-details/${property.id}`} className="text-primary small">View Details</Link>
+                    <span className="btn btn-sm btn-outline-primary align-self-start">View Details</span>
                   </div>
                 </div>
                 {isAdmin && ( // Show Edit/Delete only to admins
                   <div className="card-footer bg-light d-flex justify-content-end">
-                      <button onClick={() => handleOpenEditModal(property)} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
-                      <button onClick={() => handleDeleteProperty(property.id)} className="btn btn-sm btn-outline-danger">Delete</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleOpenEditModal(property); }} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteProperty(property.id); }} className="btn btn-sm btn-outline-danger">Delete</button>
                   </div>
                 )}
-              </div>
+                </a>
+              </Link>
             </div>
           ))}
         </div>
