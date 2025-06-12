@@ -6,7 +6,8 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
   const { user } = useAuth(); // For company_id
   const [formData, setFormData] = useState({
     email: '',
-    full_name: '', // Or first_name, last_name separately
+    firstName: '', // Changed
+    lastName: '',  // Changed
     role: '',
   });
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
   useEffect(() => {
     if (isOpen) {
       // Reset form when modal opens
-      setFormData({ email: '', full_name: '', role: roleOptions && roleOptions.length > 0 ? roleOptions[0] : '' });
+      setFormData({ email: '', firstName: '', lastName: '', role: roleOptions && roleOptions.length > 0 ? roleOptions[0] : '' });
       setError(null);
       setSuccessMessage('');
     }
@@ -40,12 +41,11 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
       // Call the 'invite-staff-member' Supabase Edge Function
       const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-staff-member', {
         body: {
-          company_id: user.app_metadata.company_id,
+          // company_id is derived by the Edge Function from the authenticated user
           email: formData.email,
-          full_name: formData.full_name, // Ensure Edge function expects 'full_name' or adapt
-          role: formData.role,
-          // The Edge function should handle sending the Supabase Magic Link or custom invite email
-          // and creating a profile with 'Invited' status.
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          userRole: formData.role, // Changed from role to userRole
         }
       });
 
@@ -56,7 +56,7 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
       if (onStaffInvited) onStaffInvited(); // Callback to refresh staff list on parent page
       // Optionally close modal after a delay or keep open to show success
       // setTimeout(handleClose, 3000);
-      setFormData({ email: '', full_name: '', role: roleOptions && roleOptions.length > 0 ? roleOptions[0] : '' }); // Clear form
+      setFormData({ email: '', firstName: '', lastName: '', role: roleOptions && roleOptions.length > 0 ? roleOptions[0] : '' }); // Clear form
     } catch (err) {
       console.error('Error inviting staff member:', err);
       let displayError = 'Failed to invite staff member.';
@@ -91,9 +91,15 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
               {error && <div className="alert alert-danger">{error}</div>}
               {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
-              <div className="mb-3">
-                <label htmlFor="full_name" className="form-label">Full Name*</label>
-                <input type="text" className="form-control" id="full_name" name="full_name" value={formData.full_name} onChange={handleChange} required disabled={loading} />
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="firstName" className="form-label">First Name*</label>
+                  <input type="text" className="form-control" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required disabled={loading} />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="lastName" className="form-label">Last Name*</label>
+                  <input type="text" className="form-control" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required disabled={loading} />
+                </div>
               </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email Address*</label>
