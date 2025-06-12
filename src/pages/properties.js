@@ -195,7 +195,11 @@ const PropertiesPage = () => {
                         title="Show QR Code"
                         data-qr-url={property.qr_code_image_url}
                         data-property-name={property.property_name}
-                        onClick={(e) => { e.stopPropagation(); handleShowQrCode(property.qr_code_image_url, property.property_name); }}
+                        onClick={(e) => {
+                          e.preventDefault(); // Added
+                          e.stopPropagation();
+                          handleShowQrCode(property.qr_code_image_url, property.property_name);
+                        }}
                         // data-i18n="propertiesPage.card.showQrButton" // data-i18n can be added if needed
                       >
                         <i className="bi bi-qr-code"></i>
