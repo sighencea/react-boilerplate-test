@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 const EditStaffModal = ({ isOpen, onClose, staffMember, onStaffUpdated, roleOptions, statusOptions }) => {
   const [formData, setFormData] = useState({

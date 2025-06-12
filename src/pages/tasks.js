@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import CreateEditTaskModal from '../components/modals/CreateEditTaskModal';
 import ViewTaskModal from '../components/modals/ViewTaskModal'; // Import ViewTaskModal

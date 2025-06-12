@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
   const [formData, setFormData] = useState({

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom'; // For navigation if link_to is used
+import Link from 'next/link'; // For navigation if link_to is used
 
 const NotificationsPage = () => {
   const { user } = useAuth();

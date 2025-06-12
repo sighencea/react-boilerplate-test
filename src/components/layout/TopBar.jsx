@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
+import Link from 'next/link';
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate - will need to be replaced
 import { useAuth } from '../../context/AuthContext'; // Import useAuth
 
 const TopBar = () => {
-  const location = useLocation();
-  const navigate = useNavigate(); // For redirection
+  const location = useLocation(); // This will need to be replaced with Next.js router equivalent
+  const navigate = useNavigate(); // For redirection - will need to be replaced
   const { user, isAdmin, signOut } = useAuth(); // Get signOut from AuthContext
 
   const [pageTitle, setPageTitle] = useState('Dashboard');
@@ -93,14 +94,14 @@ const TopBar = () => {
         <span data-i18n={`${pageTitle.toLowerCase().replace(' ', '')}Page.header`}>{pageTitle}</span>
       </div>
       <div className="top-bar-icons d-flex align-items-center">
-        <Link to="/notifications"><i className="bi bi-bell-fill"></i></Link>
+        <Link href="/notifications"><i className="bi bi-bell-fill"></i></Link>
         <div className="dropdown">
           <a className="dropdown-toggle dropdown-toggle-no-caret" href="#!" role="button" onClick={(e) => { e.preventDefault(); setIsDropdownOpen(!isDropdownOpen); }} aria-expanded={isDropdownOpen}>
             <i className="bi bi-person-gear"></i>
           </a>
           <ul className={`dropdown-menu dropdown-menu-end ${isDropdownOpen ? 'show' : ''}`}>
             <li>
-              <Link className="dropdown-item" to="/account" onClick={() => setIsDropdownOpen(false)}>
+              <Link href="/account" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                 <i className="bi bi-gear-fill me-2"></i>Account Settings
               </Link>
             </li>
