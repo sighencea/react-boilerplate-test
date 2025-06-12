@@ -210,8 +210,16 @@ const PropertiesPage = () => {
                 </div>
                 {isAdmin && ( // Show Edit/Delete only to admins
                   <div className="card-footer bg-light d-flex justify-content-end">
-                      <button onClick={(e) => { e.stopPropagation(); handleOpenEditModal(property); }} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleDeleteProperty(property.id); }} className="btn btn-sm btn-outline-danger">Delete</button>
+                      <button onClick={(e) => {
+                        e.preventDefault(); // Add this
+                        e.stopPropagation();
+                        handleOpenEditModal(property);
+                      }} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
+                      <button onClick={(e) => {
+                        e.preventDefault(); // Add this
+                        e.stopPropagation();
+                        handleDeleteProperty(property.id);
+                      }} className="btn btn-sm btn-outline-danger">Delete</button>
                   </div>
                 )}
                 </a>
