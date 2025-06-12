@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabaseClient'; // Direct Supabase client for n
 import ResendVerificationModal from '../components/modals/ResendVerificationModal';
 import SixDigitCodeModal from '../components/modals/SixDigitCodeModal';
 import LanguageSelectionModal from '../components/modals/LanguageSelectionModal';
-import CompanyCodeModal from '../components/modals/CompanyCodeModal';
+// CompanyCodeModal import removed
 
 const SignInPage = () => {
   const {
@@ -39,7 +39,7 @@ const SignInPage = () => {
   const [isResendModalOpen, setIsResendModalOpen] = useState(false);
   const [isSixDigitCodeModalOpen, setIsSixDigitCodeModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
-  const [isCompanyCodeModalOpen, setIsCompanyCodeModalOpen] = useState(false);
+  // isCompanyCodeModalOpen state removed
 
   const [userForModals, setUserForModals] = useState(null); // Store user/profile data for modal operations
 
@@ -204,54 +204,7 @@ const SignInPage = () => {
     return { success: true, message: 'Language preference saved.' };
   };
 
-  // CompanyCodeModal Handlers
-  const handleVerifyCompanyCode = async (companyCode) => {
-    const { data, error } = await supabase.rpc('validate_company_code', { p_code: companyCode });
-    if (error) return { success: false, message: `Error: ${error.message}` };
-    if (data && data.length > 0 && data[0].is_valid) { // Assuming rpc returns { is_valid: boolean, company_id: uuid, company_name: text }
-      setUserForModals(prev => ({ ...prev, companyData: {id: data[0].company_id, name: data[0].company_name} }));
-      return { success: true, message: `Company ${data[0].company_name} found.` };
-    }
-    return { success: false, message: 'Invalid company code.' };
-  };
-
-  const handleVerifyCompanyEmail = async (email) => {
-    if (!userForModals?.companyData?.id) return { success: false, message: 'Company not validated.'};
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, user_status, auth_user_id') // auth_user_id is crucial for linking to auth.users
-        .eq('email', email)
-        .eq('company_id', userForModals.companyData.id)
-        .single();
-    if (error || !data) return { success: false, message: 'Email not registered with this company or error.'};
-    if (data.user_status !== 'New' && data.user_status !== 'Invited') { // From original logic
-        return { success: false, message: 'Account already active or status prevents this action.'};
-    }
-    setUserForModals(prev => ({ ...prev, profileForCompanyJoin: data }));
-    return { success: true, message: 'Email verified for company.' };
-  };
-
-  const handleSetCompanyPassword = async (newPassword) => {
-    if (!userForModals?.profileForCompanyJoin?.id || !userForModals?.profileForCompanyJoin?.auth_user_id) {
-        return { success: false, message: 'User profile data for activation is missing.'};
-    }
-    try {
-        const { data, error } = await supabase.functions.invoke('activate-profile', {
-            body: {
-                userIdToActivate: userForModals.profileForCompanyJoin.auth_user_id,
-                newPassword: newPassword,
-                profileIdToUpdateStatus: userForModals.profileForCompanyJoin.id
-            }
-        });
-        if (error) throw error;
-        setIsCompanyCodeModalOpen(false);
-        setLocalMessage({ text: 'Account activated! You can now sign in.', type: 'success'});
-        setCurrentView('signIn');
-        return { success: true, message: data.message || 'Account activated successfully!' };
-    } catch (error) {
-        return { success: false, message: `Activation failed: ${error.message || 'Unknown error'}` };
-    }
-  };
+  // CompanyCodeModal Handlers removed
 
   const renderAuthToggle = () => {
     if (currentView === 'signIn') {
@@ -285,7 +238,7 @@ const SignInPage = () => {
 
   const renderUserAccountInfo = () => (
     <div> <h2 className="h3 mb-1 fw-semibold">User Account Information</h2> <p className="text-muted mb-4">As a User, you require an account set up by your Agency...</p>
-      <div className="mt-4"><button type="button" className="btn btn-secondary w-100 py-2" onClick={() => setIsCompanyCodeModalOpen(true)} disabled={authLoading}>I have a Company Code</button></div>
+      {/* "I have a Company Code" button removed */}
     </div>
   );
 
@@ -323,13 +276,7 @@ const SignInPage = () => {
       <ResendVerificationModal isOpen={isResendModalOpen} onClose={() => setIsResendModalOpen(false)} onResendEmail={handleResendEmailSubmit} initialEmail={userForModals?.email} />
       <SixDigitCodeModal isOpen={isSixDigitCodeModalOpen} onClose={() => setIsSixDigitCodeModalOpen(false)} onSubmitCode={handleSubmitSixDigitCode} />
       <LanguageSelectionModal isOpen={isLanguageModalOpen} onClose={() => setIsLanguageModalOpen(false)} onSaveLanguage={handleSaveLanguage} />
-      <CompanyCodeModal
-        isOpen={isCompanyCodeModalOpen}
-        onClose={() => setIsCompanyCodeModalOpen(false)}
-        onVerifyCode={handleVerifyCompanyCode}
-        onVerifyEmail={handleVerifyCompanyEmail}
-        onSetPassword={handleSetCompanyPassword}
-      />
+      {/* CompanyCodeModal rendering removed */}
     </>
   );
 };
