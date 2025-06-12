@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.css';
+import '../styles/style.css';
 import Head from 'next/head';
 import { AuthProvider } from '../context/AuthContext';
 import MainLayout from '../components/layout/MainLayout.js';

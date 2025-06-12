@@ -8,7 +8,7 @@ const MainLayout = ({ children }) => {
     <>
       <div className="d-flex main-layout-container"> {/* Flex container for sidebar and main content */}
         <Sidebar />
-        <div className="flex-grow-1 main-content-area"> {/* Main content area takes remaining space */}
+        <div className="flex-grow-1 main-content-area main-content"> {/* Main content area takes remaining space, added main-content */}
           <TopBar />
           <main className="p-3 page-content"> {/* Padding for content area */}
             {children}
