@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '@/lib/supabaseClient'; // Direct Supabase client for non-auth specific calls (e.g. RPC, profiles)
 
@@ -18,7 +18,7 @@ const SignInPage = () => {
     loading: authLoading,
     fetchUserProfile
   } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [currentView, setCurrentView] = useState('signIn'); // 'signIn', 'signUp_accountType', 'signUp_agencyForm', 'signUp_userInfo'
 
@@ -57,7 +57,7 @@ const SignInPage = () => {
         // This useEffect might be too aggressive if it runs on every user object change without full profile context.
         // Consider if this is needed or if handleSuccessfulSignIn covers it post-login action.
     }
-  }, [user, navigate]);
+  }, [user, router]);
 
   useEffect(() => {
     const currentYearSpan = document.getElementById('currentYearInReact');
@@ -74,14 +74,14 @@ const SignInPage = () => {
       const isAdmin = authedUser.app_metadata?.is_admin === true;
       if (!isAdmin) {
         localStorage.setItem('onboardingComplete', 'true');
-        navigate('/tasks');
+        router.push('/tasks');
       } else {
         if (profile.has_company_set_up === false) {
           localStorage.removeItem('onboardingComplete');
           setIsLanguageModalOpen(true); // Then redirects to agency_setup_page via modal
         } else {
           localStorage.setItem('onboardingComplete', 'true');
-          navigate('/dashboard');
+          router.push('/dashboard');
         }
       }
     } else if (profile) { // Profile exists but not verified by code
@@ -200,7 +200,7 @@ const SignInPage = () => {
     localStorage.setItem('preferredLang', lang); // For i18n.js
     // TODO: i18next.changeLanguage(lang);
     setIsLanguageModalOpen(false);
-    navigate('/agency-setup'); // Navigate to agency setup
+    router.push('/agencysetup'); // Navigate to agency setup, ensuring lowercase filename
     return { success: true, message: 'Language preference saved.' };
   };
 

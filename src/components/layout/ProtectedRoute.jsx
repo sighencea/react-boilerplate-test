@@ -1,49 +1,56 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading, session } = useAuth();
-  const location = useLocation();
+  const router = useRouter();
 
   // Check for onboardingComplete status from localStorage, as per original app logic.
-  // This might be refined later to be part of AuthContext if profile fetching is robust there.
-  const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
+  const onboardingComplete = typeof window !== 'undefined' ? localStorage.getItem('onboardingComplete') === 'true' : false;
+
+  useEffect(() => {
+    if (loading) {
+      return; // Don't do anything while loading
+    }
+
+    if (!user && !session) {
+      // User not logged in, redirect them to the / (SignInPage)
+      router.replace({ pathname: '/', query: { from: router.pathname } });
+      return;
+    }
+
+    // Onboarding check
+    if (typeof window !== 'undefined' && localStorage.getItem('onboardingComplete') !== null && !onboardingComplete) {
+      // If trying to access dashboard or properties without onboarding, redirect to root.
+      // This logic might need refinement based on specific onboarding pages.
+      if (router.pathname === '/dashboard' || router.pathname === '/properties') {
+        console.warn('User onboarding not complete, redirecting from protected route to /.');
+        router.replace({ pathname: '/', query: { from: router.pathname } });
+        return;
+      }
+    }
+  }, [user, session, loading, router, onboardingComplete]);
 
   if (loading) {
-    // Show a loading spinner or a blank page while auth state is being determined
-    // For now, a simple message or null to avoid layout shifts.
-    return <div>Loading authentication status...</div>; // Or a proper loading component
+    return <div>Loading authentication status...</div>;
   }
 
-  if (!user && !session) { // Check both user and session for robustness
-    // User not logged in, redirect them to the /login page (root path in our case).
-    // Pass the current location so we can redirect them back after login.
-    return <Navigate to="/" state={{ from: location }} replace />;
+  // If a redirect is going to happen, children shouldn't be rendered,
+  // or should be replaced by a loading/null state.
+  // The useEffect handles the redirect. If conditions for redirect are met,
+  // we can return null or a loading spinner here to prevent rendering children temporarily.
+  if (!user && !session && !loading) {
+    return null; // Or a loading indicator, won't be visible long due to redirect
   }
 
-  // If user is logged in, but onboarding is not complete,
-  // and they are trying to access a page other than account setup or other specific allowed pages.
-  // The original app redirected to agency_setup_page.html if has_company_set_up was false for admins.
-  // This logic might need to be more granular depending on the page.
-  // For now, if onboardingComplete flag exists and is false, redirect to a placeholder setup page or root.
-  // This is a simplified version of the complex redirection logic in SignInPage's handleSuccessfulSignIn.
-  // A more robust solution would involve checking specific profile flags from AuthContext.
-  if (localStorage.getItem('onboardingComplete') !== null && !onboardingComplete) {
-     // Example: if admin and company not set up, redirect to agency_setup_page
-     // This check needs to be more specific. For now, let's assume if onboarding is not complete,
-     // they should be on a specific page or redirected.
-     // This is a placeholder for more complex onboarding flow management.
-     // If trying to access dashboard without onboarding, redirect to a safe page or root.
-     if (location.pathname === '/pages/dashboard.html' || location.pathname === '/pages/properties.html') {
-        console.warn('User onboarding not complete, redirecting from protected route.');
-        // Redirect to a specific setup page if defined, or back to root for now.
-        // navigate('/pages/agency_setup_page.html'); // This would be ideal if that page exists
-        return <Navigate to="/" state={{ from: location }} replace />; // Fallback to root
-     }
+  if (typeof window !== 'undefined' && localStorage.getItem('onboardingComplete') !== null && !onboardingComplete && !loading) {
+    if (router.pathname === '/dashboard' || router.pathname === '/properties') {
+      return null; // Or a loading indicator
+    }
   }
 
-  return children; // User is authenticated (and onboarding considered complete for this basic check), render the requested component.
+  return children;
 };
 
 export default ProtectedRoute;

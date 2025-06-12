@@ -1,13 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import { useLocation } from 'react-router-dom'; // Keep useLocation for now
+import { useRouter } from 'next/router';
 
 const Sidebar = () => {
-  const location = useLocation(); // This will need to be replaced with Next.js router equivalent
+  const router = useRouter();
   // Placeholder for admin status - replace with actual auth context or prop
   const isAdmin = localStorage.getItem('userIsAdmin') === 'true'; // Simple check from original logic
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => router.pathname === path;
 
   // Links to hide for non-admins, based on original main.js updateSidebarForPermissions
   const nonAdminHiddenLinks = [
