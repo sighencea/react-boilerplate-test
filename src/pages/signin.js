@@ -302,7 +302,7 @@ const SignInPage = () => {
   );
 
   // Main Render
-  const bgImageUrl = `${import.meta.env.BASE_URL}assets/images/auth-background.png`;
+  const bgImageUrl = '/assets/images/auth-background.png';
   return (
     <>
       <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-start p-5 text-white position-relative" style={{ backgroundImage: `url(${bgImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
