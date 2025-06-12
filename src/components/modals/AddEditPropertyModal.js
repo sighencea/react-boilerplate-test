@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '../../context/AuthContext'; // Import useAuth
 
 const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
+  const { user } = useAuth(); // Get user from AuthContext
   const [formData, setFormData] = useState({
     property_name: '', // Renamed from name
     address: '',
@@ -75,21 +77,48 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
     setLoading(true);
     setError(null);
     try {
-      let supaResponse;
-      const propertyDataToSave = {
-        property_name: formData.property_name,
-        address: formData.address,
-        property_type: formData.property_type,
-        property_occupier: formData.property_occupier,
-        property_details: formData.property_details,
-        // property_image_url will be set below after file handling
-      };
+      if (!user || !user.id) {
+        console.error("User not available or user ID missing. Cannot upload image or determine company.");
+        setError("User information is missing. Please ensure you are logged in.");
+        setLoading(false);
+        return;
+      }
+
+      // Placeholder: Fetch company_id for the current user
+      let companyId = null;
+      // This section needs to be replaced with the actual Supabase query
+      // to get the company_id associated with user.id.
+      // For example, if 'companies' table has an 'admin_user_id' column:
+      //
+      // const { data: companyData, error: companyError } = await supabase
+      //   .from('companies')
+      //   .select('id')
+      //   .eq('admin_user_id', user.id) // Replace 'admin_user_id' with the actual linking column
+      //   .single();
+      //
+      // if (companyError || !companyData) {
+      //   console.error('Error fetching company ID for user:', user.id, companyError);
+      //   setError('Could not determine your company to associate with this property. Please ensure your user account is correctly linked to a company.');
+      //   setLoading(false);
+      //   return;
+      // }
+      // companyId = companyData.id;
+
+      // TEMPORARY BLOCK until actual company_id lookup is provided:
+      if (!companyId) { // This will always be true for now
+          console.log(`Placeholder: Company ID lookup for user ${user.id} needs to be implemented here.`);
+          setError('Company ID lookup is not yet implemented. Cannot save property. Please provide the database query structure to link user to company.');
+          setLoading(false);
+          return;
+      }
+      // END TEMPORARY BLOCK
 
       let finalImageUrl = formData.property_image_url; // Default to existing/previous URL
 
       if (formData.property_image_file) {
         const file = formData.property_image_file;
-        const fileName = `property_images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`; // Sanitize and make unique
+        // New: users/${user.id}/property_images/...
+        const fileName = `users/${user.id}/property_images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
 
         // setLoading(true); // Already set at the beginning of handleSubmit
         // setError(null); // Already set at the beginning of handleSubmit
@@ -121,11 +150,21 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         finalImageUrl = publicUrlData.publicUrl;
       }
 
-      propertyDataToSave.property_image_url = finalImageUrl;
+      // Prepare data for saving (this should be after companyId is successfully fetched)
+      const propertyDataToSave = {
+        property_name: formData.property_name,
+        address: formData.address,
+        property_type: formData.property_type,
+        property_occupier: formData.property_occupier,
+        property_details: formData.property_details,
+        property_image_url: finalImageUrl, // finalImageUrl is determined before this block
+        company_id: companyId, // Add company_id here
+      };
 
       // Ensure numeric fields are numbers if your DB expects them (e.g., num_bedrooms)
       // Example: propertyDataToSave.num_bedrooms = parseInt(propertyDataToSave.num_bedrooms, 10) || 0;
 
+      let supaResponse;
       if (property && property.id) { // Editing
         supaResponse = await supabase
           .from('properties')
