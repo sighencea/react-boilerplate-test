@@ -18,6 +18,10 @@ const PropertiesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
 
+  const handleShowQrCode = (qrUrl) => {
+    alert('QR Code URL: ' + qrUrl); // Placeholder action
+  };
+
   const fetchProperties = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -27,7 +31,7 @@ const PropertiesPage = () => {
 
       let query = supabase
         .from('properties')
-        .select('*', { count: 'exact' })
+        .select('id, property_name, name, address, address_street, address_city, property_image_url, property_type, qr_code_image_url, created_at', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -38,12 +42,20 @@ const PropertiesPage = () => {
       const { data, error: dbError, count } = await query;
       if (dbError) throw dbError;
 
-      setProperties(data || []);
+      if (page === 1) {
+        setProperties(data || []);
+      } else {
+        setProperties(prevProperties => [...prevProperties, ...(data || [])]);
+      }
       setTotalPages(Math.ceil((count || 0) / ITEMS_PER_PAGE));
     } catch (err) {
       console.error('Error fetching properties:', err);
       setError(err.message);
-      setProperties([]);
+      if (page === 1) {
+        setProperties([]);
+      }
+      // For subsequent pages, an error ideally shouldn't clear already loaded items.
+      // The error message will be displayed.
     } finally {
       setLoading(false);
     }
@@ -52,6 +64,26 @@ const PropertiesPage = () => {
   useEffect(() => {
     fetchProperties();
   }, [fetchProperties]);
+
+  // Scroll handler for infinite scrolling
+  const handleScroll = useCallback(() => {
+    const buffer = 200; // Pixels from bottom to trigger load
+    if (
+      window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - buffer &&
+      !loading &&
+      page < totalPages
+    ) {
+      setPage(prevPage => prevPage + 1);
+    }
+  }, [loading, page, totalPages]);
+
+  // Effect for attaching scroll listener
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -133,17 +165,35 @@ const PropertiesPage = () => {
             <div className="col" key={property.id}>
               <div className="card h-100 shadow-sm">
                 <img
-                  src={property.image_url || '/assets/images/card1.png'}
+                  src={property.property_image_url || '/assets/images/card1.png'}
                   className="card-img-top property-card-img"
-                  alt={`Property ${property.name || 'Unnamed'}`}
+                  alt={`Property ${property.property_name || 'Unnamed'}`}
                   onError={(e) => { e.target.onerror = null; e.target.src='/assets/images/card_placeholder.png'; }}
                 />
                 <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{property.name || 'N/A'}</h5>
+                  <h5 className="card-title">{property.property_name || 'N/A'}</h5>
                   <p className="card-text text-muted small">
-                    {property.address_street || 'N/A'}, {property.address_city || 'N/A'}
+                    {property.address || 'N/A'}
                   </p>
-                  <Link href={`/property-details/${property.id}`} className="text-primary small mt-auto align-self-start">View Details</Link>
+                  <p className="card-text text-muted small">
+                    <strong data-i18n="propertiesPage.card.propertyTypeLabel" className="text-dark">Type:</strong> {property.property_type || 'N/A'}
+                  </p>
+                  <div className="mt-auto d-flex justify-content-between align-items-center pt-2">
+                    {property.qr_code_image_url && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => handleShowQrCode(property.qr_code_image_url)}
+                        aria-label="Show QR Code"
+                        data-i18n="propertiesPage.card.showQrButton"
+                      >
+                        <i className="bi bi-qr-code"></i>
+                      </button>
+                    )}
+                    {/* If QR button is not shown, Link will be the only item and justify-content-between will effectively act as justify-content-start */}
+                    {/* If QR button IS shown, justify-content-between will place QR left, Link right. */}
+                    <Link href={`/property-details/${property.id}`} className="text-primary small">View Details</Link>
+                  </div>
                 </div>
                 {isAdmin && ( // Show Edit/Delete only to admins
                   <div className="card-footer bg-light d-flex justify-content-end">
@@ -157,23 +207,7 @@ const PropertiesPage = () => {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <nav aria-label="Page navigation" className="mt-4">
-          <ul className="pagination justify-content-center">
-            <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage(p => p - 1)} disabled={page === 1}>Previous</button>
-            </li>
-            {[...Array(totalPages).keys()].map(num => (
-              <li key={num + 1} className={`page-item ${page === num + 1 ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setPage(num + 1)}>{num + 1}</button>
-              </li>
-            ))}
-            <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>Next</button>
-            </li>
-          </ul>
-        </nav>
-      )}
+      {/* Pagination controls removed for infinite scroll */}
 
       {isModalOpen && (
         <AddEditPropertyModal
