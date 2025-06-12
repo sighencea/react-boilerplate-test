@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate - will need to be replaced
+import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth
 
 const TopBar = () => {
-  const location = useLocation(); // This will need to be replaced with Next.js router equivalent
-  const navigate = useNavigate(); // For redirection - will need to be replaced
+  const router = useRouter();
   const { user, isAdmin, signOut } = useAuth(); // Get signOut from AuthContext
 
   const [pageTitle, setPageTitle] = useState('Dashboard');
@@ -23,7 +22,7 @@ const TopBar = () => {
       console.error('Error signing out:', error);
       // Optionally display an error to the user using a toast or alert component
     } else {
-      navigate('/'); // Redirect to SignIn page (root) after sign out
+      router.push('/'); // Redirect to SignIn page (root) after sign out
     }
   };
 
@@ -42,18 +41,18 @@ const TopBar = () => {
     let title = 'Property Hub';
     for (const key in pathTitleMapping) {
       const regex = new RegExp(`^${key.replace(/:\w+/g, '[^/]+')}$`);
-      if (regex.test(location.pathname)) {
+      if (regex.test(router.pathname)) {
         title = pathTitleMapping[key];
         break;
       }
     }
     setPageTitle(title);
-  }, [location.pathname]);
+  }, [router.pathname]);
 
   // Access Denied Modal Logic (remains the same as it relies on Bootstrap JS)
   const adminOnlyPages = ['/dashboard', '/properties', '/staff'];
   // Use isAdmin from context now
-  const isAccessingAdminPageAsNonAdmin = user && !isAdmin && adminOnlyPages.includes(location.pathname);
+  const isAccessingAdminPageAsNonAdmin = user && !isAdmin && adminOnlyPages.includes(router.pathname);
 
   useEffect(() => {
     const accessDeniedModalEl = document.getElementById('accessDeniedModal');
@@ -74,9 +73,9 @@ const TopBar = () => {
     const redirectToTasksBtn = document.getElementById('redirectToTasksBtn');
     if(redirectToTasksBtn) {
         // This button might not exist in the new TopBar structure, but if it does, update its navigation
-        redirectToTasksBtn.onclick = () => { navigate('/tasks'); }; // Use React Router navigate
+        redirectToTasksBtn.onclick = () => { router.push('/tasks'); }; // Use Next.js router
     }
-  }, [isAccessingAdminPageAsNonAdmin, navigate]);
+  }, [isAccessingAdminPageAsNonAdmin, router]);
 
 
   return (
