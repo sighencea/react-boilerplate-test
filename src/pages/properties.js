@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext'; // To check admin role for CRUD
 import AddEditPropertyModal from '../components/modals/AddEditPropertyModal';
+import QrCodeModal from '../components/modals/QrCodeModal'; // Import QrCodeModal
 import Link from 'next/link';
 
 const ITEMS_PER_PAGE = 8;
@@ -18,8 +19,15 @@ const PropertiesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
 
+  // State for QR Code Modal
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [currentQrCodeUrl, setCurrentQrCodeUrl] = useState('');
+  const [currentQrPropertyName, setCurrentQrPropertyName] = useState('');
+
   const handleShowQrCode = (qrUrl, propertyName) => {
-    alert('QR Code URL: ' + qrUrl + (propertyName ? '\nProperty: ' + propertyName : '')); // Placeholder action
+    setCurrentQrCodeUrl(qrUrl);
+    setCurrentQrPropertyName(propertyName);
+    setIsQrModalOpen(true);
   };
 
   const fetchProperties = useCallback(async () => {
@@ -217,6 +225,15 @@ const PropertiesPage = () => {
           onClose={() => setIsModalOpen(false)}
           property={editingProperty}
           onSave={handleModalSave}
+        />
+      )}
+
+      {isQrModalOpen && (
+        <QrCodeModal
+          isOpen={isQrModalOpen}
+          onClose={() => setIsQrModalOpen(false)}
+          qrCodeUrl={currentQrCodeUrl}
+          propertyName={currentQrPropertyName}
         />
       )}
     </div>
