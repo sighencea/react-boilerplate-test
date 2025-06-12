@@ -145,7 +145,8 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         property_occupier: formData.property_occupier,
         property_details: formData.property_details,
         property_image_url: finalImageUrl, // finalImageUrl is determined before this block
-        company_id: companyId, // Add company_id here
+        company_id: companyId,
+        user_id: user.id, // Add user_id here
       };
 
       // Ensure numeric fields are numbers if your DB expects them (e.g., num_bedrooms)
