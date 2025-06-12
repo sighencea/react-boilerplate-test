@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 
 const AccountPage = () => {
-  const { user, isAdmin, session, setAuthError } = useAuth(); // Use session to re-check user if needed
+  const { user, isAdmin, session, setAuthError, loading: authLoading } = useAuth(); // Use session to re-check user if needed
 
   // Profile Form State
   const [profileData, setProfileData] = useState({
@@ -191,6 +191,19 @@ const AccountPage = () => {
     }
   };
 
+  if (authLoading) {
+    return <div className="container mt-4">Loading account information...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="container mt-4">
+        <p>Please sign in to view your account settings.</p>
+        {/* Optionally, provide a Link component to the sign-in page */}
+        {/* <Link href="/signin">Go to Sign In</Link> */}
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4">
