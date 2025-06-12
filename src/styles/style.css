@@ -1,0 +1,477 @@
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* Bootstrap 5 default font stack for compatibility */
+  background-color: #e3f2fd; /* Gentle off-blue */
+  /* Flexbox properties will be handled by Bootstrap classes on the body tag directly if needed */
+  /* min-height and margin might also be handled by Bootstrap or not be necessary with Bootstrap's full-height containers */
+}
+
+/* Basic Sidebar Styles */
+.sidebar {
+  height: 100vh; /* Full height */
+  width: 250px; /* Adjust width as needed */
+  position: fixed; /* Fixed Sidebar (stays in place on scroll) */
+  top: 0;
+  left: 0;
+  background-color: #F9FAFB !important; /* Light grey background, adjust as needed */
+  padding-top: 20px;
+  border-right: 1px solid #E5E7EB; /* Optional border */
+}
+
+.sidebar .logo {
+  padding: 10px 15px;
+  font-size: 1.5em; /* Adjust as needed */
+  font-weight: bold;
+  text-align: left; /* Updated */
+  margin-bottom: 20px;
+}
+
+.sidebar .nav-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex; /* Add */
+  flex-direction: column; /* Add */
+  height: calc(100% - 70px); /* Adjust 70px based on logo height and some padding, this is to make space for logo */
+}
+
+.sidebar .nav-menu li a {
+  display: flex; /* Use flex for icon and text alignment */
+  align-items: center; /* Vertically center icon and text */
+  padding: 12px 15px;
+  text-decoration: none;
+  font-size: 1em; /* Adjust as needed */
+  color: #6B7280; /* Default text color from user requirement */
+}
+
+.sidebar .nav-menu li a i {
+  margin-right: 10px; /* Space between icon and text */
+  width: 20px; /* Fixed width for icon alignment */
+  text-align: center;
+}
+
+.sidebar .nav-menu li a:hover {
+  background-color: #e9ecef; /* Light hover effect */
+}
+
+.sidebar .nav-menu li a.active {
+  background-color: #E4EBF9;
+  color: #2563EB;
+  /* font-weight: bold; */ /* Removed */
+  border-left: 4px solid #2563EB; /* Added */
+}
+
+/* Main Content Area */
+.main-content {
+  margin-left: 250px; /* Same as sidebar width, to avoid overlap */
+  padding: 0; /* Add some padding */
+  height: 100vh; /* Optional: if you want main content to also be full height */
+  overflow-y: auto; /* Allow scrolling for main content if it overflows */
+  position: relative; /* Added to ensure absolute positioning of children is relative to this */
+  background-color: #FFFFFF;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  justify-content: space-between; /* Aligns items to left and right */
+  align-items: center;
+  padding: 0 20px; /* Adjust padding as needed */
+  background-color: #FFFFFF !important; /* Updated value */
+  border-bottom: 1px solid #E5E7EB; /* Optional border */
+  height: 60px; /* Adjust height as needed */
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.top-bar .page-title span {
+  font-size: 1.2em; /* Adjust as needed */
+  color: #495057; /* Darker grey for text, adjust as needed */
+  font-weight: 600; /* Semi-bold */
+}
+
+.top-bar .top-bar-icons a {
+  color: #6B7280; /* Default icon color from sidebar elements */
+  font-size: 1.2em; /* Adjust icon size as needed */
+  margin-left: 15px; /* Space between icons */
+  text-decoration: none;
+}
+
+.top-bar .top-bar-icons a:hover {
+  color: #2563EB; /* Hover color, can match active sidebar item or be different */
+}
+
+.sidebar .nav-menu li#signOutButtonLi { /* Assuming you add an ID to the LI for easier targeting */
+  margin-top: auto; /* Pushes this item to the bottom */
+  padding: 10px 15px 20px 15px; /* Similar padding to other nav items */
+}
+
+.sidebar .nav-menu li#signOutButtonLi #signOutButton {
+  width: 100%; /* Make button take full width of its container li */
+  display: flex; /* To align icon and text if an icon is added later */
+  align-items: center;
+  justify-content: center; /* Center text */
+  padding: 10px; /* Internal padding for the button */
+  text-decoration: none;
+  font-size: 1em;
+  color: white; /* Text color for contrast with red background */
+  background-color: #dc3545; /* Bootstrap danger red */
+  border: none;
+  border-radius: 0.25rem; /* Optional: match bootstrap button rounding */
+}
+
+.sidebar .nav-menu li#signOutButtonLi #signOutButton:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+/* Responsive Sidebar Styles */
+.sidebar {
+  /* ... existing styles ... */
+  transition: transform 0.3s ease-in-out; /* Smooth transition for sliding */
+}
+
+.top-bar .btn#sidebarToggler { /* Style for the toggler button */
+  color: #495057; /* Match page title color or choose appropriately */
+  font-size: 1.2em; /* Similar to other top-bar icons */
+}
+
+@media (max-width: 991.98px) { /* Bootstrap lg breakpoint - anything below large */
+  .sidebar {
+    transform: translateX(-100%); /* Hide sidebar off-screen to the left */
+    /* Or use: left: -250px; if using left/right positioning */
+    z-index: 1050; /* Ensure sidebar is above other content like overlay if added later */
+  }
+
+  .sidebar.active {
+    transform: translateX(0); /* Show sidebar */
+    /* Or use: left: 0; */
+  }
+
+  .main-content {
+    margin-left: 0; /* Main content takes full width when sidebar is hidden */
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 1040; /* Below sidebar (1050), above main content */
+    display: none; /* Hidden by default */
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+}
+
+/* Custom Card Styles */
+.card .card-body .card-title {
+  font-size: 18px;
+  font-weight: 400; /* Regular weight */
+  color: #111827;
+}
+
+.card .card-body .card-link {
+  font-size: 14px;
+  font-weight: 400; /* Regular weight */
+  color: #2563EB;
+}
+
+.card .card-body .display-4 {
+  font-size: 36px;
+  font-weight: 400; /* Regular weight */
+  color: #111827;
+  text-align: left; /* Ensure left alignment */
+}
+
+/* Targeting paragraphs in the second card specifically */
+.row > .col-lg-4:nth-child(2) .card .card-body .card-text {
+  font-size: 16px;
+  font-weight: 400; /* Regular weight */
+  color: #111827;
+  text-align: left; /* Ensure left alignment */
+}
+
+/* Ensure the small tags within these paragraphs retain their intended color */
+.row > .col-lg-4:nth-child(2) .card .card-body .card-text small.text-muted {
+  color: #6c757d !important; /* Bootstrap's default muted color */
+}
+
+.row > .col-lg-4:nth-child(2) .card .card-body .card-text small.text-danger {
+  color: #dc3545 !important; /* Bootstrap's default danger color */
+}
+
+/* Targeting paragraphs in the third card specifically for text alignment */
+.row > .col-lg-4:nth-child(3) .card .card-body .card-text {
+  text-align: left; /* Ensure left alignment */
+}
+
+/* Custom styles for notifications */
+.list-group-item.notification-read {
+  background-color: #f8f9fa; /* A light grey, similar to Bootstrap's .table-light */
+  opacity: 0.75; /* Slightly faded */
+}
+
+.list-group-item.notification-read h5,
+.list-group-item.notification-read p,
+.list-group-item.notification-read small {
+  /* Optional: could make text color lighter if needed, but opacity might be enough */
+}
+
+.property-card-img {
+  height: 192px; /* Updated */
+  object-fit: cover;
+  width: 100%; /* Ensure it spans the card width */
+  border-top-left-radius: 8px; /* Added/Updated */
+  border-top-right-radius: 8px; /* Added/Updated */
+  border-bottom-left-radius: 0px; /* Added/Updated */
+  border-bottom-right-radius: 0px; /* Added/Updated */
+}
+
+/* Property Page Specific Card Styling */
+.properties-page-content .card {
+  border-radius: 8px !important;
+  border: 1px solid #E5E7EB !important; /* Added/Updated */
+  /* Bootstrap's .card already has border-radius. This custom rule makes it more specific.
+     h-100 and shadow-sm are applied via HTML classes and should not be affected. */
+}
+
+/* Card Title: Font semi bold, 16px, #111827 */
+.properties-page-content .card .card-title {
+  font-weight: 600 !important; /* semi-bold */
+  font-size: 16px !important;
+  color: #111827 !important;
+}
+
+/* Card Address: Font regular, 14px, #6B7280 */
+/* The address paragraph has classes "card-text text-muted small" */
+/* We will create a more specific selector for this. */
+.properties-page-content .card .card-text.text-muted.small {
+  font-weight: 400 !important; /* regular */
+  font-size: 14px !important;
+  color: #6B7280 !important;
+}
+
+/* Card View Details: Font medium, 16px, #2563EB */
+/* The "View Details" link has classes "text-primary small" */
+.properties-page-content .card a.text-primary.small {
+  font-weight: 500 !important; /* medium */
+  font-size: 16px !important;
+  color: #2563EB !important;
+  text-decoration: none !important; /* Added */
+}
+
+.properties-page-content .card a.text-primary.small:hover {
+  text-decoration: none !important; /* Added */
+}
+
+/* Custom Task Status Badge Styling */
+.badge-custom-base {
+  font-weight: 400; /* regular */
+  font-size: 14px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 0.75em; /* Adjust padding as needed with fixed height */
+  padding-right: 0.75em;
+  border-radius: 9999px; /* Updated value */
+}
+
+.badge-custom-red {
+  color: #B91C1C !important;
+  background-color: #FEE2E2 !important;
+}
+
+.badge-custom-yellow {
+  color: #A16207 !important;
+  background-color: #FEF9C3 !important;
+}
+
+.badge-custom-green {
+  color: #15803D !important;
+  background-color: #DCFCE7 !important;
+}
+
+.badge-custom-blue {
+  color: #0D6EFD !important; /* Bootstrap primary blue for text */
+  background-color: #E7F0FF !important; /* A very light blue for background */
+}
+
+/* Global Border Color Overrides to #E5E7EB */
+
+/* Form Inputs */
+.form-control {
+  border: 1px solid #E5E7EB !important;
+}
+
+.form-control:focus {
+  border-color: #E5E7EB !important;
+  box-shadow: 0 0 0 0.2rem rgba(229, 231, 235, 0.25) !important; /* Adjusted focus shadow to match new border */
+}
+
+/* Buttons - Specifically targeting .btn-outline-secondary as used */
+/* and other general button outline scenarios if applicable */
+.btn-outline-secondary {
+  border-color: #E5E7EB !important;
+}
+
+/* To maintain some distinction on hover, we might allow Bootstrap's default hover behavior,
+   or customize it. If hover should also strictly keep the #E5E7EB border, add:
+.btn-outline-secondary:hover {
+  border-color: #E5E7EB !important;
+}
+Let's assume for now hover border can change slightly as per Bootstrap default for feedback,
+unless user specifies hover border must also be #E5E7EB.
+The original request was "stroke of all borders", not necessarily hover/active states.
+*/
+
+/* Pagination */
+.pagination .page-link {
+  border-color: #E5E7EB !important;
+}
+
+.page-item.active .page-link {
+  border-color: #E5E7EB !important; /* Overriding active state border as well */
+}
+/* Also for hover/focus on pagination links, if strictness is needed:
+.page-link:hover {
+    border-color: #E5E7EB !important;
+}
+.page-link:focus {
+    border-color: #E5E7EB !important;
+    box-shadow: 0 0 0 0.2rem rgba(229, 231, 235, 0.25) !important;
+}
+*/
+
+/* Tables */
+/* Ensuring all table related borders are updated */
+.table {
+  border-color: #E5E7EB !important;
+}
+.table th,
+.table td,
+.table thead th,
+.table tbody + tbody { /* These are common selectors Bootstrap uses for table borders */
+  border-color: #E5E7EB !important;
+}
+
+/* Dropdown Menus */
+.dropdown-menu {
+  border-color: #E5E7EB !important;
+}
+
+/* Add any other specific component overrides here if they become apparent */
+/* For example, Bootstrap Modals (.modal-content) also have borders */
+.modal-content {
+    border-color: #E5E7EB !important;
+}
+
+/* Responsive column hiding for staff table on mobile */
+@media (max-width: 767.98px) {
+  .staff-col-profile,
+  .staff-col-assigned-tasks,
+  .staff-col-status {
+    display: none !important;
+  }
+}
+
+/* Custom styles for the branding panel in index.html */
+#brandingPanel .position-relative h1,
+#brandingPanel .position-relative .lead {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Subtle text shadow for better readability */
+}
+
+/* Ensure the auth toggle links have a pointer cursor */
+/* This might already be handled by Bootstrap's text-decoration-none on an <a>, but explicit is fine */
+#authToggleContainer a {
+    cursor: pointer;
+}
+
+.page-content-wrapper .container-fluid {
+  height: 100vh; /* Default for smaller screens */
+}
+
+@media (min-width: 1921px) and (min-height: 1081px) {
+  body.index-page-body {
+    /* Ensure the body can center the wrapper if it's smaller than the viewport */
+    display: flex;
+    flex-direction: column; /* Keep normal flow for other body content if any */
+    align-items: center; /* Horizontal centering for the wrapper */
+    justify-content: center; /* Vertical centering for the wrapper */
+    min-height: 100vh; /* Ensure body takes full viewport height for centering to work */
+    margin: 0; /* Reset default body margin */
+  }
+
+  .page-content-wrapper {
+    width: 1200px;
+    height: 800px;
+    margin-top: 20px; /* Add some top margin */
+    margin-bottom: 20px; /* Add some bottom margin */
+    margin-left: auto; /* Horizontal centering if body is not flex/grid parent */
+    margin-right: auto; /* Horizontal centering if body is not flex/grid parent */
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Handle content exceeding the fixed height */
+    background-color: #FFFFFF; /* Added a background color to distinguish from body */
+    border-radius: 8px;
+  }
+
+  .page-content-wrapper .container-fluid {
+    height: 100%; /* Make it take full height of its parent (.page-content-wrapper) */
+    /* This will override the vh-100 class effect within this specific context */
+  }
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.dropdown-toggle-no-caret::after {
+  display: none;
+}
+
+#propertyImage {
+  border-radius: 8px;
+  object-fit: cover;
+  max-height: 400px;
+  width: 100%;
+}
+
+@media (min-width: 1200px) and (max-width: 1300px) and (orientation: landscape) {
+  #propertyImage {
+    max-height: 200px;
+    width: 80%;
+  }
+}
+
+.back-button-area {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: transparent;
+  text-decoration: none; /* To remove underline from <a> tag */
+  color: inherit; /* To ensure icon inherits color, or set a specific color */
+  margin-right: 8px; /* Provides spacing to the right, adjust as needed */
+}
+
+/* Custom padding for property-details page container */
+.property-details-container-padding {
+  padding-left: 2.25rem; /* Original 0.75rem * 3 */
+  padding-right: 2.25rem; /* Original 0.75rem * 3 */
+}
+
+/* Account Page Profile Loading Indicator */
+#profileLoadingIndicator {
+    display: none; /* Hidden by default via CSS */
+    /* text-align and padding will be inherited from inline style or can be moved here */
+}
+
+#profileLoadingIndicator.visible {
+    display: block !important; /* Or 'flex', etc. !important to ensure override. */
+}

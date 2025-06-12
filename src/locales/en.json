@@ -1,0 +1,519 @@
+{
+  "appTitle": "Property Hub",
+  "nav": {
+    "dashboard": "Dashboard",
+    "properties": "Properties",
+    "tasks": "Tasks",
+    "staff": "Staff",
+    "notifications": "Notifications",
+    "signOut": "Sign Out"
+  },
+  "leftPanel": {
+    "brandingText": "Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!"
+  },
+  "authToggle": {
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLinkText": "Sign in",
+    "dontHaveAccount": "Don't have an account yet?",
+    "signUpLinkText": "Sign up"
+  },
+  "signInPage": {
+    "pageTitle": "Sign In - Property Hub",
+    "formTitle": "Sign In",
+    "formSubtitle": "Welcome back! Please enter your details.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signInButton": "Sign In",
+    "switchToSignUpPrompt": "Don't have an account yet? ",
+    "switchToSignUpLink": "Sign up here"
+  },
+  "signUpPage": {
+    "pageTitle": "Sign Up - Property Hub",
+    "formTitle": "Create Agency Account",
+    "formSubtitle": "Fill out the form below to get started.",
+    "firstNameLabel": "First Name",
+    "emailLabel": "Email address",
+    "passwordLabel": "Password",
+    "signUpButton": "Sign Up",
+    "switchToSignInPrompt": "Already have an account? ",
+    "switchToSignInLink": "Sign in here",
+    "accountTypeTitle": "Select Account Type",
+    "accountTypeSubtitle": "Choose how you want to use Property Hub.",
+    "accountType": {
+      "agency": "Agency Account",
+      "user": "User Account",
+      "placeholder": "Please choose an account type..."
+    },
+    "accountTypeLabel": "Account Type",
+    "continueButton": "Continue",
+    "userAccountInfoTitle": "User Account Information",
+    "userAccountInfoText": "How to set up a new account: As a User, you require to have an account set up by the Agency that is managing your property. Please get in touch with them and ask them to set you up with a new account. Once done, you can sign into your account on the Sign In page.",
+    "user": {
+      "haveCodeButton": "I have a Company Code"
+    }
+  },
+  "dashboardPage": {
+    "title": "Dashboard - Property Hub",
+    "header": "Dashboard",
+    "cardProperties": {
+      "title": "Properties",
+      "link": "View Properties",
+      "noProperties": "You don't have any properties set up yet."
+    },
+    "cardTasks": {
+      "title": "Tasks",
+      "link": "View Tasks",
+      "statusNew": "New",
+      "statusInProgress": "In Progress",
+      "statusCompleted": "Completed",
+      "noTasks": "You don't have any tasks in these categories yet."
+    },
+    "cardStaff": {
+      "title": "Staff",
+      "link": "View Staff",
+      "employeeLabel": "Employees",
+      "contractorLabel": "Contractors",
+      "staffLabel": "Staff:",
+      "roleElectrician": "Electrician(s)",
+      "rolePlumber": "Plumber(s)",
+      "roleCleaner": "Cleaner(s)",
+      "contractorsLabel": "Contractors:",
+      "roleContractor": "Contractor(s)",
+      "noStaff": "You don't have any staff members yet."
+    },
+    "recentActivity": {
+      "title": "Recent Activity"
+    }
+  },
+  "propertiesPage": {
+    "title": "Properties - Property Hub",
+    "header": "Properties",
+    "searchPlaceholder": "Search properties...",
+    "filterButton": "Filter",
+    "addPropertyButton": "+ Add Property",
+    "noProperties": "You currently have no properties assigned. Click 'Add Property' to get started!",
+    "card": {
+      "tasksLabel": "Tasks",
+      "noActiveTasks": "No Active Tasks",
+      "viewLink": "View"
+    },
+    "pagination": {
+      "showingInfo": "Showing {start}–{end} of {total} properties"
+    },
+    "modal": {
+      "addTitle": "Add New Property",
+      "generateQrLabel": "Generate and Store QR Code",
+      "qrDisplayTitle": "Property QR Code",
+      "downloadQrButton": "Download",
+      "propertyNameLabel": "Property Name",
+      "addressLabel": "Address",
+      "typeLabel": "Property Type",
+      "typePlaceholder": "e.g., Apartment, House, Condo",
+      "rentPriceLabel": "Rent/Price (USD)",
+      "bedroomsLabel": "Bedrooms",
+      "bathroomsLabel": "Bathrooms",
+      "sqftLabel": "Square Footage (sqft)",
+      "descriptionLabel": "Description",
+      "imageLabel": "Property Image",
+      "imagePreviewAlt": "Image Preview",
+      "closeButton": "Close",
+      "saveButton": "Save Property",
+      "savingButton": "Saving...",
+      "nameAddressTypeRequired": "Property Name, Address, and Type are required.",
+      "imageRequiredError": "Property image is required.",
+      "imageSizeError": "Image file size should not exceed 5MB.",
+      "successMessage": "Property created successfully!",
+      "functionErrorPrefix": "Failed to create property: ",
+      "validationFailedTitle": "Validation failed:",
+      "userNotAuthError": "User not authenticated. Cannot upload image or create property.",
+      "imageUploadFailedError": "Image upload failed: {message}",
+      "publicUrlFailedError": "Failed to get image public URL: {message}",
+      "unexpectedError": "An unexpected error occurred.",
+      "unexpectedServerError": "Failed to create property due to an unexpected server response.",
+      "networkError": "Failed to create property. Network or function error.",
+      "selectTypeOption": "Select type...",
+      "typeHouse": "House",
+      "typeApartment": "Apartment",
+      "occupierLabel": "Occupier",
+      "selectOccupierOption": "Select occupier...",
+      "occupierOwner": "Owner",
+      "occupierTenant": "Tenant"
+    }
+  },
+  "tasksPage": {
+    "header": "Tasks"
+  },
+  "propertyDetailsPage": {
+    "showQrButton": "Show QR Code",
+    "tasksHeader": "Tasks for this Property",
+    "activeTasksTab": "Active Tasks",
+    "completedTasksTab": "Completed Tasks",
+    "tasksTable": {
+      "header": {
+        "title": "Task title",
+        "assignedTo": "Assigned to",
+        "status": "Status",
+        "dueDate": "Due date",
+        "actions": "Actions"
+      },
+      "noTasks": "No tasks found for this property.",
+      "noActiveTasks": "No active tasks found for this property.",
+      "noCompletedTasks": "No completed tasks found for this property."
+    }
+  },
+  "notificationsPage": {
+    "title": "Notifications - Property Hub",
+    "header": "Notifications",
+    "mainHeading": "Notifications",
+    "markAllRead": "Mark all as read",
+    "activeNotificationsHeading": "Active Notifications",
+    "activePlaceholder": "You're all caught up! No new notifications here.",
+    "inactiveNotificationsHeading": "Inactive Notifications",
+    "inactivePlaceholder": "No inactive notifications.",
+    "card": {
+      "markAsRead": "Mark as read",
+      "delete": "Delete"
+    },
+    "modal": {
+      "title": "Notification Details",
+      "bodyPlaceholder": "This is where the full notification content will appear.",
+      "closeButton": "Close"
+    },
+    "chips": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "noInactiveMessage": "No inactive notifications."
+  },
+  "accountPage": {
+    "title": "Account Settings - Property Hub",
+    "header": "Account Settings",
+    "profile": {
+      "title": "Profile Information",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "phoneLabel": "Phone Number",
+      "languageLabel": "Language",
+      "langEn": "English",
+      "langDe": "German",
+      "editButton": "Edit Profile"
+    },
+    "password": {
+      "title": "Change Password",
+      "currentLabel": "Current Password",
+      "newLabel": "New Password",
+      "confirmLabel": "Confirm New Password",
+      "changeButton": "Change Password"
+    },
+    "company": {
+      "title": "Company Settings",
+      "logoLabel": "Company Logo",
+      "logoHelpText": "Upload a new logo (e.g., PNG, JPG up to 2MB). Display only, no actual upload.",
+      "nameLabel": "Company Name",
+      "phoneLabel": "Company Phone",
+      "emailLabel": "Company Contact Email",
+      "streetLabel": "Street Address",
+      "cityLabel": "City",
+      "stateLabel": "State/Province",
+      "zipLabel": "Zip/Postal Code",
+      "countryLabel": "Country",
+      "websiteLabel": "Company Website (Optional)",
+      "taxIdLabel": "Tax ID / VAT Number (Optional)",
+      "saveButton": "Save Company Settings"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "emailTasks": "Email me about new task assignments",
+      "smsAlerts": "Send SMS for urgent property alerts",
+      "desktopMessages": "Desktop notifications for new messages",
+      "saveButton": "Save Preferences"
+    }
+  },
+  "mainJs": {
+    "signup": {
+      "fillFields": "Please fill in all required fields.",
+      "passwordLength": "Password must be at least 6 characters long.",
+      "supabaseInitError": "Supabase client not initialized. Check console.",
+      "errorMessage": "Error: {{message}}",
+      "accountExists": "Account exists, check email for confirmation.",
+      "success": "Sign-up successful! Please check your email to confirm.",
+      "successUnexpected": "Sign-up successful, awaiting confirmation (unexpected response). Check email.",
+      "unexpectedError": "Unexpected sign-up error.",
+      "selectAccountTypePrompt": "Please select an account type to continue."
+    },
+    "signIn": {
+      "fillFields": "Please fill in both email and password.",
+      "supabaseInitError": "Supabase client not initialized. Check console.",
+      "signInFailed": "Login failed: {{message}}",
+      "loginFailedCheckCredentials": "Login failed. Check credentials.",
+      "success": "Login successful! Redirecting...",
+      "unexpectedError": "Unexpected login error.",
+      "profileError": "There was an issue accessing your profile. Please try again.",
+      "profileFetchFailed": "Error retrieving your profile information. Please try again later.",
+      "profileNotFound": "Your user profile was not found. Please contact support.",
+      "modalError": "Could not display the verification code dialog. Please try again.",
+      "unexpectedProfileError": "An unexpected error occurred while checking your profile. Please try again.",
+      "successVerificationDone": "Sign in successful. Checking account status...",
+      "profileFetchFailedAfterVerification": "Verification successful, but failed to retrieve full profile details. Please try logging in again or contact support if the issue persists.",
+      "verificationSuccessCheckStatus": "Verification successful! Checking account status..."
+    },
+    "languageModal": {
+      "saveError": "Could not save language preference: {{message}}",
+      "unexpectedError": "An unexpected error occurred while saving your language preference: {{message}}"
+    }
+  },
+  "notificationsJs": {
+    "markUnread": "Mark as unread",
+    "markRead": "Mark as read"
+  },
+  "dashboardCheckJs": {
+    "loginRequiredAlert": "You need to be logged in to view this page. Redirecting to login...",
+    "signOutSupabaseError": "Error: Supabase client not available for sign out.",
+    "signOutErrorAlert": "Error signing out: {{message}}",
+    "signOutSuccessAlert": "You have been successfully signed out.",
+    "signOutUnexpectedError": "An unexpected error occurred during sign out.",
+    "profileSupabaseError": "Could not load user profile (Supabase client error).",
+    "profileLoadError": "Error loading your profile.",
+    "profileLoadErrorMessage": "Could not load profile: {{message}}",
+    "welcomeMessage": "Welcome, {{displayName}}! This is your new dashboard page.",
+    "welcomeProfileNotFound": "Welcome! Profile not found. This is your new dashboard page.",
+    "profileUnexpectedError": "An unexpected error occurred loading your profile."
+  },
+  "staffPage": {
+    "title": "Staff Management - Property Hub",
+    "header": "Staff Management",
+    "filters": {
+      "searchPlaceholder": "Search staff...",
+      "roleDefault": "Filter by User Role",
+      "roleManager": "Property Manager",
+      "roleMaintenance": "Maintenance Supervisor",
+      "roleLeasing": "Leasing Agent",
+      "roleAccountant": "Accountant",
+      "roleElectrician": "Electrician",
+      "rolePlumber": "Plumber",
+      "roleCleaner": "Cleaner",
+      "roleGroundskeeper": "Groundskeeper",
+      "roleSecurity": "Security Officer",
+      "taskLoadDesc": "Sort by Task Load: Descending",
+      "taskLoadAsc": "Sort by Task Load: Ascending",
+      "statusActive": "Status: Active",
+      "statusInactive": "Status: Inactive"
+    },
+    "buttons": {
+      "addNewStaff": "+ Staff"
+    },
+    "table": {
+      "header": {
+        "profile": "Profile",
+        "name": "Name",
+        "role": "Role",
+        "assignedTasks": "Assigned Tasks",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewDetailsTooltip": "View Details",
+        "editProfileTooltip": "Edit Profile"
+      },
+      "noStaff": "No staff members found.",
+      "errorLoading": "Error loading staff data.",
+      "errorLoadingAdmin": "Error loading admin data."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "new": "New"
+    },
+    "modals": {
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Send Invite",
+        "close": "Close",
+        "saveChanges": "Save Changes"
+      },
+      "add": {
+        "title": "Add New Staff Member",
+        "form": {
+          "firstNameLabel": "First Name",
+          "lastNameLabel": "Last Name",
+          "emailLabel": "Email",
+          "roleLabel": "Role",
+          "role": {
+            "selectPlaceholder": "Select a role...",
+            "electrician": "Electrician",
+            "plumber": "Plumber",
+            "cleaner": "Cleaner"
+          }
+        },
+        "messages": {
+          "success": "Staff member added successfully!",
+          "errorPrefix": "Error creating staff: ",
+          "errorUniqueEmail": "Error: Email address is already in use.",
+          "errorRequired": "Please fill in all required fields.",
+          "errorAdminProfile": "Could not retrieve admin information. Please try again."
+        }
+      },
+      "view": {
+        "title": "View Staff Details",
+        "bodyPlaceholder": "Staff details will be displayed here.",
+        "fields": {
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "status": "Status",
+          "assignedTasks": "Assigned Tasks"
+        }
+      },
+      "edit": {
+        "title": "Edit Staff Member",
+        "bodyPlaceholder": "Form for editing staff member will be here.",
+        "form": {
+          "firstNameLabel": "First Name",
+          "lastNameLabel": "Last Name",
+          "emailLabel": "Email",
+          "emailHelp": "We'll never share your email with anyone else.",
+          "roleLabel": "Role",
+          "role": {
+            "selectPlaceholder": "Select a role...",
+            "electrician": "Electrician",
+            "plumber": "Plumber",
+            "cleaner": "Cleaner"
+          },
+          "statusLabel": "Status",
+          "status": {
+            "selectPlaceholder": "Select a status..."
+          }
+        }
+      }
+    }
+  },
+  "emailVerifiedSuccessPage": {
+    "title": "Email Verified - Property Hub",
+    "hintText": "Your email was verified successfully.",
+    "loginButton": "Login"
+  },
+  "resendVerification": {
+    "modalTitle": "Resend Verification Email",
+    "modalDescription": "Please enter your email address below to receive a new verification link.",
+    "title": "Resend Verification Email",
+    "description": "If you haven't received your verification email, or if your link has expired, you can request a new one.",
+    "emailLabel": "Email address",
+    "resendButton": "Resend Email",
+    "feedbackSuccess": "Verification email sent successfully to {{email}}. Please check your inbox (and spam folder).",
+    "feedbackError": "Error sending verification email: {{message}}",
+    "feedbackMissingEmail": "Please enter the email address you signed up with.",
+    "alertAccountExistsResend": "This account already exists. If you haven't verified your email, you can resend the verification link below.",
+    "alertEmailNotVerifiedResend": "Your email is not verified. Please check your inbox or resend the verification email below.",
+    "alertSignupEmailResent": "This email is already registered but unconfirmed. A new verification email has been sent to {{email}}. Please check your inbox."
+  },
+  "sixDigitCodeModal": {
+    "title": "Enter Verification Code",
+    "description": "For your security, please enter your 8-digit verification code.",
+    "inputLabel": "8-Digit Code",
+    "verifyButton": "Verify Code",
+    "closeButton": "Close",
+    "invalidInput": "Please enter a valid 8-digit numerical code.",
+    "updateError": "Failed to update verification status. Please try again.",
+    "success": "Verification successful! Redirecting...",
+    "incorrectCode": "Incorrect code. Please try again."
+  },
+  "agencySetupPage": {
+    "pageTitle": "Agency Company Setup - Property Hub",
+    "mainTitle": "Let's set up your Agency",
+    "mainSubtitle": "Please provide your company details below to complete your agency profile.",
+    "logoLabel": "Company Logo (Optional)",
+    "nameLabel": "Company Name",
+    "addressStreetLabel": "Company Address (Street and Number)",
+    "cityLabel": "Company City",
+    "stateLabel": "Company State",
+    "postCodeLabel": "Company Post Code",
+    "emailLabel": "Company Email",
+    "phoneLabel": "Company Phone (Optional)",
+    "websiteLabel": "Company Website (Optional)",
+    "taxIdLabel": "Company Tax ID / VAT Number (Optional)",
+    "saveButton": "Save Company Information"
+  },
+  "agencySetup": {
+    "validation": {
+      "requiredFields": "Please fill in all required fields.",
+      "invalidEmail": "Please enter a valid email address."
+    },
+    "error": {
+      "noSession": "No active session. Please log in again.",
+      "logoUploadFailed": "Logo upload failed: {{message}}",
+      "getPublicUrlFailed": "Failed to get logo URL: {{message}}",
+      "functionInvocationFailed": "Failed to save company details: {{message}}",
+      "unexpected": "An unexpected error occurred: {{message}}"
+    },
+    "success": "Company information saved successfully! Redirecting..."
+  },
+  "languageSelectionModal": {
+    "title": "Select Your Preferred Language",
+    "description": "Please choose the language you'd like to use in Property Hub.",
+    "optionEnglish": "English",
+    "optionGerman": "German",
+    "selectLabel": "Language",
+    "continueButton": "Continue"
+  },
+  "loadingText": {
+    "profile": "Loading profile information..."
+  },
+  "companyCodeModal": {
+    "titleInitial": "Join Your Company",
+    "descriptionCode": "Please enter the 8-digit code provided by your agency.",
+    "inputLabelCode": "Company Code",
+    "buttonVerifyCode": "Verify Code",
+    "descriptionEmail": "Code verified! Please enter your email address registered with the agency.",
+    "inputLabelEmail": "Your Email Address",
+    "buttonVerifyEmail": "Verify Email",
+    "descriptionPassword": "Email verified! Please set your password to activate your account.",
+    "inputLabelPassword": "New Password",
+    "inputLabelConfirmPassword": "Confirm New Password",
+    "buttonSetPassword": "Set Password & Join",
+    "buttonClose": "Close",
+    "message": {
+      "rpcError": "Error validating code. Please try again.",
+      "invalidCode": "Invalid company code. Please check the code and try again.",
+      "unexpectedError": "An unexpected error occurred. Please try again.",
+      "emailNotFoundOrNotNew": "Email not found for this company, or account is already active/not awaiting activation.",
+      "passwordMismatch": "Passwords do not match. Please try again.",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "activationError": "Error activating account: ",
+      "activationSuccess": "Account activated! You can now sign in."
+    }
+  },
+  "setPasswordPage": {
+    "title": "Set Your Password",
+    "instructions": "Welcome! Please choose a strong password to secure your account.",
+    "form": {
+      "newPasswordLabel": "New Password",
+      "passwordHelp": "Password must be at least 6 characters long.",
+      "confirmPasswordLabel": "Confirm New Password",
+      "submitButton": "Set Password & Sign In"
+    },
+    "backToSignIn": "Back to Sign In",
+    "validation": {
+      "bothFieldsRequired": "Please fill in both password fields.",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "passwordsMismatch": "Passwords do not match. Please try again."
+    },
+    "success": {
+      "passwordUpdated": "Password updated successfully! You can now sign in.",
+      "activatedAndPasswordUpdated": "Account activated and password updated successfully! You will be redirected to sign in."
+    },
+    "errors": {
+      "criticalError": "Critical error: Supabase client not available. Cannot set password.",
+      "formNotFound": "Error: Password form not found on page.",
+      "unexpected": "An unexpected error occurred. Please try again.",
+      "activationFailed": "Password set, but there was an issue finalizing account activation. Please try signing in. If issues persist, contact support.",
+      "activationUnexpected": "Password set, but an unexpected error occurred during account finalization. Please try signing in."
+    },
+    "info": {
+      "readyToSet": "You can now set your new password.",
+      "completeSetup": "Please set your new password to complete your account setup.",
+      "finalizingActivation": "Password set. Finalizing account activation..."
+    }
+  }
+}

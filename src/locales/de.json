@@ -1,0 +1,495 @@
+{
+  "appTitle": "Immobilien Hub",
+  "nav": {
+    "dashboard": "Dashboard",
+    "properties": "Immobilien",
+    "tasks": "Aufgaben",
+    "staff": "Mitarbeiter",
+    "notifications": "Benachrichtigungen",
+    "signOut": "Abmelden"
+  },
+  "leftPanel": {
+    "brandingText": "Verwalten Sie Wartungsaufgaben für Immobilien mühelos. Planen Sie Dienstleistungen, verfolgen Sie Aufgaben und erhalten Sie Echtzeit-Updates. Alles in einer App!"
+  },
+  "authToggle": {
+    "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+    "signInLinkText": "Anmelden",
+    "dontHaveAccount": "Noch kein Konto?",
+    "signUpLinkText": "Registrieren"
+  },
+  "signInPage": {
+    "pageTitle": "Anmelden - Immobilien Hub",
+    "formTitle": "Anmelden",
+    "formSubtitle": "Willkommen zurück! Bitte geben Sie Ihre Daten ein.",
+    "emailLabel": "E-Mail-Addresse",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+    "passwordLabel": "Passwort",
+    "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
+    "signInButton": "Anmelden",
+    "switchToSignUpPrompt": "Noch kein Konto? ",
+    "switchToSignUpLink": "Hier registrieren"
+  },
+  "signUpPage": {
+    "pageTitle": "Registrieren - Immobilien Hub",
+    "formTitle": "Agenturkonto erstellen",
+    "formSubtitle": "Füllen Sie das folgende Formular aus, um loszulegen.",
+    "firstNameLabel": "Vorname",
+    "emailLabel": "E-Mail-Addresse",
+    "passwordLabel": "Passwort",
+    "signUpButton": "Registrieren",
+    "switchToSignInPrompt": "Bereits ein Konto? ",
+    "switchToSignInLink": "Hier anmelden",
+    "accountTypeTitle": "Kontotyp auswählen",
+    "accountTypeSubtitle": "Wählen Sie, wie Sie Property Hub nutzen möchten.",
+    "accountType": {
+      "agency": "Agenturkonto",
+      "user": "Benutzerkonto",
+      "placeholder": "Bitte wählen Sie einen Kontotyp..."
+    },
+    "accountTypeLabel": "Kontotyp",
+    "continueButton": "Weiter",
+    "userAccountInfoTitle": "Informationen zum Benutzerkonto",
+    "userAccountInfoText": "So richten Sie ein neues Konto ein: Als Benutzer benötigen Sie ein Konto, das von der Agentur eingerichtet wurde, die Ihre Immobilie verwaltet. Bitte setzen Sie sich mit dieser in Verbindung und bitten Sie sie, Ihnen ein neues Konto einzurichten. Sobald dies geschehen ist, können Sie sich auf der Anmeldeseite in Ihr Konto einloggen.",
+    "user": {
+      "haveCodeButton": "Ich habe einen Firmencode"
+    }
+  },
+  "dashboardPage": {
+    "title": "Dashboard - Immobilien Hub",
+    "header": "Dashboard",
+    "cardProperties": {
+      "title": "Immobilien",
+      "link": "Immobilien anzeigen",
+      "noProperties": "[DE] You don't have any properties set up yet."
+    },
+    "cardTasks": {
+      "title": "Aufgaben",
+      "link": "Aufgaben anzeigen",
+      "statusNew": "[DE] New",
+      "statusInProgress": "In Bearbeitung",
+      "statusCompleted": "Abgeschlossen",
+      "noTasks": "[DE] You don't have any tasks in these categories yet."
+    },
+    "cardStaff": {
+      "title": "Mitarbeiter",
+      "link": "Mitarbeiter anzeigen",
+      "employeeLabel": "Mitarbeiter",
+      "contractorLabel": "Auftragnehmer",
+      "staffLabel": "[DE] Staff:",
+      "roleElectrician": "[DE] Electrician(s)",
+      "rolePlumber": "[DE] Plumber(s)",
+      "roleCleaner": "[DE] Cleaner(s)",
+      "contractorsLabel": "[DE] Contractors:",
+      "roleContractor": "[DE] Contractor(s)",
+      "noStaff": "[DE] You don't have any staff members yet."
+    },
+    "recentActivity": {
+      "title": "Letzte Aktivitäten"
+    }
+  },
+  "propertiesPage": {
+    "title": "Immobilien - Immobilien Hub",
+    "header": "Immobilien",
+    "searchPlaceholder": "Immobilien suchen...",
+    "filterButton": "Filter",
+    "addPropertyButton": "+ Immobilie hinzufügen",
+    "noProperties": "Ihnen sind derzeit keine Immobilien zugewiesen. Klicken Sie auf 'Immobilie hinzufügen', um loszulegen!",
+    "card": {
+      "tasksLabel": "Aufgaben",
+      "noActiveTasks": "Keine aktiven Aufgaben",
+      "viewLink": "Ansehen"
+    },
+    "pagination": {
+      "showingInfo": "Zeige {start}–{end} von {total} Immobilien"
+    },
+    "modal": {
+      "addTitle": "Neue Immobilie hinzufügen",
+      "generateQrLabel": "QR-Code generieren und speichern",
+      "qrDisplayTitle": "Immobilien QR-Code",
+      "downloadQrButton": "Herunterladen",
+      "propertyNameLabel": "Immobilienname",
+      "addressLabel": "Adresse",
+      "typeLabel": "Immobilientyp",
+      "typePlaceholder": "z.B. Wohnung, Haus, Eigentumswohnung",
+      "rentPriceLabel": "Miete/Preis (USD)",
+      "bedroomsLabel": "Schlafzimmer",
+      "bathroomsLabel": "Badezimmer",
+      "sqftLabel": "Quadratmeter (qmf)",
+      "descriptionLabel": "Beschreibung",
+      "imageLabel": "Immobilienbild",
+      "imagePreviewAlt": "Bildvorschau",
+      "closeButton": "Schließen",
+      "saveButton": "Immobilie speichern",
+      "savingButton": "Speichern...",
+      "nameAddressTypeRequired": "Immobilienname, Adresse und Immobilientyp sind erforderlich.",
+      "imageRequiredError": "Immobilienbild ist erforderlich.",
+      "imageSizeError": "Die Bilddateigröße darf 5MB nicht überschreiten.",
+      "successMessage": "Immobilie erfolgreich erstellt!",
+      "functionErrorPrefix": "Immobilie konnte nicht erstellt werden: ",
+      "validationFailedTitle": "Validierung fehlgeschlagen:",
+      "userNotAuthError": "Benutzer nicht authentifiziert. Bild kann nicht hochgeladen oder Immobilie erstellt werden.",
+      "imageUploadFailedError": "Bild-Upload fehlgeschlagen: {message}",
+      "publicUrlFailedError": "Öffentliche URL des Bildes konnte nicht abgerufen werden: {message}",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+      "unexpectedServerError": "Immobilie konnte aufgrund eines unerwarteten Serverfehlers nicht erstellt werden.",
+      "networkError": "Immobilie konnte nicht erstellt werden. Netzwerk- oder Funktionsfehler.",
+      "selectTypeOption": "Typ auswählen...",
+      "typeHouse": "Haus",
+      "typeApartment": "Wohnung",
+      "occupierLabel": "Nutzer",
+      "selectOccupierOption": "Nutzer auswählen...",
+      "occupierOwner": "Eigentümer",
+      "occupierTenant": "Mieter"
+    }
+  },
+  "tasksPage": {
+    "header": "Aufgaben"
+  },
+  "propertyDetailsPage": {
+    "showQrButton": "QR-Code anzeigen",
+    "tasksHeader": "[DE] Tasks for this Property",
+    "activeTasksTab": "[DE] Active Tasks",
+    "completedTasksTab": "[DE] Completed Tasks",
+    "tasksTable": {
+      "header": {
+        "title": "[DE] Task title",
+        "assignedTo": "[DE] Assigned to",
+        "status": "[DE] Status",
+        "dueDate": "[DE] Due date",
+        "actions": "[DE] Actions"
+      },
+      "noTasks": "[DE] No tasks found for this property.",
+      "noActiveTasks": "[DE] No active tasks found for this property.",
+      "noCompletedTasks": "[DE] No completed tasks found for this property."
+    }
+  },
+  "notificationsPage": {
+    "title": "Benachrichtigungen - Immobilien Hub",
+    "header": "Benachrichtigungen",
+    "mainHeading": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "activeNotificationsHeading": "Aktive Benachrichtigungen",
+    "activePlaceholder": "Du bist auf dem Laufenden! Keine neuen Benachrichtigungen hier.",
+    "inactiveNotificationsHeading": "Inaktive Benachrichtigungen",
+    "inactivePlaceholder": "Keine inaktiven Benachrichtigungen.",
+    "card": {
+      "markAsRead": "Als gelesen markieren",
+      "delete": "Löschen"
+    },
+    "modal": {
+      "title": "Benachrichtigungsdetails",
+      "bodyPlaceholder": "Hier erscheint der vollständige Inhalt der Benachrichtigung.",
+      "closeButton": "Schließen"
+    },
+    "chips": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "noInactiveMessage": "Keine inaktiven Benachrichtigungen."
+  },
+  "accountPage": {
+    "title": "Kontoeinstellungen - Immobilien Hub",
+    "header": "Kontoeinstellungen",
+    "profile": {
+      "title": "Profilinformationen",
+      "fullNameLabel": "Vollständiger Name",
+      "emailLabel": "E-Mail-Addresse",
+      "phoneLabel": "Telefonnummer",
+      "languageLabel": "Sprache",
+      "langEn": "Englisch",
+      "langDe": "Deutsch",
+      "editButton": "Profil bearbeiten"
+    },
+    "password": {
+      "title": "Passwort ändern",
+      "currentLabel": "Aktuelles Passwort",
+      "newLabel": "Neues Passwort",
+      "confirmLabel": "Neues Passwort bestätigen",
+      "changeButton": "Passwort ändern"
+    },
+    "company": {
+      "title": "Firmeneinstellungen",
+      "logoLabel": "Firmenlogo",
+      "logoHelpText": "Laden Sie ein neues Logo hoch (z.B. PNG, JPG bis zu 2MB). Nur Anzeige, kein tatsächlicher Upload.",
+      "nameLabel": "Firmenname",
+      "phoneLabel": "Firmentelefon",
+      "emailLabel": "Firmenkontakt E-Mail",
+      "streetLabel": "Straßenadresse",
+      "cityLabel": "Stadt",
+      "stateLabel": "Staat/Provinz",
+      "zipLabel": "PLZ/Postleitzahl",
+      "countryLabel": "Land",
+      "websiteLabel": "Firmenwebseite (Optional)",
+      "taxIdLabel": "Steuer-ID / USt-IdNr. (Optional)",
+      "saveButton": "Firmeneinstellungen speichern"
+    },
+    "notifications": {
+      "title": "Benachrichtigungseinstellungen",
+      "emailTasks": "E-Mail bei neuen Aufgaben Zuweisungen",
+      "smsAlerts": "SMS für dringende Immobilien Warnungen senden",
+      "desktopMessages": "Desktop-Benachrichtigungen für neue Nachrichten",
+      "saveButton": "Einstellungen speichern"
+    }
+  },
+  "mainJs": {
+    "signup": {
+      "fillFields": "Bitte füllen Sie alle Pflichtfelder aus.",
+      "passwordLength": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "supabaseInitError": "Supabase-Client nicht initialisiert. Überprüfen Sie die Konsole.",
+      "errorMessage": "Fehler: {{message}}",
+      "accountExists": "Konto existiert bereits, überprüfen Sie Ihre E-Mails zur Bestätigung.",
+      "success": "Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails zur Bestätigung.",
+      "successUnexpected": "Registrierung erfolgreich, warte auf Bestätigung (unerwartete Antwort). E-Mail prüfen.",
+      "unexpectedError": "Unerwarteter Registrierungsfehler.",
+      "selectAccountTypePrompt": "Bitte wählen Sie einen Kontotyp aus, um fortzufahren."
+    },
+    "signIn": {
+      "fillFields": "Bitte geben Sie sowohl E-Mail als auch Passwort ein.",
+      "supabaseInitError": "Supabase-Client nicht initialisiert. Überprüfen Sie die Konsole.",
+      "signInFailed": "Anmeldung fehlgeschlagen: {{message}}",
+      "loginFailedCheckCredentials": "Anmeldung fehlgeschlagen. Überprüfen Sie Ihre Anmeldedaten.",
+      "success": "Anmeldung erfolgreich! Weiterleitung...",
+      "unexpectedError": "Unerwarteter Anmeldefehler.",
+      "profileError": "Beim Zugriff auf Ihr Profil ist ein Problem aufgetreten. Bitte versuchen Sie es erneut.",
+      "profileFetchFailed": "Fehler beim Abrufen Ihrer Profilinformationen. Bitte versuchen Sie es später erneut.",
+      "profileNotFound": "Ihr Benutzerprofil wurde nicht gefunden. Bitte kontaktieren Sie den Support.",
+      "modalError": "Das Dialogfeld für den Bestätigungscode konnte nicht angezeigt werden. Bitte versuchen Sie es erneut.",
+      "unexpectedProfileError": "Beim Überprüfen Ihres Profils ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "successVerificationDone": "Anmeldung erfolgreich. Kontostatus wird überprüft...",
+      "profileFetchFailedAfterVerification": "Verifizierung erfolgreich, aber vollständige Profildetails konnten nicht abgerufen werden. Bitte versuchen Sie erneut, sich anzumelden, oder kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
+      "verificationSuccessCheckStatus": "Verifizierung erfolgreich! Kontostatus wird überprüft..."
+    },
+    "languageModal": {
+      "saveError": "Spracheinstellung konnte nicht gespeichert werden: {{message}}",
+      "unexpectedError": "Beim Speichern Ihrer Spracheinstellung ist ein unerwarteter Fehler aufgetreten: {{message}}"
+    }
+  },
+  "notificationsJs": {
+    "markUnread": "Als ungelesen markieren",
+    "markRead": "Als gelesen markieren"
+  },
+  "dashboardCheckJs": {
+    "loginRequiredAlert": "Sie müssen angemeldet sein, um diese Seite anzuzeigen. Weiterleitung zur Anmeldung...",
+    "signOutSupabaseError": "Fehler: Supabase-Client für die Abmeldung nicht verfügbar.",
+    "signOutErrorAlert": "Fehler beim Abmelden: {{message}}",
+    "signOutSuccessAlert": "Sie wurden erfolgreich abgemeldet.",
+    "signOutUnexpectedError": "Während der Abmeldung ist ein unerwarteter Fehler aufgetreten.",
+    "profileSupabaseError": "Benutzerprofil konnte nicht geladen werden (Supabase-Client-Fehler).",
+    "profileLoadError": "Fehler beim Laden Ihres Profils.",
+    "profileLoadErrorMessage": "Profil konnte nicht geladen werden: {{message}}",
+    "welcomeMessage": "Willkommen, {{displayName}}! Dies ist Ihre neue Dashboard-Seite.",
+    "welcomeProfileNotFound": "Willkommen! Profil nicht gefunden. Dies ist Ihre neue Dashboard-Seite.",
+    "profileUnexpectedError": "Beim Laden Ihres Profils ist ein unerwarteter Fehler aufgetreten."
+  },
+  "staffPage": {
+    "title": "Mitarbeiterverwaltung - Immobilien Hub",
+    "header": "Mitarbeiterverwaltung",
+    "filters": {
+      "searchPlaceholder": "Mitarbeiter suchen...",
+      "roleDefault": "Nach Benutzerrolle filtern",
+      "roleManager": "Hausverwalter",
+      "roleMaintenance": "Wartungsleiter",
+      "roleLeasing": "Vermietungsagent",
+      "roleAccountant": "Buchhalter",
+      "roleElectrician": "Elektriker",
+      "rolePlumber": "Klempner",
+      "roleCleaner": "Reinigungskraft",
+      "roleGroundskeeper": "Gärtner",
+      "roleSecurity": "Sicherheitsbeauftragter",
+      "taskLoadDesc": "Sortieren nach Aufgabenlast: Absteigend",
+      "taskLoadAsc": "Sortieren nach Aufgabenlast: Aufsteigend",
+      "statusActive": "Status: Aktiv",
+      "statusInactive": "Status: Inaktiv"
+    },
+    "buttons": {
+      "addNewStaff": "+ Mitarbeiter"
+    },
+    "table": {
+      "header": {
+        "profile": "Profil",
+        "name": "Name",
+        "role": "Rolle",
+        "assignedTasks": "Zugewiesene Aufgaben",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "viewDetailsTooltip": "Details anzeigen",
+        "editProfileTooltip": "Profil bearbeiten"
+      },
+      "noStaff": "Keine Mitarbeiter gefunden.",
+      "errorLoading": "Fehler beim Laden der Mitarbeiterdaten.",
+      "errorLoadingAdmin": "Fehler beim Laden der Admin-Daten."
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "new": "Neu"
+    },
+    "modals": {
+      "buttons": {
+        "cancel": "Abbrechen",
+        "save": "Einladung senden",
+        "close": "Schließen",
+        "saveChanges": "Änderungen speichern"
+      },
+      "add": {
+        "title": "Neuen Mitarbeiter hinzufügen",
+        "form": {
+          "firstNameLabel": "Vorname",
+          "lastNameLabel": "Nachname",
+          "emailLabel": "E-Mail",
+          "roleLabel": "Rolle",
+          "role": {
+            "selectPlaceholder": "Rolle auswählen...",
+            "electrician": "Elektriker",
+            "plumber": "Klempner",
+            "cleaner": "Reinigungskraft"
+          }
+        },
+        "messages": {
+          "success": "Mitarbeiter erfolgreich hinzugefügt!",
+          "errorPrefix": "Fehler beim Erstellen des Mitarbeiters: ",
+          "errorUniqueEmail": "Fehler: E-Mail-Adresse wird bereits verwendet.",
+          "errorRequired": "Bitte füllen Sie alle Pflichtfelder aus.",
+          "errorAdminProfile": "Administratordaten konnten nicht abgerufen werden. Bitte versuchen Sie es erneut."
+        }
+      },
+      "view": {
+        "title": "Mitarbeiterdetails anzeigen",
+        "bodyPlaceholder": "Mitarbeiterdetails werden hier angezeigt."
+      },
+      "edit": {
+        "title": "Mitarbeiter bearbeiten",
+        "bodyPlaceholder": "Formular zur Bearbeitung des Mitarbeiters wird hier sein."
+      }
+    }
+  },
+  "emailVerifiedSuccessPage": {
+    "title": "E-Mail bestätigt - Immobilien Hub",
+    "hintText": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt.",
+    "loginButton": "Anmelden"
+  },
+  "resendVerification": {
+    "modalTitle": "Bestätigungs-E-Mail erneut senden",
+    "modalDescription": "Bitte geben Sie unten Ihre E-Mail-Adresse ein, um einen neuen Bestätigungslink zu erhalten.",
+    "title": "Bestätigungs-E-Mail erneut senden",
+    "description": "Wenn Sie Ihre Bestätigungs-E-Mail nicht erhalten haben oder Ihr Link abgelaufen ist, können Sie eine neue anfordern.",
+    "emailLabel": "E-Mail-Addresse",
+    "resendButton": "E-Mail erneut senden",
+    "feedbackSuccess": "Bestätigungs-E-Mail erfolgreich an {{email}} gesendet. Bitte überprüfen Sie Ihren Posteingang (und Spam-Ordner).",
+    "feedbackError": "Fehler beim Senden der Bestätigungs-E-Mail: {{message}}",
+    "feedbackMissingEmail": "Bitte geben Sie die E-Mail-Adresse ein, mit der Sie sich registriert haben.",
+    "alertAccountExistsResend": "Dieses Konto existiert bereits. Wenn Sie Ihre E-Mail-Adresse nicht bestätigt haben, können Sie den Bestätigungslink unten erneut senden.",
+    "alertEmailNotVerifiedResend": "Ihre E-Mail-Adresse ist nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang oder senden Sie die Bestätigungs-E-Mail unten erneut.",
+    "alertSignupEmailResent": "Diese E-Mail-Adresse ist bereits registriert, aber nicht bestätigt. Eine neue Bestätigungs-E-Mail wurde an {{email}} gesendet. Bitte überprüfen Sie Ihren Posteingang."
+  },
+  "sixDigitCodeModal": {
+    "title": "Bestätigungscode eingeben",
+    "description": "Zu Ihrer Sicherheit geben Sie bitte Ihren 8-stelligen Bestätigungscode ein.",
+    "inputLabel": "8-stelliger Code",
+    "verifyButton": "Code bestätigen",
+    "closeButton": "Schließen",
+    "invalidInput": "Bitte geben Sie einen gültigen 8-stelligen numerischen Code ein.",
+    "updateError": "Aktualisierung des Verifizierungsstatus fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "success": "Verifizierung erfolgreich! Weiterleitung...",
+    "incorrectCode": "Falscher Code. Bitte versuchen Sie es erneut."
+  },
+  "agencySetupPage": {
+    "pageTitle": "Agentur-Setup - Property Hub",
+    "mainTitle": "Richten wir Ihre Agentur ein",
+    "mainSubtitle": "Bitte geben Sie unten Ihre Firmendetails ein, um Ihr Agenturprofil zu vervollständigen.",
+    "logoLabel": "Firmenlogo (Optional)",
+    "nameLabel": "Firmenname",
+    "addressStreetLabel": "Firmenadresse (Straße und Hausnummer)",
+    "cityLabel": "Stadt",
+    "stateLabel": "Bundesland/Kanton",
+    "postCodeLabel": "Postleitzahl",
+    "emailLabel": "Firmen-E-Mail",
+    "phoneLabel": "Firmentelefon (Optional)",
+    "websiteLabel": "Firmenwebseite (Optional)",
+    "taxIdLabel": "Steuer-ID / USt-IdNr. (Optional)",
+    "saveButton": "Firmeninformationen speichern"
+  },
+  "agencySetup": {
+    "validation": {
+      "requiredFields": "Bitte füllen Sie alle Pflichtfelder aus.",
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+    },
+    "error": {
+      "noSession": "Keine aktive Sitzung. Bitte erneut anmelden.",
+      "logoUploadFailed": "Logo-Upload fehlgeschlagen: {{message}}",
+      "getPublicUrlFailed": "Logo-URL konnte nicht abgerufen werden: {{message}}",
+      "functionInvocationFailed": "Speichern der Firmendetails fehlgeschlagen: {{message}}",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten: {{message}}"
+    },
+    "success": "Firmeninformationen erfolgreich gespeichert! Weiterleitung..."
+  },
+  "languageSelectionModal": {
+    "title": "Bevorzugte Sprache auswählen",
+    "description": "Bitte wählen Sie die Sprache aus, die Sie in Property Hub verwenden möchten.",
+    "optionEnglish": "Englisch",
+    "optionGerman": "Deutsch",
+    "selectLabel": "Sprache",
+    "continueButton": "Weiter"
+  },
+  "loadingText": {
+    "profile": "Lade Profilinformationen..."
+  },
+  "companyCodeModal": {
+    "titleInitial": "Treten Sie Ihrer Firma bei",
+    "descriptionCode": "Bitte geben Sie den 8-stelligen Code ein, den Sie von Ihrer Agentur erhalten haben.",
+    "inputLabelCode": "Firmencode",
+    "buttonVerifyCode": "Code überprüfen",
+    "descriptionEmail": "Code überprüft! Bitte geben Sie Ihre bei der Agentur registrierte E-Mail-Adresse ein.",
+    "inputLabelEmail": "Ihre E-Mail-Adresse",
+    "buttonVerifyEmail": "E-Mail überprüfen",
+    "descriptionPassword": "E-Mail überprüft! Bitte legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren.",
+    "inputLabelPassword": "Neues Passwort",
+    "inputLabelConfirmPassword": "Neues Passwort bestätigen",
+    "buttonSetPassword": "Passwort festlegen & beitreten",
+    "buttonClose": "Schließen",
+    "message": {
+      "rpcError": "Fehler bei der Codeüberprüfung. Bitte versuchen Sie es erneut.",
+      "invalidCode": "Ungültiger Firmencode. Bitte überprüfen Sie den Code und versuchen Sie es erneut.",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "emailNotFoundOrNotNew": "E-Mail für diese Firma nicht gefunden oder Konto bereits aktiv/wartet nicht auf Aktivierung.",
+      "passwordMismatch": "Passwörter stimmen nicht überein. Bitte versuchen Sie es erneut.",
+      "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "activationError": "Fehler beim Aktivieren des Kontos: ",
+      "activationSuccess": "Konto aktiviert! Sie können sich jetzt anmelden."
+    }
+  },
+  "setPasswordPage": {
+    "title": "Passwort festlegen",
+    "instructions": "Willkommen! Bitte wählen Sie ein sicheres Passwort, um Ihr Konto zu schützen.",
+    "form": {
+      "newPasswordLabel": "Neues Passwort",
+      "passwordHelp": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "confirmPasswordLabel": "Neues Passwort bestätigen",
+      "submitButton": "Passwort festlegen & Anmelden"
+    },
+    "backToSignIn": "Zurück zur Anmeldung",
+    "validation": {
+      "bothFieldsRequired": "Bitte füllen Sie beide Passwortfelder aus.",
+      "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "passwordsMismatch": "Die Passwörter stimmen nicht überein. Bitte versuchen Sie es erneut."
+    },
+    "success": {
+      "passwordUpdated": "Passwort erfolgreich aktualisiert! Sie können sich jetzt anmelden.",
+      "activatedAndPasswordUpdated": "Konto aktiviert und Passwort erfolgreich aktualisiert! Sie werden zur Anmeldung weitergeleitet."
+    },
+    "errors": {
+      "criticalError": "Kritischer Fehler: Supabase-Client nicht verfügbar. Passwort kann nicht festgelegt werden.",
+      "formNotFound": "Fehler: Passwortformular auf der Seite nicht gefunden.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "activationFailed": "Passwort festgelegt, aber beim Abschluss der Kontoaktivierung ist ein Problem aufgetreten. Bitte versuchen Sie, sich anzumelden. Wenn die Probleme weiterhin bestehen, wenden Sie sich an den Support.",
+      "activationUnexpected": "Passwort festgelegt, aber während des Kontoabschlusses ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie, sich anzumelden."
+    },
+    "info": {
+      "readyToSet": "Sie können jetzt Ihr neues Passwort festlegen.",
+      "completeSetup": "Bitte legen Sie Ihr neues Passwort fest, um Ihre Kontoeinrichtung abzuschließen.",
+      "finalizingActivation": "Passwort festgelegt. Kontoaktivierung wird abgeschlossen..."
+    }
+  }
+}
