@@ -84,35 +84,6 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         return;
       }
 
-      // Placeholder: Fetch company_id for the current user
-      let companyId = null;
-      // This section needs to be replaced with the actual Supabase query
-      // to get the company_id associated with user.id.
-      // For example, if 'companies' table has an 'admin_user_id' column:
-      //
-      // const { data: companyData, error: companyError } = await supabase
-      //   .from('companies')
-      //   .select('id')
-      //   .eq('admin_user_id', user.id) // Replace 'admin_user_id' with the actual linking column
-      //   .single();
-      //
-      // if (companyError || !companyData) {
-      //   console.error('Error fetching company ID for user:', user.id, companyError);
-      //   setError('Could not determine your company to associate with this property. Please ensure your user account is correctly linked to a company.');
-      //   setLoading(false);
-      //   return;
-      // }
-      // companyId = companyData.id;
-
-      // TEMPORARY BLOCK until actual company_id lookup is provided:
-      if (!companyId) { // This will always be true for now
-          console.log(`Placeholder: Company ID lookup for user ${user.id} needs to be implemented here.`);
-          setError('Company ID lookup is not yet implemented. Cannot save property. Please provide the database query structure to link user to company.');
-          setLoading(false);
-          return;
-      }
-      // END TEMPORARY BLOCK
-
       let finalImageUrl = formData.property_image_url; // Default to existing/previous URL
 
       if (formData.property_image_file) {
@@ -150,6 +121,22 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
         finalImageUrl = publicUrlData.publicUrl;
       }
 
+      // Fetch company_id for the current user
+      let companyId;
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('owner_id', user.id)
+        .single();
+
+      if (companyError || !companyData) {
+        console.error('Error fetching company for user:', user.id, companyError);
+        setError('Failed to find company linked to your account. Please ensure your user account is correctly associated with a company.');
+        setLoading(false);
+        return;
+      }
+      companyId = companyData.id;
+
       // Prepare data for saving (this should be after companyId is successfully fetched)
       const propertyDataToSave = {
         property_name: formData.property_name,
@@ -173,14 +160,6 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
           .select() // select() to get the updated row back if needed
           .single(); // if expecting a single row
       } else { // Adding
-        // company_id needs to be set. Assuming it's available from user's session/profile
-        // This is a placeholder. In a real app, get company_id from AuthContext or user profile.
-        // const { data: { user } } = await supabase.auth.getUser();
-        // const companyId = user?.user_metadata?.company_id; // Or app_metadata
-        // if (!companyId) throw new Error("Company ID not found for the user.");
-        // propertyDataToSave.company_id = companyId;
-        // For now, let's assume company_id might be optional or handled by RLS/default value in DB
-
         supaResponse = await supabase
           .from('properties')
           .insert(propertyDataToSave)
