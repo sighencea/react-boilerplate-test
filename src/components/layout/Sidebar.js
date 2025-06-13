@@ -9,6 +9,14 @@ const Sidebar = () => {
 
   const isActive = (path) => router.pathname === path;
 
+  const handleNavItemClick = () => {
+    const sidebarEl = document.getElementById('sidebar');
+    if (sidebarEl && sidebarEl.classList.contains('active')) {
+      sidebarEl.classList.remove('active');
+      document.querySelector('.sidebar-overlay')?.classList.remove('active');
+    }
+  };
+
   // Links to hide for non-admins, based on original main.js updateSidebarForPermissions
   const nonAdminHiddenLinks = [
     '/dashboard',
@@ -40,7 +48,7 @@ const Sidebar = () => {
           }
           return (
             <li key={link.path}>
-              <Link href={link.path} className={isActive(link.path) ? 'active' : ''}>
+              <Link href={link.path} className={isActive(link.path) ? 'active' : ''} onClick={handleNavItemClick}>
                 <i className={`bi ${link.icon}`}></i><span data-i18n={link.labelKey}>{link.labelKey.split('.')[1].charAt(0).toUpperCase() + link.labelKey.split('.')[1].slice(1)}</span>
               </Link>
             </li>
