@@ -208,8 +208,7 @@ const PropertiesPage = () => {
       </header>
 
       <section className="px-6 pb-12">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2" data-i18n="propertiesPage.title">Properties</h2>
+        <div className="">
           <div className="flex flex-wrap gap-3 mt-4 mb-4">
             {['All', 'Customer 1', 'Customer 2', 'Customer 3', 'Customer 4', 'Customer 5'].map(customerName => {
               const isActive = customerName === 'All';
