@@ -286,10 +286,10 @@ const PropertiesPage = () => {
                     </div>
                     <div data-slot="card-content" className="p-6"> {/* Corrected padding to p-6 */}
                       <header className="mb-4">
-                        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-700 transition-colors">
+                        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-700 transition-colors truncate">
                           {property.property_name || 'N/A'}
                         </h3>
-                        <address className="text-slate-600 not-italic text-sm leading-relaxed">
+                        <address className="text-slate-600 not-italic text-sm leading-relaxed truncate">
                           {property.address || 'N/A'}
                         </address>
                       </header>
