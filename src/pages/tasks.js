@@ -114,7 +114,7 @@ const TasksPage = () => {
             <thead className="table-light"><tr><th>Property</th><th>Title</th><th>Status</th><th>Priority</th><th>Due Date</th><th>Assigned To</th><th>Actions</th></tr></thead>
             <tbody>{tasks.map(task => (
                 <tr key={task.task_id}>
-                  <td>{task.property_address_street || 'N/A'}{task.property_address_city ? `, ${task.property_address_city}` : ''}</td>
+                  <td>{task.address || 'N/A'}</td>
                   <td>{task.task_title}</td>
                   <td><span className={`badge rounded-pill badge-custom-${task.task_status?.toLowerCase().replace(/\s+/g,'-') || 'secondary'}`}>{task.task_status || 'N/A'}</span></td>
                   <td>{task.task_priority || 'N/A'}</td>
