@@ -197,22 +197,20 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
 
         {/* Help & Support / Trigger Section - START */}
         <div className={`pt-3 border-t border-slate-200 ${isSidebarCollapsed ? 'mt-auto' : ''}`}>
-          <div className="flex items-center justify-between">
-            <button
-              className={`inline-flex items-center whitespace-nowrap text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] hover:bg-accent h-8 rounded-md gap-1.5 text-slate-600 hover:text-slate-900 ${
-                isSidebarCollapsed ? 'px-1 justify-center flex-1' : 'px-3 justify-start flex-1'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-circle-help w-4 h-4 flex-shrink-0 ${isSidebarCollapsed ? '' : 'mr-2'}`}>
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <path d="M12 17h.01"></path>
-              </svg>
-              {!isSidebarCollapsed && (
+          <div className={`flex items-center ${isSidebarCollapsed ? 'justify-end' : 'justify-between'}`}>
+            {!isSidebarCollapsed && (
+              <button
+                className="inline-flex items-center whitespace-nowrap text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] hover:bg-accent h-8 rounded-md gap-1.5 px-3 justify-start flex-1 text-slate-600 hover:text-slate-900"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-help w-4 h-4 flex-shrink-0 mr-2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <path d="M12 17h.01"></path>
+                </svg>
                 <span>Help & Support</span>
-              )}
-            </button>
-
+              </button>
+            )}
+            {/* Trigger Button (its existing full JSX should be preserved here) */}
             <button
               onClick={toggleSidebar}
               aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
