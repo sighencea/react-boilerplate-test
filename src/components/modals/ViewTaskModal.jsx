@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext'; // For user ID if needed for RLS on files or getting signed URLs
 
 const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdated }) => {
+  const modalRef = useRef(null);
   const { user, isAdmin } = useAuth();
   const [taskDetails, setTaskDetails] = useState(null);
   const [files, setFiles] = useState([]);
@@ -100,11 +101,52 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
     }
   };
 
+  useEffect(() => {
+    const modalElement = modalRef.current;
+    if (!modalElement) return;
 
-  if (!isOpen) return null;
+    if (!window.bootstrap || !window.bootstrap.Modal) {
+      return;
+    }
+
+    const bsModal = new window.bootstrap.Modal(modalElement);
+
+    if (isOpen) {
+      bsModal.show();
+    } else {
+      try {
+          const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
+          if (currentModalInstance) {
+               currentModalInstance.hide();
+          }
+      } catch (e) {
+        // console.warn("Error hiding modal:", e);
+      }
+    }
+
+    const handleExternalClose = () => {
+      if (isOpen) {
+        onClose();
+      }
+    };
+    modalElement.addEventListener('hidden.bs.modal', handleExternalClose);
+
+    return () => {
+      modalElement.removeEventListener('hidden.bs.modal', handleExternalClose);
+      if (window.bootstrap && window.bootstrap.Modal) {
+          const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
+          if (currentModalInstance) {
+              currentModalInstance.dispose();
+          }
+      }
+    };
+  }, [isOpen, onClose]);
+
+  // The modal structure is always rendered. Content visibility controlled by Bootstrap.
+  // if (!isOpen && !taskDetails) return null; // This line is removed
 
   return (
-    <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
+    <div className="modal fade" ref={modalRef} tabIndex="-1" role="dialog">
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content">
           <div className="modal-header">
@@ -112,9 +154,9 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
             <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
-            {loading && <p>Loading task details...</p>}
-            {error && <div className="alert alert-danger">{error}</div>}
-            {!loading && !error && taskDetails && (
+            {loading && isOpen && <p>Loading task details...</p>}
+            {error && isOpen && <div className="alert alert-danger">{error}</div>}
+            {!loading && !error && taskDetails && isOpen && (
               <>
                 <h4>{taskDetails.task_title || taskDetails.title}</h4>
                 <hr />
@@ -176,7 +218,6 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
           </div>
         </div>
       </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
     </div>
   );
 };

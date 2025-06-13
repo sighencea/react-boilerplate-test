@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext';
 
@@ -12,6 +12,7 @@ const generateStoragePath = (userId, taskId, file) => {
 };
 
 const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, staffList }) => {
+  const modalRef = useRef(null);
   const { user } = useAuth(); // User needed for uploaded_by and storage path
   const [formData, setFormData] = useState({
     property_id: '', title: '', description: '', status: 'New',
@@ -176,10 +177,52 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
 
   const handleClose = () => { onClose(); };
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    const modalElement = modalRef.current;
+    if (!modalElement) return;
+
+    if (!window.bootstrap || !window.bootstrap.Modal) {
+      return;
+    }
+
+    const bsModal = new window.bootstrap.Modal(modalElement);
+
+    if (isOpen) {
+      bsModal.show();
+    } else {
+      try {
+          const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
+          if (currentModalInstance) {
+               currentModalInstance.hide();
+          }
+      } catch (e) {
+        // console.warn("Error hiding modal:", e);
+      }
+    }
+
+    const handleExternalClose = () => {
+      if (isOpen) {
+        onClose();
+      }
+    };
+    modalElement.addEventListener('hidden.bs.modal', handleExternalClose);
+
+    return () => {
+      modalElement.removeEventListener('hidden.bs.modal', handleExternalClose);
+      if (window.bootstrap && window.bootstrap.Modal) {
+          const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
+          if (currentModalInstance) {
+              currentModalInstance.dispose();
+          }
+      }
+    };
+  }, [isOpen, onClose]);
+
+  // The modal structure is always rendered. Content visibility controlled by Bootstrap.
+  // if (!isOpen) return null; // This line is removed
 
   return (
-    <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
+    <div className="modal fade" ref={modalRef} tabIndex="-1" role="dialog">
       <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content">
           <form onSubmit={handleSubmit}>
@@ -188,8 +231,8 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
               <button type="button" className="btn-close" aria-label="Close" onClick={handleClose} disabled={loading}></button>
             </div>
             <div className="modal-body">
-              {error && <div className="alert alert-danger">{error}</div>}
-              {Object.entries(uploadProgress).map(([fileName, progressStatus]) => (
+              {isOpen && error && <div className="alert alert-danger">{error}</div>}
+              {isOpen && Object.entries(uploadProgress).map(([fileName, progressStatus]) => (
                 <div key={fileName} className="mb-1">
                   <small>{fileName}: {progressStatus.error ? <span className="text-danger">Error - {progressStatus.error}</span> : `${progressStatus.percent}%`}</small>
                   <div className="progress" style={{height: '5px'}}>
@@ -202,30 +245,29 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
                 </div>
               ))}
 
-              {/* Basic Task Fields */}
-              <div className="mb-3"><label htmlFor="title" className="form-label">Title*</label><input type="text" className="form-control" id="title" name="title" value={formData.title} onChange={handleChange} required disabled={loading} /></div>
-              <div className="mb-3"><label htmlFor="property_id" className="form-label">Property*</label><select className="form-select" id="property_id" name="property_id" value={formData.property_id} onChange={handleChange} required disabled={loading || !propertiesList}><option value="">Select Property...</option>{propertiesList && propertiesList.map(p => <option key={p.id} value={p.id}>{p.name} - {p.address_street}</option>)}</select></div>
-              <div className="mb-3"><label htmlFor="description" className="form-label">Description</label><textarea className="form-control" id="description" name="description" rows="2" value={formData.description} onChange={handleChange} disabled={loading}></textarea></div>
-              <div className="row"><div className="col-md-6 mb-3"><label htmlFor="status" className="form-label">Status*</label><select className="form-select" id="status" name="status" value={formData.status} onChange={handleChange} required disabled={loading}>{statusOptions.map(s => <option key={s} value={s}>{s}</option>)}</select></div><div className="col-md-6 mb-3"><label htmlFor="priority" className="form-label">Priority*</label><select className="form-select" id="priority" name="priority" value={formData.priority} onChange={handleChange} required disabled={loading}>{priorityOptions.map(p => <option key={p} value={p}>{p}</option>)}</select></div></div>
-              <div className="row"><div className="col-md-6 mb-3"><label htmlFor="due_date" className="form-label">Due Date</label><input type="date" className="form-control" id="due_date" name="due_date" value={formData.due_date} onChange={handleChange} disabled={loading} /></div><div className="col-md-6 mb-3"><label htmlFor="assigned_to_user_id" className="form-label">Assign To</label><select className="form-select" id="assigned_to_user_id" name="assigned_to_user_id" value={formData.assigned_to_user_id} onChange={handleChange} disabled={loading || !staffList}><option value="">Unassigned</option>{staffList && staffList.map(s => <option key={s.id} value={s.id}>{s.full_name || s.email}</option>)}</select></div></div>
-              <div className="mb-3"><label htmlFor="task_notes" className="form-label">Notes</label><textarea className="form-control" id="task_notes" name="task_notes" rows="2" value={formData.task_notes} onChange={handleChange} disabled={loading}></textarea></div>
+              {/* Basic Task Fields (conditionally render content if needed, or ensure form is disabled/cleared when not isOpen) */}
+              <div className="mb-3"><label htmlFor="title" className="form-label">Title*</label><input type="text" className="form-control" id="title" name="title" value={formData.title} onChange={handleChange} required disabled={loading || !isOpen} /></div>
+              <div className="mb-3"><label htmlFor="property_id" className="form-label">Property*</label><select className="form-select" id="property_id" name="property_id" value={formData.property_id} onChange={handleChange} required disabled={loading || !propertiesList || !isOpen}><option value="">Select Property...</option>{propertiesList && propertiesList.map(p => <option key={p.id} value={p.id}>{p.property_name} - {p.address}</option>)}</select></div>
+              <div className="mb-3"><label htmlFor="description" className="form-label">Description</label><textarea className="form-control" id="description" name="description" rows="2" value={formData.description} onChange={handleChange} disabled={loading || !isOpen}></textarea></div>
+              <div className="row"><div className="col-md-6 mb-3"><label htmlFor="status" className="form-label">Status*</label><select className="form-select" id="status" name="status" value={formData.status} onChange={handleChange} required disabled={loading || !isOpen}>{statusOptions.map(s => <option key={s} value={s}>{s}</option>)}</select></div><div className="col-md-6 mb-3"><label htmlFor="priority" className="form-label">Priority*</label><select className="form-select" id="priority" name="priority" value={formData.priority} onChange={handleChange} required disabled={loading || !isOpen}>{priorityOptions.map(p => <option key={p} value={p}>{p}</option>)}</select></div></div>
+              <div className="row"><div className="col-md-6 mb-3"><label htmlFor="due_date" className="form-label">Due Date</label><input type="date" className="form-control" id="due_date" name="due_date" value={formData.due_date} onChange={handleChange} disabled={loading || !isOpen} /></div><div className="col-md-6 mb-3"><label htmlFor="assigned_to_user_id" className="form-label">Assign To</label><select className="form-select" id="assigned_to_user_id" name="assigned_to_user_id" value={formData.assigned_to_user_id} onChange={handleChange} disabled={loading || !staffList || !isOpen}><option value="">Unassigned</option>{staffList && staffList.map(s => <option key={s.id} value={s.id}>{s.full_name || s.email}</option>)}</select></div></div>
+              <div className="mb-3"><label htmlFor="task_notes" className="form-label">Notes</label><textarea className="form-control" id="task_notes" name="task_notes" rows="2" value={formData.task_notes} onChange={handleChange} disabled={loading || !isOpen}></textarea></div>
 
-              <hr /><h6 className="mt-3">Attachments</h6>
+              {isOpen && <> <hr /><h6 className="mt-3">Attachments</h6>
               {existingFiles.length > 0 && (<div className="mb-3"><p>Current files:</p><ul className="list-group list-group-flush">
                   {existingFiles.map(file => ( <li key={file.id} className="list-group-item d-flex justify-content-between align-items-center"><span><i className={`bi bi-file-earmark${file.mime_type?.startsWith('image/') ? '-image' : (file.mime_type === 'application/pdf' ? '-pdf' : '')} me-2`}></i>{file.file_name} <small className="text-muted">({(file.file_size / 1024).toFixed(1)} KB)</small></span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => markFileForDeletion(file.id)} disabled={loading}><i className="bi bi-trash"></i> Remove</button></li>))}
               </ul></div>)}
               {filesToDelete.length > 0 && <p className="text-warning small">Note: {filesToDelete.length} file(s) will be removed upon saving.</p>}
               <div className="mb-3"><label htmlFor="imageUpload" className="form-label">Upload Images</label><input type="file" className="form-control" id="imageUpload" multiple accept="image/*" onChange={handleImageFileChange} disabled={loading} />{selectedImages.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedImages).map((file, idx) => <li key={idx}><i className="bi bi-image"></i> {file.name}</li>)}</ul>}</div>
-              <div className="mb-3"><label htmlFor="docUpload" className="form-label">Upload Documents</label><input type="file" className="form-control" id="docUpload" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv" onChange={handleDocFileChange} disabled={loading} />{selectedDocs.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedDocs).map((file, idx) => <li key={idx}><i className="bi bi-file-earmark-text"></i> {file.name}</li>)}</ul>}</div>
+              <div className="mb-3"><label htmlFor="docUpload" className="form-label">Upload Documents</label><input type="file" className="form-control" id="docUpload" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv" onChange={handleDocFileChange} disabled={loading} />{selectedDocs.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedDocs).map((file, idx) => <li key={idx}><i className="bi bi-file-earmark-text"></i> {file.name}</li>)}</ul>}</div></>}
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={loading}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Saving...' : (task && task.task_id ? 'Save Changes' : 'Create Task')}</button>
+              <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={loading || !isOpen}>Cancel</button>
+              <button type="submit" className="btn btn-primary" disabled={loading || !isOpen}>{loading ? 'Saving...' : (task && task.task_id ? 'Save Changes' : 'Create Task')}</button>
             </div>
           </form>
         </div>
       </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
     </div>
   );
 };
