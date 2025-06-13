@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import QRCode from 'qrcode'; // Import QRCode library
-import { supabase } from '@/lib/supabaseClient'; // supabase client is already imported
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
+import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import QRCode from 'qrcode';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '../../context/AuthContext';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+// Row and Col are not strictly necessary for this layout if mb-3 provides enough spacing
 
 // Helper function for QR Code processing
 async function processQrCodeForProperty(newProperty, currentUser, supabaseClient) {
@@ -267,86 +271,76 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
   };
 
   const handleClose = () => {
-    // Resetting form state is handled by useEffect on isOpen change now
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
-      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"> {/* modal-lg for more space */}
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">{property ? 'Edit Property' : 'Add New Property'}</h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={handleClose} disabled={loading}></button>
-            </div>
-            <div className="modal-body">
-              {error && <div className="alert alert-danger">{error}</div>}
+    <Modal show={isOpen} onHide={handleClose} size="lg" centered scrollable backdrop="static">
+      <Modal.Header closeButton disabled={loading}>
+        <Modal.Title>{property ? 'Edit Property' : 'Add New Property'}</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          {error && <div className="alert alert-danger">{error}</div>}
 
-              <div className="mb-3">
-                <label htmlFor="property_name" className="form-label">Property Name*</label>
-                <input type="text" className="form-control" id="property_name" name="property_name" value={formData.property_name} onChange={handleChange} required disabled={loading} />
-              </div>
+          <Form.Group className="mb-3" controlId="formPropertyName">
+            <Form.Label>Property Name*</Form.Label>
+            <Form.Control type="text" name="property_name" value={formData.property_name} onChange={handleChange} required disabled={loading} />
+          </Form.Group>
 
-              <div className="mb-3">
-                <label htmlFor="address" className="form-label">Address*</label>
-                <textarea className="form-control" id="address" name="address" value={formData.address} onChange={handleChange} required disabled={loading} rows="3"></textarea>
-              </div>
+          <Form.Group className="mb-3" controlId="formPropertyAddress">
+            <Form.Label>Address*</Form.Label>
+            <Form.Control as="textarea" rows={3} name="address" value={formData.address} onChange={handleChange} required disabled={loading} />
+          </Form.Group>
 
-              <div className="mb-3">
-                <label htmlFor="property_type" className="form-label">Property Type*</label>
-                <select className="form-select" id="property_type" name="property_type" value={formData.property_type} onChange={handleChange} required disabled={loading}>
-                  <option value="">Select type...</option>
-                  <option value="Residential">Residential</option>
-                  <option value="Commercial">Commercial</option>
-                  <option value="Industrial">Industrial</option>
-                  <option value="Land">Land</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+          <Form.Group className="mb-3" controlId="formPropertyType">
+            <Form.Label>Property Type*</Form.Label>
+            <Form.Select name="property_type" value={formData.property_type} onChange={handleChange} required disabled={loading}>
+              <option value="">Select type...</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Industrial">Industrial</option>
+              <option value="Land">Land</option>
+              <option value="Other">Other</option>
+            </Form.Select>
+          </Form.Group>
 
-              <div className="mb-3">
-                <label htmlFor="property_occupier" className="form-label">Occupier*</label>
-                <select className="form-select" id="property_occupier" name="property_occupier" value={formData.property_occupier} onChange={handleChange} required disabled={loading}>
-                  <option value="">Select occupier...</option>
-                  <option value="Owner-Occupied">Owner-Occupied</option>
-                  <option value="Tenant-Occupied">Tenant-Occupied</option>
-                  <option value="Vacant">Vacant</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+          <Form.Group className="mb-3" controlId="formPropertyOccupier">
+            <Form.Label>Occupier*</Form.Label>
+            <Form.Select name="property_occupier" value={formData.property_occupier} onChange={handleChange} required disabled={loading}>
+              <option value="">Select occupier...</option>
+              <option value="Owner-Occupied">Owner-Occupied</option>
+              <option value="Tenant-Occupied">Tenant-Occupied</option>
+              <option value="Vacant">Vacant</option>
+              <option value="Other">Other</option>
+            </Form.Select>
+          </Form.Group>
 
-              <div className="mb-3">
-                <label htmlFor="property_details" className="form-label">Property Details</label>
-                <textarea className="form-control" id="property_details" name="property_details" rows="3" value={formData.property_details} onChange={handleChange} disabled={loading}></textarea>
-              </div>
+          <Form.Group className="mb-3" controlId="formPropertyDetails">
+            <Form.Label>Property Details</Form.Label>
+            <Form.Control as="textarea" rows={3} name="property_details" value={formData.property_details} onChange={handleChange} disabled={loading} />
+          </Form.Group>
 
-              <div className="mb-3">
-                <label htmlFor="property_image_file" className="form-label">Property Image</label>
-                <input type="file" className="form-control" id="property_image_file" name="property_image_file" onChange={handleChange} disabled={loading} accept="image/*" />
-                {imagePreviewUrl ? (
-                  <img src={imagePreviewUrl} alt="Image Preview" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
-                ) : formData.property_image_url ? ( // Show existing image if no new preview and existing URL
-                  <img src={formData.property_image_url} alt="Current property" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
-                ) : (
-                  <div className="mt-2" id="imagePreviewPlaceholder" style={{minHeight: '50px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><small>Image preview</small></div>
-                )}
-              </div>
-              {/* Add other form fields here based on your properties table schema */}
-
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={loading}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? (property ? 'Saving...' : 'Adding...') : (property ? 'Save Changes' : 'Add Property')}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          <Form.Group className="mb-3" controlId="formPropertyImageFile">
+            <Form.Label>Property Image</Form.Label>
+            <Form.Control type="file" name="property_image_file" onChange={handleChange} disabled={loading} accept="image/*" />
+            {imagePreviewUrl ? (
+              <img src={imagePreviewUrl} alt="Image Preview" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
+            ) : formData.property_image_url ? (
+              <img src={formData.property_image_url} alt="Current property" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
+            ) : (
+              <div className="mt-2" id="imagePreviewPlaceholder" style={{minHeight: '50px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><small>Image preview</small></div>
+            )}
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
+          <Button variant="primary" type="submit" disabled={loading}>
+            {loading ? (property ? 'Saving...' : 'Adding...') : (property ? 'Save Changes' : 'Add Property')}
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 };
 

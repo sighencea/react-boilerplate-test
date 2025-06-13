@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 const EditStaffModal = ({ isOpen, onClose, staffMember, onStaffUpdated, roleOptions, statusOptions }) => {
   const [formData, setFormData] = useState({
@@ -72,54 +75,54 @@ const EditStaffModal = ({ isOpen, onClose, staffMember, onStaffUpdated, roleOpti
     onClose();
   };
 
-  if (!isOpen || !staffMember) return null;
+  // Conditional rendering of the modal is handled by the `show` prop of <Modal>
+  // The useEffect hook already handles resetting state when isOpen becomes false.
+  // The parent component should ensure staffMember is valid when isOpen is true.
+  if (!staffMember && isOpen) { // If open but no staff member, maybe show loading or error, or rely on parent not to open
+      return null; // Or a placeholder/loading state if preferred
+  }
+
 
   return (
-    <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">Edit Staff Member: {formData.full_name || email}</h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={handleClose} disabled={loading}></button>
-            </div>
-            <div className="modal-body">
-              {error && <div className="alert alert-danger">{error}</div>}
-              {successMessage && <div className="alert alert-success">{successMessage}</div>}
+    <Modal show={isOpen} onHide={handleClose} centered backdrop="static">
+      <Modal.Header closeButton disabled={loading}>
+        <Modal.Title>Edit Staff Member: {formData.full_name || email}</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          {error && <div className="alert alert-danger">{error}</div>}
+          {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
-              <div className="mb-3">
-                <label htmlFor="editStaffFullName" className="form-label">Full Name</label>
-                <input type="text" className="form-control" id="editStaffFullName" name="full_name" value={formData.full_name} onChange={handleChange} disabled={loading} />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="editStaffEmail" className="form-label">Email Address</label>
-                <input type="email" className="form-control" id="editStaffEmail" name="email" value={email} disabled={true} readOnly />
-                <small className="form-text text-muted">Email address cannot be changed here.</small>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="editStaffRole" className="form-label">Role*</label>
-                <select className="form-select" id="editStaffRole" name="role" value={formData.role} onChange={handleChange} required disabled={loading}>
-                  {roleOptions && roleOptions.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="editStaffUserStatus" className="form-label">Status*</label>
-                <select className="form-select" id="editStaffUserStatus" name="user_status" value={formData.user_status} onChange={handleChange} required disabled={loading}>
-                  {statusOptions && statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={loading}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Saving Changes...' : 'Save Changes'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
-    </div>
+          <Form.Group className="mb-3" controlId="editStaffFullName">
+            <Form.Label>Full Name</Form.Label>
+            <Form.Control type="text" name="full_name" value={formData.full_name} onChange={handleChange} disabled={loading} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="editStaffEmail">
+            <Form.Label>Email Address</Form.Label>
+            <Form.Control type="email" name="email" value={email} disabled={true} readOnly />
+            <Form.Text className="text-muted">Email address cannot be changed here.</Form.Text>
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="editStaffRole">
+            <Form.Label>Role*</Form.Label>
+            <Form.Select name="role" value={formData.role} onChange={handleChange} required disabled={loading}>
+              {roleOptions && roleOptions.map(r => <option key={r} value={r}>{r}</option>)}
+            </Form.Select>
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="editStaffUserStatus">
+            <Form.Label>Status*</Form.Label>
+            <Form.Select name="user_status" value={formData.user_status} onChange={handleChange} required disabled={loading}>
+              {statusOptions && statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+            </Form.Select>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
+          <Button variant="primary" type="submit" disabled={loading}>
+            {loading ? 'Saving Changes...' : 'Save Changes'}
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 };
 
