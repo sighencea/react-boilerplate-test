@@ -45,8 +45,8 @@ const TasksPage = () => {
       // The `detailed_task_assignments` view should ideally contain all these.
       // Adding task_notes, task_description explicitly if they might not be in `*` from a minimal view.
       let query = supabase.from('detailed_task_assignments')
-        .select('*, tasks(task_notes, task_description)', { count: 'exact' })
-        .order('task_due_date', { ascending: true, nullsFirst: false }).range(from, to);
+        .select('*, tasks(task_notes, task_description, task_due_date)', { count: 'exact' })
+        .order('tasks.task_due_date', { ascending: true, nullsFirst: false }).range(from, to);
       if (statusFilter) query = query.eq('task_status', statusFilter);
       if (priorityFilter) query = query.eq('task_priority', priorityFilter);
       const { data, error: dbError, count } = await query; if (dbError) throw dbError;
@@ -118,7 +118,7 @@ const TasksPage = () => {
                   <td>{task.task_title}</td>
                   <td><span className={`badge rounded-pill badge-custom-${task.task_status?.toLowerCase().replace(/\s+/g,'-') || 'secondary'}`}>{task.task_status || 'N/A'}</span></td>
                   <td>{task.task_priority || 'N/A'}</td>
-                  <td>{task.task_due_date ? new Date(task.task_due_date).toLocaleDateString() : 'N/A'}</td>
+                  <td>{task.tasks?.task_due_date ? new Date(task.tasks.task_due_date).toLocaleDateString() : 'N/A'}</td>
                   <td>{task.assignee_full_name || task.assignee_email || 'Unassigned'}</td>
                   <td>
                     <button className="btn btn-sm btn-outline-primary me-1" onClick={() => handleOpenViewModal(task)}><i className="bi bi-eye"></i></button>
