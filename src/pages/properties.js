@@ -211,16 +211,23 @@ const PropertiesPage = () => {
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-slate-900 mb-2" data-i18n="propertiesPage.title">Properties</h2>
           <div className="flex flex-wrap gap-3 mt-4 mb-4">
-            {['Customer 1', 'Customer 2', 'Customer 3', 'Customer 4', 'Customer 5'].map(customerName => (
-              <div
-                key={customerName}
-                className="px-4 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 rounded-full border border-blue-200 cursor-pointer hover:bg-blue-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                role="button" // Added role for accessibility
-                tabIndex={0}  // Added tabIndex for keyboard focus
-              >
-                {customerName}
-              </div>
-            ))}
+            {['All', 'Customer 1', 'Customer 2', 'Customer 3', 'Customer 4', 'Customer 5'].map(customerName => {
+              const isActive = customerName === 'All';
+              const chipClasses = isActive
+                ? "px-4 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 rounded-full border border-blue-200 cursor-pointer hover:bg-blue-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                : "px-4 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-full border border-slate-300 cursor-pointer hover:bg-slate-200 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2";
+
+              return (
+                <div
+                  key={customerName}
+                  className={chipClasses}
+                  role="button"
+                  tabIndex={0}
+                >
+                  {customerName}
+                </div>
+              );
+            })}
           </div>
         </div>
 
