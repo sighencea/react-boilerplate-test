@@ -25,6 +25,11 @@ const MainLayout = ({ children }) => {
     handleCloseAccessDenied();
   };
 
+  const handleOverlayClick = () => {
+    document.getElementById('sidebar')?.classList.remove('active');
+    document.querySelector('.sidebar-overlay')?.classList.remove('active');
+  };
+
   return (
     <>
       <div className="d-flex main-layout-container"> {/* Flex container for sidebar and main content */}
@@ -36,7 +41,7 @@ const MainLayout = ({ children }) => {
           </main>
         </div>
       </div>
-      <div className="sidebar-overlay d-lg-none"></div> {/* Kept outside main flex layout for now */}
+      <div className="sidebar-overlay d-lg-none" onClick={handleOverlayClick}></div> {/* Kept outside main flex layout for now */}
 
       <Modal show={showAccessDeniedModal} onHide={handleCloseAccessDenied} backdrop="static" keyboard={false} centered>
         <Modal.Header> {/* No closeButton as per original data-bs-keyboard="false" and static backdrop */}
