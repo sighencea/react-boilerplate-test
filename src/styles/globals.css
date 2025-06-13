@@ -1,1 +1,8 @@
-body { margin: 0; font-family: Arial, sans-serif; }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif; /* Consider if this specific font-family is still needed */
+}
