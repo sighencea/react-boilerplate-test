@@ -11,9 +11,7 @@ export default function App({ Component, pageProps }) {
   const router = useRouter();
   const authPaths = ['/', '/404']; // Sign-in page and 404 page
 
-  useEffect(() => {
-    import('bootstrap/dist/js/bootstrap.bundle.min.js');
-  }, []);
+  // Removed useEffect for Bootstrap JS import
 
   return (
     <AuthProvider>
