@@ -224,7 +224,7 @@ const PropertiesPage = () => {
             {properties.map(property => (
               <Link href={`/property-details/${property.id}`} key={property.id} passHref>
                 <article className="group cursor-pointer">
-                  <div data-slot="card" className="text-card-foreground flex flex-col gap-6 rounded-xl py-6 overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm">
+                  <div data-slot="card" className="text-card-foreground flex flex-col gap-6 rounded-xl overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm">
                     <div className="relative">
                       <figure className="aspect-[4/3] overflow-hidden m-0 p-0">
                         <img
@@ -301,16 +301,6 @@ const PropertiesPage = () => {
                           </button>
                         )}
                       </div>
-                      {isAdmin && (
-                        <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end gap-2">
-                          <button onClick={(e) => {
-                            e.preventDefault(); e.stopPropagation(); handleOpenEditModal(property);
-                          }} className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">Edit</button>
-                          <button onClick={(e) => {
-                            e.preventDefault(); e.stopPropagation(); handleDeleteProperty(property.id);
-                          }} className="px-3 py-1.5 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">Delete</button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </article>

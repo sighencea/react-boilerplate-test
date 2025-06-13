@@ -2,61 +2,89 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient'; // Adjust path if necessary
 import Link from 'next/link'; // For a "Back to Properties" link
+import { useAuth } from '@/context/AuthContext';
+import AddEditPropertyModal from '@/components/modals/AddEditPropertyModal';
 
 const PropertyDetailsPage = () => {
   const router = useRouter();
   const { id } = router.query; // Access the dynamic 'id' parameter
+  const { isAdmin } = useAuth();
 
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Define fetchPropertyById in component scope
+  const fetchPropertyById = async (propertyIdToFetch) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: dbError } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', propertyIdToFetch)
+        .single();
+      if (dbError) throw dbError;
+      setProperty(data);
+    } catch (err) {
+      console.error('Error fetching property details:', err);
+      setError(err.message || 'Failed to fetch property details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (router.isReady) { // Ensure router query params are available
-      if (id) { // Only fetch if id is available
-        setLoading(true);
-        setError(null);
-        setProperty(null); // Reset property state before new fetch
-
-        const fetchProperty = async () => {
-          try {
-            const { data, error: dbError } = await supabase
-              .from('properties')
-              .select('*') // Select all columns for now, can be refined later if needed
-              .eq('id', id)
-              .single();
-
-            if (dbError) {
-              throw dbError;
-            }
-
-            if (data) {
-              setProperty(data);
-            } else {
-              // This case should ideally be caught by .single() if id doesn't exist,
-              // which would result in an error. If data is null without error,
-              // it implies a successful query with no result, so property not found.
-              setProperty(null);
-            }
-          } catch (err) {
-            console.error('Error fetching property details:', err);
-            setError(err.message || 'Failed to fetch property details.');
-            setProperty(null);
-          } finally {
-            setLoading(false);
-          }
-        };
-
-        fetchProperty();
+    if (router.isReady) {
+      if (id) {
+        fetchPropertyById(id);
       } else {
-        // No id present even when router is ready
         setLoading(false);
         setProperty(null);
-        // Optionally set an error message here if an ID was expected but not found
-        // setError("Property ID is missing in the URL.");
+        setError("Property ID is missing in the URL.");
       }
     }
-  }, [id, router.isReady, supabase]); // Added supabase to dependency array as it's used in useEffect
+  }, [id, router.isReady]); // Removed supabase from deps, fetchPropertyById is stable if not using useCallback
+
+  const handleOpenEditModal = () => {
+    if (!property) return;
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditModalSave = () => {
+    setIsEditModalOpen(false);
+    if (id) {
+      fetchPropertyById(id); // Refetch data for the current property
+    }
+  };
+
+  const handleDeleteProperty = async () => {
+    if (!property || !property.id) {
+      setError('Property data is missing, cannot delete.');
+      return;
+    }
+    if (window.confirm(`Are you sure you want to delete "${property.property_name}"?`)) {
+      setLoading(true); // Indicate loading state
+      try {
+        const { error: deleteError } = await supabase
+          .from('properties')
+          .delete()
+          .eq('id', property.id);
+
+        if (deleteError) throw deleteError;
+        router.push('/properties');
+      } catch (delError) {
+        console.error('Error deleting property:', delError);
+        setError(delError.message || 'Failed to delete property.');
+        setLoading(false); // Reset loading on error
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -92,16 +120,30 @@ const PropertyDetailsPage = () => {
   return (
     <div className="container mt-4 mb-5"> {/* Added mb-5 for bottom spacing */}
       {/* Page Header: Property Name and Action Buttons */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="display-5"> {/* Larger title for details page */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-semibold text-slate-800">
           {property.property_name || 'Property Details'}
         </h1>
-        <div className="btn-group">
-          {/* TODO: Implement Edit, Add Task, Delete functionality later */}
-          {/* These buttons will require modals and handlers similar to PropertiesPage */}
-          <button type="button" className="btn btn-outline-primary" disabled>Edit Property</button>
-          <button type="button" className="btn btn-outline-secondary" disabled>Add Task</button>
-          <button type="button" className="btn btn-outline-danger" disabled>Delete Property</button>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <>
+              <button
+                type="button"
+                onClick={handleOpenEditModal}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Edit Property
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProperty}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              >
+                Delete Property
+              </button>
+            </>
+          )}
+          {/* Add Task button removed as per instruction to simplify focus */}
         </div>
       </div>
 
@@ -165,6 +207,15 @@ const PropertyDetailsPage = () => {
           </a>
         </Link>
       </div>
+
+      {isEditModalOpen && property && (
+        <AddEditPropertyModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          property={property}
+          onSave={handleEditModalSave}
+        />
+      )}
     </div>
   );
 };
