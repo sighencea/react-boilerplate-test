@@ -23,10 +23,7 @@ SELECT
     p.email AS assignee_email,
     prop.id AS property_id,
     prop.property_name AS property_name,
-    prop.address_street AS property_address_street,
-    prop.address_city AS property_address_city,
-    prop.address_postal_code AS property_address_postal_code,
-    prop.address_country AS property_address_country
+    prop.address AS address
 FROM
     public.task_assignments ta
 JOIN
