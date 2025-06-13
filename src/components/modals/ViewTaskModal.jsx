@@ -132,7 +132,7 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
                   <dd className="col-sm-9">{taskDetails.task_due_date ? new Date(taskDetails.task_due_date).toLocaleDateString() : 'N/A'}</dd>
 
                   <dt className="col-sm-3">Assigned To</dt>
-                  <dd className="col-sm-9">{taskDetails.assignee_full_name || taskDetails.assignee_email || 'Unassigned'}</dd>
+                  <dd className="col-sm-9">{(taskDetails.assignee_first_name && taskDetails.assignee_last_name ? `${taskDetails.assignee_first_name} ${taskDetails.assignee_last_name}` : taskDetails.assignee_email) || 'Unassigned'}</dd>
 
                   <dt className="col-sm-3">Description</dt>
                   <dd className="col-sm-9"><p style={{whiteSpace: "pre-wrap"}}>{taskDetails.task_description || taskDetails.description || 'No description.'}</p></dd>
