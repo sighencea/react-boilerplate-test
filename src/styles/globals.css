@@ -4,5 +4,19 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif; /* Consider if this specific font-family is still needed */
+  /* font-family: Arial, sans-serif; */ /* Tailwind's base will handle this */
+}
+
+#sidebar.active-sidebar {
+  transform: translateX(0);
+}
+
+/* Ensure overlay is part of the Tailwind flow or explicitly styled */
+.sidebar-overlay {
+  /* Default hidden, Tailwind 'hidden' class is preferred but this is a fallback if needed */
+  display: none;
+}
+
+.sidebar-overlay.active-sidebar {
+  display: block; /* Or use Tailwind 'block' class toggled by JS */
 }
