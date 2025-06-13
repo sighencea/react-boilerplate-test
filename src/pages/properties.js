@@ -210,7 +210,18 @@ const PropertiesPage = () => {
       <section className="px-6 pb-12">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-slate-900 mb-2" data-i18n="propertiesPage.title">Properties</h2>
-          <p className="text-slate-600 max-w-2xl" data-i18n="propertiesPage.description">Manage and monitor all your properties from one central dashboard. Track maintenance tasks, view property details, and stay organized.</p>
+          <div className="flex flex-wrap gap-3 mt-4 mb-4">
+            {['Customer 1', 'Customer 2', 'Customer 3', 'Customer 4', 'Customer 5'].map(customerName => (
+              <div
+                key={customerName}
+                className="px-4 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 rounded-full border border-blue-200 cursor-pointer hover:bg-blue-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                role="button" // Added role for accessibility
+                tabIndex={0}  // Added tabIndex for keyboard focus
+              >
+                {customerName}
+              </div>
+            ))}
+          </div>
         </div>
 
         {error && <div className="alert alert-danger">Error: {error}</div>}
