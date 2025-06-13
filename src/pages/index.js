@@ -265,7 +265,7 @@ const SignInPage = () => {
             <div className="position-relative"><h1 className="display-4 fw-bold mb-3">Property Hub</h1><p className="lead">DEBUG TEST - Manage property maintenance tasks with ease. Schedule services, track tasks, and get real-time updates. All in one app!</p></div>
           </div>
           <div className="col-lg-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5">
-            <div className="bg-purple-500 text-white p-8 text-2xl font-bold">Tailwind Test!</div>
+            {/* Tailwind Test Div Removed */}
             <div className="w-100" style={{ maxWidth: '450px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
               <div className="d-flex justify-content-end" style={{ position: 'absolute', top: 0, right: 0 }}>{renderAuthToggle()}</div>
               {currentView === 'signIn' && renderSignInForm()}
