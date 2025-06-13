@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth
+import Dropdown from 'react-bootstrap/Dropdown';
 
 const TopBar = () => {
   const router = useRouter();
   const { user, isAdmin, signOut } = useAuth(); // Get signOut from AuthContext
 
   const [pageTitle, setPageTitle] = useState('Dashboard');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  // const isAdmin = localStorage.getItem('userIsAdmin') === 'true'; // Now using isAdmin from useAuth()
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Removed
 
   const handleSidebarToggle = () => {
     document.getElementById('sidebar')?.classList.toggle('active');
@@ -49,34 +49,7 @@ const TopBar = () => {
     setPageTitle(title);
   }, [router.pathname]);
 
-  // Access Denied Modal Logic (remains the same as it relies on Bootstrap JS)
-  const adminOnlyPages = ['/dashboard', '/properties', '/staff'];
-  // Use isAdmin from context now
-  const isAccessingAdminPageAsNonAdmin = user && !isAdmin && adminOnlyPages.includes(router.pathname);
-
-  useEffect(() => {
-    const accessDeniedModalEl = document.getElementById('accessDeniedModal');
-    if (accessDeniedModalEl) {
-        if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined') {
-            const modalInstance = bootstrap.Modal.getInstance(accessDeniedModalEl) || new bootstrap.Modal(accessDeniedModalEl);
-            if (isAccessingAdminPageAsNonAdmin) {
-                if(modalInstance && typeof modalInstance.show === 'function') modalInstance.show();
-            } else {
-                if (modalInstance && typeof modalInstance.hide === 'function' && accessDeniedModalEl.classList.contains('show')) {
-                     modalInstance.hide();
-                }
-            }
-        } else {
-            console.warn('Bootstrap Modal JS not available for accessDeniedModal control.');
-        }
-    }
-    const redirectToTasksBtn = document.getElementById('redirectToTasksBtn');
-    if(redirectToTasksBtn) {
-        // This button might not exist in the new TopBar structure, but if it does, update its navigation
-        redirectToTasksBtn.onclick = () => { router.push('/tasks'); }; // Use Next.js router
-    }
-  }, [isAccessingAdminPageAsNonAdmin, router]);
-
+  // Access Denied Modal Logic removed from TopBar as it's handled in MainLayout
 
   return (
     <div className="top-bar">
@@ -93,25 +66,22 @@ const TopBar = () => {
         <span data-i18n={`${pageTitle.toLowerCase().replace(' ', '')}Page.header`}>{pageTitle}</span>
       </div>
       <div className="top-bar-icons d-flex align-items-center">
-        <Link href="/notifications"><i className="bi bi-bell-fill"></i></Link>
-        <div className="dropdown">
-          <a className="dropdown-toggle dropdown-toggle-no-caret" href="#!" role="button" onClick={(e) => { e.preventDefault(); setIsDropdownOpen(!isDropdownOpen); }} aria-expanded={isDropdownOpen}>
-            <i className="bi bi-person-gear"></i>
-          </a>
-          <ul className={`dropdown-menu dropdown-menu-start ${isDropdownOpen ? 'show' : ''}`}>
-            <li>
-              <Link href="/account" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
-                <i className="bi bi-gear-fill me-2"></i>Account Settings
-              </Link>
-            </li>
-            <li><hr className="dropdown-divider" /></li>
-            <li>
-              <button className="dropdown-item" onClick={() => { handleSignOut(); setIsDropdownOpen(false); }} style={{ color: 'red' }}>
-                <i className="bi bi-box-arrow-right me-2"></i>Sign Out
-              </button>
-            </li>
-          </ul>
-        </div>
+        <Link href="/notifications" legacyBehavior={false}><a className="nav-link"><i className="bi bi-bell-fill"></i></a></Link>
+
+        <Dropdown align="end">
+          <Dropdown.Toggle variant="link" id="dropdown-user-settings" className="dropdown-toggle-no-caret p-0">
+            <i className="bi bi-person-gear" style={{ fontSize: '1.5em', color: '#6B7280' }}></i>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item as={Link} href="/account" legacyBehavior={false}>
+              <i className="bi bi-gear-fill me-2"></i>Account Settings
+            </Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item onClick={handleSignOut} style={{ color: 'red' }}>
+              <i className="bi bi-box-arrow-right me-2"></i>Sign Out
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </div>
   );

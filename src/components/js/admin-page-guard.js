@@ -17,24 +17,14 @@
     return;
   }
 
-  let accessDeniedModalInstance = null;
+  // Check if the modal element exists, primarily for logging if it's missing.
+  // Direct control of the modal instance is removed.
   const accessDeniedModalEl = document.getElementById('accessDeniedModal');
-  if (accessDeniedModalEl) {
-     accessDeniedModalInstance = new bootstrap.Modal(accessDeniedModalEl, {
-         backdrop: 'static', // Already set in HTML, but good to be explicit if needed
-         keyboard: false     // Already set in HTML
-     });
-  } else {
-      console.error("Access Denied Modal HTML not found on this page!");
-      // Fallback behavior if modal is missing: just redirect non-admins without modal.
+  if (!accessDeniedModalEl) {
+      console.error("Access Denied Modal HTML structure not found on this page! The modal might not show.");
   }
 
-  const redirectToTasksBtn = document.getElementById('redirectToTasksBtn');
-  if (redirectToTasksBtn) {
-     redirectToTasksBtn.addEventListener('click', () => {
-         window.location.href = 'tasks.html'; // Assumes admin pages are in pages/ directory
-     });
-  }
+  // redirectToTasksBtn logic is removed as it's handled within the React modal in MainLayout.js
 
   try {
     const { data: { user }, error: userError } = await window._supabase.auth.getUser();
@@ -53,11 +43,7 @@
 
     if (profileError) {
       console.error('Admin Page Guard: Error fetching profile. Denying access by default.', profileError);
-      if (accessDeniedModalInstance) {
-         accessDeniedModalInstance.show();
-      } else {
-         window.location.href = 'tasks.html'; // Fallback if modal isn't there
-      }
+      window.dispatchEvent(new CustomEvent('show-access-denied-modal'));
       return;
     }
 
@@ -65,12 +51,8 @@
     localStorage.setItem('userIsAdmin', isAdmin.toString()); // Also update localStorage for consistency
 
     if (!isAdmin) {
-      console.log('Admin Page Guard: User is not admin. Showing access denied modal.');
-      if (accessDeniedModalInstance) {
-         accessDeniedModalInstance.show();
-      } else {
-         window.location.href = 'tasks.html'; // Fallback
-      }
+      console.log('Admin Page Guard: User is not admin. Triggering access denied modal event.');
+      window.dispatchEvent(new CustomEvent('show-access-denied-modal'));
       // Content remains hidden (or should be ensured hidden by modal logic)
     } else {
       console.log('Admin Page Guard: User is admin. Access granted.');
@@ -80,10 +62,6 @@
     }
   } catch (e) {
     console.error('Admin Page Guard: Exception during access check. Denying access.', e);
-    if (accessDeniedModalInstance) {
-         accessDeniedModalInstance.show();
-    } else {
-         window.location.href = 'tasks.html'; // Fallback
-    }
+    window.dispatchEvent(new CustomEvent('show-access-denied-modal'));
   }
 })();
