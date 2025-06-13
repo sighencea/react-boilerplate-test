@@ -150,18 +150,29 @@ const PropertiesPage = () => {
         <div className="backdrop-blur-xl bg-white/80 border border-white/20 rounded-2xl shadow-xl shadow-black/5 p-6">
           <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <div className="relative flex-1 max-w-md">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400">
-                  <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+              <div className="flex items-center flex-1 max-w-md border border-slate-200 rounded-md bg-white/60 shadow-xs h-9 transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-search w-4 h-4 text-slate-400 mx-2 flex-shrink-0"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
                 </svg>
                 <input
                   type="text"
-                  className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-slate-200 px-3 py-1 text-base md:text-sm shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 pl-8 bg-white/60 focus:bg-white transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                  className="h-full flex-1 min-w-0 bg-transparent px-2 py-1 text-base md:text-sm placeholder:text-muted-foreground focus:outline-none disabled:pointer-events-none disabled:cursor-not-allowed file:text-foreground selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:text-sm file:font-medium"
                   placeholder="Search properties..."
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  style={{ paddingLeft: '2rem !important' }}
-                />
+                  />
               </div>
               <div className="flex gap-2">
                 <button
