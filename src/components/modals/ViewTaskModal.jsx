@@ -102,21 +102,27 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
   };
 
   useEffect(() => {
+    console.log('[ViewTaskModal] useEffect triggered. isOpen:', isOpen, 'Ref:', modalRef.current);
     const modalElement = modalRef.current;
     if (!modalElement) return;
 
     if (!window.bootstrap || !window.bootstrap.Modal) {
+      console.log('[ViewTaskModal] Bootstrap Modal JS not available yet.');
       return;
     }
 
+    console.log('[ViewTaskModal] window.bootstrap:', window.bootstrap);
+    console.log('[ViewTaskModal] window.bootstrap.Modal:', window.bootstrap ? window.bootstrap.Modal : 'undefined');
     const bsModal = new window.bootstrap.Modal(modalElement);
 
     if (isOpen) {
+      console.log('[ViewTaskModal] Attempting to call bsModal.show()');
       bsModal.show();
     } else {
       try {
           const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
-          if (currentModalInstance) {
+          if (currentModalInstance && currentModalInstance._isShown) { // Check if shown
+               console.log('[ViewTaskModal] Attempting to call bsModal.hide()');
                currentModalInstance.hide();
           }
       } catch (e) {
