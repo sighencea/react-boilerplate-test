@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 const ResendVerificationModal = ({ isOpen, onClose, onResendEmail, initialEmail = '' }) => {
   const [emailForResend, setEmailForResend] = useState(initialEmail);
@@ -6,13 +9,10 @@ const ResendVerificationModal = ({ isOpen, onClose, onResendEmail, initialEmail 
 
   useEffect(() => {
     if (isOpen) {
-      setEmailForResend(initialEmail); // Reset email when modal opens if initialEmail changes or on first open
-      setFeedback({ text: '', type: '' }); // Clear feedback when modal opens
+      setEmailForResend(initialEmail);
+      setFeedback({ text: '', type: '' });
     }
   }, [isOpen, initialEmail]);
-
-
-  if (!isOpen) return null;
 
   const handleResend = async () => {
     if (!emailForResend) {
@@ -38,36 +38,28 @@ const ResendVerificationModal = ({ isOpen, onClose, onResendEmail, initialEmail 
   };
 
   return (
-    <div className={`modal fade ${isOpen ? 'show' : ''}`} style={{ display: isOpen ? 'block' : 'none' }} tabIndex="-1" role="dialog">
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Resend Verification Email</h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={handleClose}></button>
-          </div>
-          <div className="modal-body">
-            <p>Please enter your email address below to receive a new verification link.</p>
-            <div className="form-floating mb-3">
-              <input
-                type="email"
-                className="form-control"
-                id="resendEmailInputModalReact"
-                placeholder="name@example.com"
-                value={emailForResend}
-                onChange={(e) => setEmailForResend(e.target.value)}
-              />
-              <label htmlFor="resendEmailInputModalReact">Email address</label>
-            </div>
-            {feedback.text && <div className={`alert alert-${feedback.type || 'info'} mt-2`}>{feedback.text}</div>}
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={handleClose}>Close</button>
-            <button type="button" className="btn btn-warning" onClick={handleResend}>Resend Email</button>
-          </div>
-        </div>
-      </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
-    </div>
+    <Modal show={isOpen} onHide={handleClose} centered backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>Resend Verification Email</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>Please enter your email address below to receive a new verification link.</p>
+        <Form.Group className="mb-3" controlId="resendEmailInputModalReact">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="name@example.com"
+            value={emailForResend}
+            onChange={(e) => setEmailForResend(e.target.value)}
+          />
+        </Form.Group>
+        {feedback.text && <div className={`alert alert-${feedback.type || 'info'} mt-2`}>{feedback.text}</div>}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>Close</Button>
+        <Button variant="warning" onClick={handleResend}>Resend Email</Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 

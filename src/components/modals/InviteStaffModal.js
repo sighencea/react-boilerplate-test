@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext'; // To get company_id
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
   const { user } = useAuth(); // For company_id
   const [formData, setFormData] = useState({
     email: '',
-    firstName: '', // Changed
-    lastName: '',  // Changed
+    firstName: '',
+    lastName: '',
     role: '',
   });
   const [loading, setLoading] = useState(false);
@@ -72,61 +77,56 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
   };
 
   const handleClose = () => {
-    // Resetting form is handled by useEffect on isOpen change
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">Invite New Staff Member</h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={handleClose} disabled={loading}></button>
-            </div>
-            <div className="modal-body">
-              {error && <div className="alert alert-danger">{error}</div>}
-              {successMessage && <div className="alert alert-success">{successMessage}</div>}
+    <Modal show={isOpen} onHide={handleClose} centered backdrop="static">
+      <Modal.Header closeButton disabled={loading}>
+        <Modal.Title>Invite New Staff Member</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          {error && <div className="alert alert-danger">{error}</div>}
+          {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="firstName" className="form-label">First Name*</label>
-                  <input type="text" className="form-control" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required disabled={loading} />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="lastName" className="form-label">Last Name*</label>
-                  <input type="text" className="form-control" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required disabled={loading} />
-                </div>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">Email Address*</label>
-                <input type="email" className="form-control" id="email" name="email" value={formData.email} onChange={handleChange} required disabled={loading} />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="role" className="form-label">Role*</label>
-                <select className="form-select" id="role" name="role" value={formData.role} onChange={handleChange} required disabled={loading}>
-                  {roleOptions && roleOptions.length > 0 ? (
-                    roleOptions.map(r => <option key={r} value={r}>{r}</option>)
-                  ) : (
-                    <option value="" disabled>No roles available</option>
-                  )}
-                </select>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={loading}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Sending Invitation...' : 'Send Invitation'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
-    </div>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="inviteFirstName">
+                <Form.Label>First Name*</Form.Label>
+                <Form.Control type="text" name="firstName" value={formData.firstName} onChange={handleChange} required disabled={loading} />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="inviteLastName">
+                <Form.Label>Last Name*</Form.Label>
+                <Form.Control type="text" name="lastName" value={formData.lastName} onChange={handleChange} required disabled={loading} />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Form.Group className="mb-3" controlId="inviteEmail">
+            <Form.Label>Email Address*</Form.Label>
+            <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required disabled={loading} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="inviteRole">
+            <Form.Label>Role*</Form.Label>
+            <Form.Select name="role" value={formData.role} onChange={handleChange} required disabled={loading}>
+              {roleOptions && roleOptions.length > 0 ? (
+                roleOptions.map(r => <option key={r} value={r}>{r}</option>)
+              ) : (
+                <option value="" disabled>No roles available</option>
+              )}
+            </Form.Select>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
+          <Button variant="primary" type="submit" disabled={loading}>
+            {loading ? 'Sending Invitation...' : 'Send Invitation'}
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 };
 

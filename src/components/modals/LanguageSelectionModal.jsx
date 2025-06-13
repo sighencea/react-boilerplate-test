@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 const LanguageSelectionModal = ({ isOpen, onClose, onSaveLanguage }) => {
   const [selectedLang, setSelectedLang] = useState('en'); // Default to English
   const [feedback, setFeedback] = useState({ text: '', type: '' });
 
-  if (!isOpen) return null;
+  // if (!isOpen) return null; // Removed, Modal show prop handles this
 
   const handleSave = async () => {
     setFeedback({ text: 'Saving...', type: 'info' });
@@ -29,37 +32,30 @@ const LanguageSelectionModal = ({ isOpen, onClose, onSaveLanguage }) => {
   };
 
   return (
-    <div className={`modal fade ${isOpen ? 'show' : ''}`} style={{ display: isOpen ? 'block' : 'none' }} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" role="dialog" id="languageSelectionModal">
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id="languageSelectionModalLabel" data-i18n="languageSelectionModal.title">Select Your Preferred Language</h5>
-            {/* No close button (X) in the header as per original HTML to force a choice, but providing one for React component usability */}
-             <button type="button" className="btn-close" aria-label="Close" onClick={handleClose}></button>
-          </div>
-          <div className="modal-body">
-            <p data-i18n="languageSelectionModal.description">Please choose the language you'd like to use in Property Hub.</p>
-            <div className="form-floating mb-3">
-              <select
-                className="form-select"
-                id="languageSelectDropdown"
-                value={selectedLang}
-                onChange={(e) => setSelectedLang(e.target.value)}
-              >
-                <option value="en" data-i18n="languageSelectionModal.optionEnglish">English</option>
-                <option value="de" data-i18n="languageSelectionModal.optionGerman">German</option>
-              </select>
-              <label htmlFor="languageSelectDropdown" data-i18n="languageSelectionModal.selectLabel">Language</label>
-            </div>
-            {feedback.text && <div className={`alert alert-${feedback.type || 'info'} mt-2`}>{feedback.text}</div>}
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-primary w-100" id="saveLanguagePreferenceButton" onClick={handleSave} data-i18n="languageSelectionModal.continueButton">Continue</button>
-          </div>
-        </div>
-      </div>
-      {isOpen && <div className="modal-backdrop fade show"></div>}
-    </div>
+    <Modal show={isOpen} onHide={handleClose} backdrop="static" keyboard={false} centered id="languageSelectionModal">
+      <Modal.Header closeButton>
+        <Modal.Title id="languageSelectionModalLabel" data-i18n="languageSelectionModal.title">Select Your Preferred Language</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p data-i18n="languageSelectionModal.description">Please choose the language you'd like to use in Property Hub.</p>
+        {/* Using Form.Group and Form.Select. Floating label is default with react-bootstrap Form.Control/Select inside Form.Floating */}
+        {/* For simplicity, using standard label here. Form.Floating can be added if exact style is crucial. */}
+        <Form.Group className="mb-3" controlId="languageSelectDropdown">
+          <Form.Label data-i18n="languageSelectionModal.selectLabel">Language</Form.Label>
+          <Form.Select
+            value={selectedLang}
+            onChange={(e) => setSelectedLang(e.target.value)}
+          >
+            <option value="en" data-i18n="languageSelectionModal.optionEnglish">English</option>
+            <option value="de" data-i18n="languageSelectionModal.optionGerman">German</option>
+          </Form.Select>
+        </Form.Group>
+        {feedback.text && <div className={`alert alert-${feedback.type || 'info'} mt-2`}>{feedback.text}</div>}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" className="w-100" id="saveLanguagePreferenceButton" onClick={handleSave} data-i18n="languageSelectionModal.continueButton">Continue</Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext'; // For user ID if needed for RLS on files or getting signed URLs
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdated }) => {
-  const modalRef = useRef(null);
-  const modalInstanceRef = useRef(null);
   const { user, isAdmin } = useAuth();
   const [taskDetails, setTaskDetails] = useState(null);
   const [files, setFiles] = useState([]);
@@ -102,161 +102,76 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
     }
   };
 
-  useEffect(() => {
-    const modalElement = modalRef.current;
-    // If the modal element isn't available yet, or if the modal isn't supposed to be open, do nothing.
-    if (!modalElement) {
-      console.log('[ViewTaskModal] Modal element ref is null, cannot proceed.');
-      return;
-    }
-
-    if (!isOpen) {
-      // If the modal is supposed to be closed:
-      // Hide and dispose of the modal instance if it exists and is shown.
-      if (modalInstanceRef.current) {
-        console.log('[ViewTaskModal] isOpen is false. Hiding and disposing modal.');
-        // Check if modal is shown before trying to hide to prevent errors
-        const bsInstance = window.bootstrap.Modal.getInstance(modalElement);
-        if (bsInstance && bsInstance._isShown) {
-          bsInstance.hide();
-        }
-        modalInstanceRef.current.dispose(); // Dispose the instance we stored
-        modalInstanceRef.current = null;
-      }
-      return; // Early exit if modal is not supposed to be open
-    }
-
-    // If isOpen is true, proceed to initialize and show:
-    let attempts = 0;
-    const maxAttempts = 20; // Try for up to 2 seconds (20 * 100ms)
-    const intervalTime = 100; // ms
-    let pollerTimeoutId = null;
-
-    function tryInitializeModal() {
-      console.log(`[ViewTaskModal] Attempting to initialize modal (attempt ${attempts + 1}). isOpen:`, isOpen);
-
-      if (window.bootstrap && window.bootstrap.Modal) {
-        console.log('[ViewTaskModal] Bootstrap is NOW available.');
-        if (!modalInstanceRef.current) { // Create new instance only if one doesn't exist or was disposed
-          modalInstanceRef.current = new window.bootstrap.Modal(modalElement);
-          modalElement.addEventListener('hidden.bs.modal', () => {
-            // This event listener helps sync state if the modal is closed by Bootstrap (e.g., ESC key)
-            console.log('[ViewTaskModal] hidden.bs.modal event triggered.');
-            if (isOpen && onClose) { // Check React's state (isOpen) before calling onClose
-              onClose();
-            }
-          });
-        }
-        console.log('[ViewTaskModal] Attempting to call modalInstanceRef.current.show()');
-        modalInstanceRef.current.show();
-      } else {
-        attempts++;
-        if (attempts < maxAttempts) {
-          console.warn(`[ViewTaskModal] Bootstrap Modal JS not available (attempt ${attempts}). Retrying in ${intervalTime}ms...`);
-          pollerTimeoutId = setTimeout(tryInitializeModal, intervalTime);
-        } else {
-          console.error('[ViewTaskModal] Bootstrap Modal JS did not load after multiple attempts.');
-        }
-      }
-    }
-
-    // Start the process if the modal is supposed to be open
-    tryInitializeModal();
-
-    // Cleanup function
-    return () => {
-      console.log('[ViewTaskModal] useEffect cleanup. isOpen:', isOpen);
-      clearTimeout(pollerTimeoutId); // Clear any pending timeout from the poller
-
-      if (modalInstanceRef.current) {
-        console.log('[ViewTaskModal] Disposing modal instance in cleanup.');
-        const bsInstance = window.bootstrap.Modal.getInstance(modalElement);
-        if (bsInstance && bsInstance._isShown) {
-           bsInstance.hide();
-        }
-        modalInstanceRef.current.dispose();
-        modalInstanceRef.current = null;
-      }
-    };
-  }, [isOpen, onClose]);
-
   // The modal structure is always rendered. Content visibility controlled by Bootstrap.
-  // if (!isOpen && !taskDetails) return null; // This line is removed
-
   return (
-    <div className="modal fade" ref={modalRef} tabIndex="-1" role="dialog">
-      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Task Details</h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
-          </div>
-          <div className="modal-body">
-            {loading && isOpen && <p>Loading task details...</p>}
-            {error && isOpen && <div className="alert alert-danger">{error}</div>}
-            {!loading && !error && taskDetails && isOpen && (
-              <>
-                <h4>{taskDetails.task_title || taskDetails.title}</h4>
-                <hr />
-                <dl className="row">
-                  <dt className="col-sm-3">Property</dt>
-                  <dd className="col-sm-9">{taskDetails.property_address_street || 'N/A'}{taskDetails.property_address_city ? `, ${taskDetails.property_address_city}` : ''}</dd>
+    <Modal show={isOpen} onHide={onClose} size="lg" centered scrollable>
+      <Modal.Header closeButton>
+        <Modal.Title>Task Details</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {loading && <p>Loading task details...</p>}
+        {error && <div className="alert alert-danger">{error}</div>}
+        {!loading && !error && taskDetails && (
+          <>
+            <h4>{taskDetails.task_title || taskDetails.title}</h4>
+            <hr />
+            <dl className="row">
+              <dt className="col-sm-3">Property</dt>
+              <dd className="col-sm-9">{taskDetails.address || 'N/A'}</dd>
 
-                  <dt className="col-sm-3">Status</dt>
-                  <dd className="col-sm-9"><span className={`badge rounded-pill badge-custom-${taskDetails.task_status?.toLowerCase().replace(/\s+/g,'-') || 'secondary'}`}>{taskDetails.task_status || 'N/A'}</span></dd>
+              <dt className="col-sm-3">Status</dt>
+              <dd className="col-sm-9"><span className={`badge rounded-pill badge-custom-${taskDetails.task_status?.toLowerCase().replace(/\s+/g,'-') || 'secondary'}`}>{taskDetails.task_status || 'N/A'}</span></dd>
 
-                  <dt className="col-sm-3">Priority</dt>
-                  <dd className="col-sm-9">{taskDetails.task_priority || 'N/A'}</dd>
+              <dt className="col-sm-3">Priority</dt>
+              <dd className="col-sm-9">{taskDetails.task_priority || 'N/A'}</dd>
 
-                  <dt className="col-sm-3">Due Date</dt>
-                  <dd className="col-sm-9">{taskDetails.task_due_date ? new Date(taskDetails.task_due_date).toLocaleDateString() : 'N/A'}</dd>
+              <dt className="col-sm-3">Due Date</dt>
+              <dd className="col-sm-9">{taskDetails.task_due_date ? new Date(taskDetails.task_due_date).toLocaleDateString() : 'N/A'}</dd>
 
-                  <dt className="col-sm-3">Assigned To</dt>
-                  <dd className="col-sm-9">{(taskDetails.assignee_first_name && taskDetails.assignee_last_name ? `${taskDetails.assignee_first_name} ${taskDetails.assignee_last_name}` : taskDetails.assignee_email) || 'Unassigned'}</dd>
+              <dt className="col-sm-3">Assigned To</dt>
+              <dd className="col-sm-9">{(taskDetails.assignee_first_name && taskDetails.assignee_last_name ? `${taskDetails.assignee_first_name} ${taskDetails.assignee_last_name}` : taskDetails.assignee_email) || 'Unassigned'}</dd>
 
-                  <dt className="col-sm-3">Description</dt>
-                  <dd className="col-sm-9"><p style={{whiteSpace: "pre-wrap"}}>{taskDetails.task_description || taskDetails.description || 'No description.'}</p></dd>
+              <dt className="col-sm-3">Description</dt>
+              <dd className="col-sm-9"><p style={{whiteSpace: "pre-wrap"}}>{taskDetails.task_description || taskDetails.description || 'No description.'}</p></dd>
 
-                  <dt className="col-sm-3">Notes</dt>
-                  <dd className="col-sm-9"><p style={{whiteSpace: "pre-wrap"}}>{taskDetails.task_notes || 'No notes.'}</p></dd>
-                </dl>
+              <dt className="col-sm-3">Notes</dt>
+              <dd className="col-sm-9"><p style={{whiteSpace: "pre-wrap"}}>{taskDetails.task_notes || 'No notes.'}</p></dd>
+            </dl>
 
-                <hr />
-                <h6>Attachments</h6>
-                {files.length > 0 ? (
-                  <ul className="list-group list-group-flush">
-                    {files.map(file => (
-                      <li key={file.id} className="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                          <i className={`bi bi-file-earmark${file.mime_type?.startsWith('image/') ? '-image' : (file.mime_type === 'application/pdf' ? '-pdf' : '')} me-2`}></i>
-                          <a href="#" onClick={(e) => { e.preventDefault(); handleDownloadFile(file); }} title="Download file">
-                            {file.file_name}
-                          </a>
-                          <small className="text-muted ms-2">({(file.file_size / 1024).toFixed(1)} KB)</small>
-                        </span>
-                        {(isAdmin || user?.id === file.uploaded_by) && // Allow uploader or admin to delete
-                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleSoftDeleteAttachment(file.id)}>
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        }
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No attachments for this task.</p>
-                )}
-              </>
+            <hr />
+            <h6>Attachments</h6>
+            {files.length > 0 ? (
+              <ul className="list-group list-group-flush">
+                {files.map(file => (
+                  <li key={file.id} className="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                      <i className={`bi bi-file-earmark${file.mime_type?.startsWith('image/') ? '-image' : (file.mime_type === 'application/pdf' ? '-pdf' : '')} me-2`}></i>
+                      <a href="#" onClick={(e) => { e.preventDefault(); handleDownloadFile(file); }} title="Download file">
+                        {file.file_name}
+                      </a>
+                      <small className="text-muted ms-2">({(file.file_size / 1024).toFixed(1)} KB)</small>
+                    </span>
+                    {(isAdmin || user?.id === file.uploaded_by) && // Allow uploader or admin to delete
+                      <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleSoftDeleteAttachment(file.id)}>
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    }
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No attachments for this task.</p>
             )}
-            {!loading && !error && !taskDetails && <p>No task selected or details unavailable.</p>}
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
-            {/* Optionally, an Edit button here could open the CreateEditTaskModal */}
-            {/* {isAdmin && <button type="button" className="btn btn-primary" onClick={() => onEditTask(taskDetails)}>Edit Task</button>} */}
-          </div>
-        </div>
-      </div>
-    </div>
+          </>
+        )}
+        {!loading && !error && !taskDetails && isOpen && <p>No task selected or details unavailable.</p>}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>Close</Button>
+        {/* Optionally, an Edit button here could open the CreateEditTaskModal */}
+        {/* {isAdmin && <Button variant="primary" onClick={() => onEditTask(taskDetails)}>Edit Task</Button>} */}
+      </Modal.Footer>
+    </Modal>
   );
 };
 

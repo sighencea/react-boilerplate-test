@@ -1,6 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 // Helper function to generate a somewhat unique file name if needed
 const generateStoragePath = (userId, taskId, file) => {
@@ -12,8 +17,7 @@ const generateStoragePath = (userId, taskId, file) => {
 };
 
 const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, staffList }) => {
-  const modalRef = useRef(null);
-  const modalInstanceRef = useRef(null);
+  // modalRef and modalInstanceRef are no longer needed
   const { user } = useAuth(); // User needed for uploaded_by and storage path
   const [formData, setFormData] = useState({
     property_id: '', title: '', description: '', status: 'New',
@@ -43,7 +47,6 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
       setExistingFiles(data || []);
     } catch (err) {
       console.error('Error fetching task files:', err);
-      // setError(err.message || 'Could not load existing files.'); // Avoid overriding main form error
       setExistingFiles([]);
     }
   }, []);
@@ -83,7 +86,6 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
 
     let savedTaskData;
     try {
-      // Step 1: Save/Update Task Details (excluding files)
       if (task && task.task_id) { // Editing
         const { data: updatedTask, error: updateTaskError } = await supabase.from('tasks')
           .update({ property_id: formData.property_id || null, title: formData.title, description: formData.description,
@@ -91,18 +93,16 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
           .eq('task_id', task.task_id).select().single();
         if (updateTaskError) throw updateTaskError;
         savedTaskData = updatedTask;
-        // Check if assigned_to_user_id is truly different from current task's assigned_to_user_id
-        const currentAssignee = task.assigned_to_user_id || ''; // Treat null/undefined as empty string for comparison
+        const currentAssignee = task.assigned_to_user_id || '';
         const newAssignee = formData.assigned_to_user_id || '';
         if (newAssignee !== currentAssignee) {
-            if (newAssignee) { // If there's a new assignee
+            if (newAssignee) {
                  await supabase.from('task_assignments').upsert({ task_id: task.task_id, user_id: newAssignee }, { onConflict: 'task_id' });
-            } else { // If assignee is removed (newAssignee is empty but currentAssignee was not)
+            } else {
                  await supabase.from('task_assignments').delete().eq('task_id', task.task_id);
             }
         }
-
-      } else { // Adding new task via Edge Function
+      } else { // Adding new task
         const { data: edgeResponse, error: edgeFunctionError } = await supabase.functions.invoke('create-task', {
           body: { taskDetails: { property_id: formData.property_id || null, title: formData.title, description: formData.description,
                                  status: formData.status, priority: formData.priority, due_date: formData.due_date || null,
@@ -113,51 +113,34 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
       }
 
       const currentTaskId = savedTaskData.task_id;
-
-      // Step 2: Handle File Deletions
       if (filesToDelete.length > 0) {
         const { error: deleteFilesError } = await supabase.from('task_files')
           .update({ is_deleted: true })
           .in('id', filesToDelete);
-        if (deleteFilesError) console.error('Error soft-deleting files:', deleteFilesError.message); // Log and continue
+        if (deleteFilesError) console.error('Error soft-deleting files:', deleteFilesError.message);
       }
 
-      // Step 3: Handle File Uploads
       const newFilesToUpload = [
         ...Array.from(selectedImages).map(f => ({ file: f, bucket: 'task-images' })),
         ...Array.from(selectedDocs).map(f => ({ file: f, bucket: 'task-documents' }))
       ];
-
       const uploadedFilesMetadata = [];
       for (const { file, bucket } of newFilesToUpload) {
         const storagePath = generateStoragePath(user.id, currentTaskId, file);
         setUploadProgress(prev => ({ ...prev, [file.name]: { percent: 0, error: null } }));
-
-        const { error: uploadError } = await supabase.storage
-          .from(bucket)
-          .upload(storagePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          });
-
+        const { error: uploadError } = await supabase.storage.from(bucket)
+          .upload(storagePath, file, { cacheControl: '3600', upsert: false });
         if (uploadError) {
           console.error(`Error uploading ${file.name}:`, uploadError.message);
           setUploadProgress(prev => ({ ...prev, [file.name]: { ...prev[file.name], error: uploadError.message } }));
-          // setError(`Failed to upload ${file.name}. Task saved without this file.`); // This would overwrite other errors.
           continue;
         }
         setUploadProgress(prev => ({ ...prev, [file.name]: { ...prev[file.name], percent: 100 } }));
-
         uploadedFilesMetadata.push({
-          task_id: currentTaskId,
-          file_name: file.name,
-          storage_path: storagePath,
-          mime_type: file.type,
-          file_size: file.size,
-          uploaded_by: user.id,
+          task_id: currentTaskId, file_name: file.name, storage_path: storagePath,
+          mime_type: file.type, file_size: file.size, uploaded_by: user.id,
         });
       }
-
       if (uploadedFilesMetadata.length > 0) {
         const { error: insertMetaError } = await supabase.from('task_files').insert(uploadedFilesMetadata);
         if (insertMetaError) {
@@ -165,9 +148,8 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
           setError(prevError => prevError ? `${prevError}\nFailed to save metadata for some uploaded files.` : 'Failed to save metadata for some uploaded files.');
         }
       }
-
       onSave(savedTaskData);
-      handleClose();
+      onClose(); // Changed from handleClose to direct onClose
     } catch (err) {
       console.error('Error in handleSubmit:', err);
       setError(err.message || 'An unexpected error occurred during save.');
@@ -176,137 +158,111 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
     }
   };
 
-  const handleClose = () => { onClose(); };
-
-  useEffect(() => {
-    const modalElement = modalRef.current;
-    // If the modal element isn't available yet, or if the modal isn't supposed to be open, do nothing.
-    if (!modalElement) {
-      console.log('[CreateEditTaskModal] Modal element ref is null, cannot proceed.');
-      return;
-    }
-
-    if (!isOpen) {
-      // If the modal is supposed to be closed:
-      // Hide and dispose of the modal instance if it exists and is shown.
-      if (modalInstanceRef.current) {
-        console.log('[CreateEditTaskModal] isOpen is false. Hiding and disposing modal.');
-        // Check if modal is shown before trying to hide to prevent errors
-        const bsInstance = window.bootstrap.Modal.getInstance(modalElement);
-        if (bsInstance && bsInstance._isShown) {
-          bsInstance.hide();
-        }
-        modalInstanceRef.current.dispose(); // Dispose the instance we stored
-        modalInstanceRef.current = null;
-      }
-      return; // Early exit if modal is not supposed to be open
-    }
-
-    // If isOpen is true, proceed to initialize and show:
-    let attempts = 0;
-    const maxAttempts = 20; // Try for up to 2 seconds (20 * 100ms)
-    const intervalTime = 100; // ms
-    let pollerTimeoutId = null;
-
-    function tryInitializeModal() {
-      console.log(`[CreateEditTaskModal] Attempting to initialize modal (attempt ${attempts + 1}). isOpen:`, isOpen);
-
-      if (window.bootstrap && window.bootstrap.Modal) {
-        console.log('[CreateEditTaskModal] Bootstrap is NOW available.');
-        if (!modalInstanceRef.current) { // Create new instance only if one doesn't exist or was disposed
-          modalInstanceRef.current = new window.bootstrap.Modal(modalElement);
-          modalElement.addEventListener('hidden.bs.modal', () => {
-            // This event listener helps sync state if the modal is closed by Bootstrap (e.g., ESC key)
-            console.log('[CreateEditTaskModal] hidden.bs.modal event triggered.');
-            if (isOpen && onClose) { // Check React's state (isOpen) before calling onClose
-              onClose();
-            }
-          });
-        }
-        console.log('[CreateEditTaskModal] Attempting to call modalInstanceRef.current.show()');
-        modalInstanceRef.current.show();
-      } else {
-        attempts++;
-        if (attempts < maxAttempts) {
-          console.warn(`[CreateEditTaskModal] Bootstrap Modal JS not available (attempt ${attempts}). Retrying in ${intervalTime}ms...`);
-          pollerTimeoutId = setTimeout(tryInitializeModal, intervalTime);
-        } else {
-          console.error('[CreateEditTaskModal] Bootstrap Modal JS did not load after multiple attempts.');
-        }
-      }
-    }
-
-    // Start the process if the modal is supposed to be open
-    tryInitializeModal();
-
-    // Cleanup function
-    return () => {
-      console.log('[CreateEditTaskModal] useEffect cleanup. isOpen:', isOpen);
-      clearTimeout(pollerTimeoutId); // Clear any pending timeout from the poller
-
-      if (modalInstanceRef.current) {
-        console.log('[CreateEditTaskModal] Disposing modal instance in cleanup.');
-        const bsInstance = window.bootstrap.Modal.getInstance(modalElement);
-        if (bsInstance && bsInstance._isShown) {
-           bsInstance.hide();
-        }
-        modalInstanceRef.current.dispose();
-        modalInstanceRef.current = null;
-      }
-    };
-  }, [isOpen, onClose]);
-
-  // The modal structure is always rendered. Content visibility controlled by Bootstrap.
-  // if (!isOpen) return null; // This line is removed
+  const handleClose = () => { onClose(); }; // Keep handleClose for clarity or direct use if needed elsewhere
 
   return (
-    <div className="modal fade" ref={modalRef} tabIndex="-1" role="dialog">
-      <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">{task && task.task_id ? 'Edit Task' : 'Create New Task'}</h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={handleClose} disabled={loading}></button>
-            </div>
-            <div className="modal-body">
-              {isOpen && error && <div className="alert alert-danger">{error}</div>}
-              {isOpen && Object.entries(uploadProgress).map(([fileName, progressStatus]) => (
-                <div key={fileName} className="mb-1">
-                  <small>{fileName}: {progressStatus.error ? <span className="text-danger">Error - {progressStatus.error}</span> : `${progressStatus.percent}%`}</small>
-                  <div className="progress" style={{height: '5px'}}>
-                    <div
-                        className={`progress-bar ${progressStatus.error ? 'bg-danger' : (progressStatus.percent === 100 ? 'bg-success' : '')}`}
-                        role="progressbar" style={{ width: `${progressStatus.percent}%`}}
-                        aria-valuenow={progressStatus.percent} aria-valuemin="0" aria-valuemax="100">
-                    </div>
-                  </div>
+    <Modal show={isOpen} onHide={handleClose} size="xl" centered scrollable backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>{task && task.task_id ? 'Edit Task' : 'Create New Task'}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form onSubmit={handleSubmit}> {/* onSubmit is on the Form component */}
+          {error && <div className="alert alert-danger">{error}</div>}
+          {Object.entries(uploadProgress).map(([fileName, progressStatus]) => (
+            <div key={fileName} className="mb-1">
+              <small>{fileName}: {progressStatus.error ? <span className="text-danger">Error - {progressStatus.error}</span> : `${progressStatus.percent}%`}</small>
+              <div className="progress" style={{height: '5px'}}>
+                <div
+                    className={`progress-bar ${progressStatus.error ? 'bg-danger' : (progressStatus.percent === 100 ? 'bg-success' : '')}`}
+                    role="progressbar" style={{ width: `${progressStatus.percent}%`}}
+                    aria-valuenow={progressStatus.percent} aria-valuemin="0" aria-valuemax="100">
                 </div>
-              ))}
-
-              {/* Basic Task Fields (conditionally render content if needed, or ensure form is disabled/cleared when not isOpen) */}
-              <div className="mb-3"><label htmlFor="title" className="form-label">Title*</label><input type="text" className="form-control" id="title" name="title" value={formData.title} onChange={handleChange} required disabled={loading || !isOpen} /></div>
-              <div className="mb-3"><label htmlFor="property_id" className="form-label">Property*</label><select className="form-select" id="property_id" name="property_id" value={formData.property_id} onChange={handleChange} required disabled={loading || !propertiesList || !isOpen}><option value="">Select Property...</option>{propertiesList && propertiesList.map(p => <option key={p.id} value={p.id}>{p.property_name} - {p.address}</option>)}</select></div>
-              <div className="mb-3"><label htmlFor="description" className="form-label">Description</label><textarea className="form-control" id="description" name="description" rows="2" value={formData.description} onChange={handleChange} disabled={loading || !isOpen}></textarea></div>
-              <div className="row"><div className="col-md-6 mb-3"><label htmlFor="status" className="form-label">Status*</label><select className="form-select" id="status" name="status" value={formData.status} onChange={handleChange} required disabled={loading || !isOpen}>{statusOptions.map(s => <option key={s} value={s}>{s}</option>)}</select></div><div className="col-md-6 mb-3"><label htmlFor="priority" className="form-label">Priority*</label><select className="form-select" id="priority" name="priority" value={formData.priority} onChange={handleChange} required disabled={loading || !isOpen}>{priorityOptions.map(p => <option key={p} value={p}>{p}</option>)}</select></div></div>
-              <div className="row"><div className="col-md-6 mb-3"><label htmlFor="due_date" className="form-label">Due Date</label><input type="date" className="form-control" id="due_date" name="due_date" value={formData.due_date} onChange={handleChange} disabled={loading || !isOpen} /></div><div className="col-md-6 mb-3"><label htmlFor="assigned_to_user_id" className="form-label">Assign To</label><select className="form-select" id="assigned_to_user_id" name="assigned_to_user_id" value={formData.assigned_to_user_id} onChange={handleChange} disabled={loading || !staffList || !isOpen}><option value="">Unassigned</option>{staffList && staffList.map(s => <option key={s.id} value={s.id}>{s.full_name || s.email}</option>)}</select></div></div>
-              <div className="mb-3"><label htmlFor="task_notes" className="form-label">Notes</label><textarea className="form-control" id="task_notes" name="task_notes" rows="2" value={formData.task_notes} onChange={handleChange} disabled={loading || !isOpen}></textarea></div>
-
-              {isOpen && <> <hr /><h6 className="mt-3">Attachments</h6>
-              {existingFiles.length > 0 && (<div className="mb-3"><p>Current files:</p><ul className="list-group list-group-flush">
-                  {existingFiles.map(file => ( <li key={file.id} className="list-group-item d-flex justify-content-between align-items-center"><span><i className={`bi bi-file-earmark${file.mime_type?.startsWith('image/') ? '-image' : (file.mime_type === 'application/pdf' ? '-pdf' : '')} me-2`}></i>{file.file_name} <small className="text-muted">({(file.file_size / 1024).toFixed(1)} KB)</small></span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => markFileForDeletion(file.id)} disabled={loading}><i className="bi bi-trash"></i> Remove</button></li>))}
-              </ul></div>)}
-              {filesToDelete.length > 0 && <p className="text-warning small">Note: {filesToDelete.length} file(s) will be removed upon saving.</p>}
-              <div className="mb-3"><label htmlFor="imageUpload" className="form-label">Upload Images</label><input type="file" className="form-control" id="imageUpload" multiple accept="image/*" onChange={handleImageFileChange} disabled={loading} />{selectedImages.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedImages).map((file, idx) => <li key={idx}><i className="bi bi-image"></i> {file.name}</li>)}</ul>}</div>
-              <div className="mb-3"><label htmlFor="docUpload" className="form-label">Upload Documents</label><input type="file" className="form-control" id="docUpload" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv" onChange={handleDocFileChange} disabled={loading} />{selectedDocs.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedDocs).map((file, idx) => <li key={idx}><i className="bi bi-file-earmark-text"></i> {file.name}</li>)}</ul>}</div></>}
+              </div>
             </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={loading || !isOpen}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading || !isOpen}>{loading ? 'Saving...' : (task && task.task_id ? 'Save Changes' : 'Create Task')}</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          ))}
+
+          <Form.Group className="mb-3" controlId="title">
+            <Form.Label>Title*</Form.Label>
+            <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required disabled={loading} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="property_id">
+            <Form.Label>Property*</Form.Label>
+            <Form.Select name="property_id" value={formData.property_id} onChange={handleChange} required disabled={loading || !propertiesList}>
+              <option value="">Select Property...</option>
+              {propertiesList && propertiesList.map(p => <option key={p.id} value={p.id}>{p.property_name} - {p.address}</option>)}
+            </Form.Select>
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="description">
+            <Form.Label>Description</Form.Label>
+            <Form.Control as="textarea" rows={2} name="description" value={formData.description} onChange={handleChange} disabled={loading} />
+          </Form.Group>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="status">
+                <Form.Label>Status*</Form.Label>
+                <Form.Select name="status" value={formData.status} onChange={handleChange} required disabled={loading}>
+                  {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="priority">
+                <Form.Label>Priority*</Form.Label>
+                <Form.Select name="priority" value={formData.priority} onChange={handleChange} required disabled={loading}>
+                  {priorityOptions.map(p => <option key={p} value={p}>{p}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="due_date">
+                <Form.Label>Due Date</Form.Label>
+                <Form.Control type="date" name="due_date" value={formData.due_date} onChange={handleChange} disabled={loading} />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="assigned_to_user_id">
+                <Form.Label>Assign To</Form.Label>
+                <Form.Select name="assigned_to_user_id" value={formData.assigned_to_user_id} onChange={handleChange} disabled={loading || !staffList}>
+                  <option value="">Unassigned</option>
+                  {staffList && staffList.map(s => <option key={s.id} value={s.id}>{s.full_name || s.email}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Form.Group className="mb-3" controlId="task_notes">
+            <Form.Label>Notes</Form.Label>
+            <Form.Control as="textarea" rows={2} name="task_notes" value={formData.task_notes} onChange={handleChange} disabled={loading} />
+          </Form.Group>
+
+          <hr /><h6 className="mt-3">Attachments</h6>
+          {existingFiles.length > 0 && (<div className="mb-3"><p>Current files:</p><ul className="list-group list-group-flush">
+              {existingFiles.map(file => ( <li key={file.id} className="list-group-item d-flex justify-content-between align-items-center"><span><i className={`bi bi-file-earmark${file.mime_type?.startsWith('image/') ? '-image' : (file.mime_type === 'application/pdf' ? '-pdf' : '')} me-2`}></i>{file.file_name} <small className="text-muted">({(file.file_size / 1024).toFixed(1)} KB)</small></span><Button variant="outline-danger" size="sm" onClick={() => markFileForDeletion(file.id)} disabled={loading}><i className="bi bi-trash"></i> Remove</Button></li>))}
+          </ul></div>)}
+          {filesToDelete.length > 0 && <p className="text-warning small">Note: {filesToDelete.length} file(s) will be removed upon saving.</p>}
+
+          <Form.Group controlId="imageUpload" className="mb-3">
+            <Form.Label>Upload Images</Form.Label>
+            <Form.Control type="file" multiple accept="image/*" onChange={handleImageFileChange} disabled={loading} />
+            {selectedImages.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedImages).map((file, idx) => <li key={idx}><i className="bi bi-image"></i> {file.name}</li>)}</ul>}
+          </Form.Group>
+          <Form.Group controlId="docUpload" className="mb-3">
+            <Form.Label>Upload Documents</Form.Label>
+            <Form.Control type="file" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv" onChange={handleDocFileChange} disabled={loading} />
+            {selectedDocs.length > 0 && <ul className="mt-1 list-unstyled small">{Array.from(selectedDocs).map((file, idx) => <li key={idx}><i className="bi bi-file-earmark-text"></i> {file.name}</li>)}</ul>}
+          </Form.Group>
+          {/* Submit button for the form, can be styled or placed in footer */}
+          {/* <Button type="submit" style={{ display: 'none' }} />  -- This is one way if footer button handles click */}
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
+        <Button variant="primary" onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Saving...' : (task && task.task_id ? 'Save Changes' : 'Create Task')}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 export default CreateEditTaskModal;
