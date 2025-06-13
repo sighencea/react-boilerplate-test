@@ -60,9 +60,24 @@ const TasksPage = () => {
     if (isAdmin) { fetchPropertiesForModal(); fetchStaffForModal(); }
   }, [fetchTasks, isAdmin, fetchPropertiesForModal, fetchStaffForModal]);
 
-  const handleOpenCreateModal = () => { setSelectedTask(null); setIsCreateEditModalOpen(true); };
-  const handleOpenEditModal = (taskToEdit) => { setSelectedTask(taskToEdit); setIsCreateEditModalOpen(true); };
-  const handleOpenViewModal = (taskToView) => { setSelectedTask(taskToView); setIsViewModalOpen(true); };
+  const handleOpenCreateModal = () => {
+    console.log('handleOpenCreateModal called');
+    setSelectedTask(null);
+    setIsCreateEditModalOpen(true);
+    console.log('isCreateEditModalOpen set to true for create');
+  };
+  const handleOpenEditModal = (taskToEdit) => {
+    console.log('handleOpenEditModal called with task:', taskToEdit);
+    setSelectedTask(taskToEdit);
+    setIsCreateEditModalOpen(true);
+    console.log('isCreateEditModalOpen set to true for edit');
+  };
+  const handleOpenViewModal = (taskToView) => {
+    console.log('handleOpenViewModal called with task:', taskToView);
+    setSelectedTask(taskToView);
+    setIsViewModalOpen(true);
+    console.log('isViewModalOpen set to true');
+  };
 
   const handleModalSave = () => { setIsCreateEditModalOpen(false); fetchTasks(); };
   const handleViewModalClose = () => { setIsViewModalOpen(false); setSelectedTask(null); };
