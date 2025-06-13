@@ -159,6 +159,7 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
           })}
         </ul>
 
+        {/* User Profile Section - START */}
         <div className="px-3 py-4 border-t border-slate-200">
           <div className={`flex items-center group ${isSidebarCollapsed ? 'gap-0 justify-center' : 'gap-3'}`}>
             <span className="relative flex size-8 shrink-0 overflow-hidden rounded-full h-10 w-10 ring-2 ring-slate-100 transition-all duration-200 group-hover:ring-blue-200 flex-shrink-0">
@@ -168,7 +169,6 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
               <h3 className="font-semibold text-slate-900 text-sm truncate leading-tight">{profileUser.name || (user ? (user.user_metadata?.first_name || 'User') : 'Guest')}</h3>
               <p className="text-xs text-slate-500 truncate leading-relaxed mt-0.5">{user ? user.email : 'Not logged in'}</p>
             </div>
-            {/* Conditionally hide dropdown toggle if sidebar is collapsed and there's no text? Or just let it be small? For now, keep it. Add flex-shrink-0 to prevent it from being squeezed out if space is extremely tight. */}
             <div className={`${isSidebarCollapsed ? 'w-0 overflow-hidden opacity-0' : 'opacity-100'} transition-opacity duration-300 flex-shrink-0`}>
               <Dropdown align="end" drop="up">
                 <Dropdown.Toggle as={CustomToggle} id="sidebar-user-options">
@@ -177,21 +177,25 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
                   </svg>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="shadow-lg mb-2">
-                <Dropdown.Item as={Link} href="/account" legacyBehavior={false}>
-                  <a className="dropdown-item flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings w-4 h-4"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    Account Settings
-                  </a>
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item onClick={handleSignOut} className="text-danger flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out w-4 h-4"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
-                  Sign Out
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+                  <Dropdown.Item as={Link} href="/account" legacyBehavior={false}>
+                    <a className="dropdown-item flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings w-4 h-4"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73 2.73l-.22.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      Account Settings
+                    </a>
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={handleSignOut} className="text-danger flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out w-4 h-4"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    Sign Out
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div> {/* Correctly closing the dropdown wrapper div */}
           </div>
         </div>
+        {/* User Profile Section - END */}
+
+        {/* Help & Support / Trigger Section - START */}
         <div className={`pt-3 border-t border-slate-200 ${isSidebarCollapsed ? 'mt-auto' : ''}`}>
           <div className="flex items-center justify-between">
             <button
@@ -227,6 +231,7 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
             </button>
           </div>
         </div>
+        {/* Help & Support / Trigger Section - END */}
       </nav>
     </aside>
   );
