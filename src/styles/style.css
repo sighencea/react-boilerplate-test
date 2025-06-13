@@ -1,6 +1,6 @@
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* Bootstrap 5 default font stack for compatibility */
-  background-color: #e3f2fd; /* Gentle off-blue */
+  background-color: #eef2f8; /* Updated background color */
   /* Flexbox properties will be handled by Bootstrap classes on the body tag directly if needed */
   /* min-height and margin might also be handled by Bootstrap or not be necessary with Bootstrap's full-height containers */
 }
