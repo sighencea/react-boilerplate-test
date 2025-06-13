@@ -29,12 +29,12 @@ const TasksPage = () => {
 
   const fetchPropertiesForModal = useCallback(async () => {
     if (!user?.app_metadata?.company_id) { setPropertiesList([]); return; }
-    try { const { data, error: dbError } = await supabase.from('properties').select('id, name, address_street').eq('company_id', user.app_metadata.company_id).order('name'); if (dbError) throw dbError; setPropertiesList(data || []); } catch (err) { console.error('Error fetching properties list:', err); setPropertiesList([]); }
+    try { const { data, error: dbError } = await supabase.from('properties').select('id, property_name, address').eq('company_id', user.app_metadata.company_id).order('property_name', { ascending: true }); if (dbError) throw dbError; setPropertiesList(data || []); } catch (err) { console.error('Error fetching properties list:', err); setPropertiesList([]); }
   }, [user]);
 
   const fetchStaffForModal = useCallback(async () => {
     if (!user?.app_metadata?.company_id) { setStaffList([]); return; }
-    try { const { data, error: dbError } = await supabase.from('profiles').select('id, full_name, email').eq('company_id', user.app_metadata.company_id).neq('is_admin', true).order('full_name'); if (dbError) throw dbError; setStaffList(data || []); } catch (err) { console.error('Error fetching staff list:', err); setStaffList([]); }
+    try { const { data, error: dbError } = await supabase.from('profiles').select('id, first_name, last_name, email').eq('company_id', user.app_metadata.company_id).neq('is_admin', true).order('first_name', { ascending: true }).order('last_name', { ascending: true }); if (dbError) throw dbError; setStaffList(data || []); } catch (err) { console.error('Error fetching staff list:', err); setStaffList([]); }
   }, [user]);
 
   const fetchTasks = useCallback(async () => {
@@ -45,7 +45,7 @@ const TasksPage = () => {
       // The `detailed_task_assignments` view should ideally contain all these.
       // Adding task_notes, task_description explicitly if they might not be in `*` from a minimal view.
       let query = supabase.from('detailed_task_assignments')
-        .select('*, task_notes, task_description', { count: 'exact' })
+        .select('*, tasks(task_notes, task_description)', { count: 'exact' })
         .order('task_due_date', { ascending: true, nullsFirst: false }).range(from, to);
       if (statusFilter) query = query.eq('task_status', statusFilter);
       if (priorityFilter) query = query.eq('task_priority', priorityFilter);
