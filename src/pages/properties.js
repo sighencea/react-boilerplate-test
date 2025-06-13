@@ -39,7 +39,7 @@ const PropertiesPage = () => {
 
       let query = supabase
         .from('properties')
-        .select('id, property_name, address, property_image_url, property_type, qr_code_image_url, created_at', { count: 'exact' })
+        .select('id, property_name, address, property_image_url, property_type, qr_code_image_url, created_at, tasks(count)', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -220,65 +220,105 @@ const PropertiesPage = () => {
         {!loading && properties.length === 0 ? (
           <p data-i18n="propertiesPage.noPropertiesFound">No properties found.</p>
         ) : (
-          <div className="row g-4" id="propertyCardsContainer"> {/* Using Bootstrap grid classes for cards for now */}
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" id="propertyCardsContainer">
             {properties.map(property => (
-              <div className="col-lg-4 col-md-6 mb-4" key={property.id}>
-                <Link href={`/property-details/${property.id}`} passHref legacyBehavior>
-                  <a className="card property-card-link h-100 shadow-sm text-decoration-none d-block"> {/* These are Bootstrap card classes */}
-                    <img
-                      src={property.property_image_url || '/assets/images/card1.png'}
-                      className="card-img-top property-card-img"
-                      alt={`Property ${property.property_name || 'Unnamed'}`}
-                      onError={(e) => { e.target.onerror = null; e.target.src='/assets/images/card_placeholder.png'; }}
-                    />
-                    <div className="card-body d-flex flex-column">
-                      <h5 className="card-title text-primary">{property.property_name || 'N/A'}</h5>
-                      <p className="card-text text-secondary flex-grow-1">
-                        {property.address || 'N/A'}
-                      </p>
-                      <p className="card-text">
-                        <small className="text-muted">Type: {property.property_type || 'N/A'}</small>
-                      </p>
-                      <div className="mt-auto d-flex justify-content-between align-items-center pt-2">
+              <Link href={`/property-details/${property.id}`} key={property.id} passHref>
+                <article className="group cursor-pointer">
+                  <div data-slot="card" className="text-card-foreground flex flex-col gap-6 rounded-xl py-6 overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm">
+                    <div className="relative">
+                      <figure className="aspect-[4/3] overflow-hidden m-0 p-0">
+                        <img
+                          alt={property.property_name || 'Property image'}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 align-top block"
+                          src={property.property_image_url || '/assets/images/placeholder-avatar.png'}
+                          onError={(e) => { e.target.onerror = null; e.target.src='/assets/images/placeholder-avatar.png'; }}
+                        />
+                      </figure>
+                      {/* Task Count Badge START */}
+                      {(() => {
+                        const taskCount = property.tasks && property.tasks.length > 0 ? property.tasks[0].count : 0;
+                        let badgeClasses = '';
+                        let badgeText = '';
+
+                        if (taskCount === 0) {
+                          badgeClasses = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                          badgeText = 'No Active Tasks';
+                        } else if (taskCount <= 3) { // Example: 1-3 tasks
+                          badgeClasses = 'bg-rose-100 text-rose-700 border-rose-200';
+                          badgeText = `${taskCount} Task${taskCount > 1 ? 's' : ''}`;
+                        } else { // Example: >3 tasks
+                          badgeClasses = 'bg-amber-100 text-amber-700 border-amber-200';
+                          badgeText = `${taskCount} Task${taskCount > 1 ? 's' : ''}`;
+                        }
+
+                        return (
+                          <div className="absolute top-4 right-4" style={{ opacity: 1, transform: 'none' }}>
+                            <span
+                              className={`inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs w-fit whitespace-nowrap shrink-0 gap-1 font-medium shadow-sm backdrop-blur-sm ${badgeClasses}`}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-check w-3 h-3 mr-1">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="m9 12 2 2 4-4"></path>
+                              </svg>
+                              {badgeText}
+                            </span>
+                          </div>
+                        );
+                      })()}
+                      {/* Task Count Badge END */}
+                    </div>
+                    <div data-slot="card-content" className="p-6"> {/* Corrected padding to p-6 */}
+                      <header className="mb-4">
+                        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-700 transition-colors">
+                          {property.property_name || 'N/A'}
+                        </h3>
+                        <address className="text-slate-600 not-italic text-sm leading-relaxed">
+                          {property.address || 'N/A'}
+                        </address>
+                      </header>
+                      <div className="flex flex-row items-center justify-between gap-2 mt-2">
+                        <button
+                          aria-label={`View details for ${property.property_name || 'property'}`}
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap h-9 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-800 border border-blue-200 hover:border-blue-300 transition-all duration-200 font-medium rounded-lg text-sm flex-shrink-0"
+                          // onClick is not needed here as the Link will handle navigation
+                        >
+                          View Details
+                        </button>
                         {property.qr_code_image_url && (
                           <button
                             type="button"
-                            className="btn btn-sm btn-outline-secondary qr-code-button"
-                            title="Show QR Code"
+                            aria-label={`Show QR code for ${property.property_name || 'property'}`}
+                            className="ml-2 p-2 rounded-lg border border-transparent bg-white/60 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 group/qr"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               handleShowQrCode(property.qr_code_image_url, property.property_name);
                             }}
                           >
-                            <i className="bi bi-qr-code"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-qr-code w-5 h-5 text-blue-400 group-hover/qr:text-blue-700 transition-colors duration-200" aria-hidden="true">
+                              <rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path>
+                            </svg>
                           </button>
                         )}
-                         {/* Replaced span with a more descriptive text or keep as is if design implies icon only */}
-                        <span className="text-primary small fw-medium">View Details</span>
                       </div>
+                      {isAdmin && (
+                        <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end gap-2">
+                          <button onClick={(e) => {
+                            e.preventDefault(); e.stopPropagation(); handleOpenEditModal(property);
+                          }} className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">Edit</button>
+                          <button onClick={(e) => {
+                            e.preventDefault(); e.stopPropagation(); handleDeleteProperty(property.id);
+                          }} className="px-3 py-1.5 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">Delete</button>
+                        </div>
+                      )}
                     </div>
-                    {isAdmin && (
-                      <div className="card-footer bg-light d-flex justify-content-end">
-                          <button onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleOpenEditModal(property);
-                          }} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
-                          <button onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleDeleteProperty(property.id);
-                          }} className="btn btn-sm btn-outline-danger">Delete</button>
-                      </div>
-                    )}
-                  </a>
-                </Link>
-              </div>
+                  </div>
+                </article>
+              </Link>
             ))}
           </div>
         )}
-         {/* Loading indicator for infinite scroll */}
+        {/* Loading indicator for infinite scroll */}
         {loading && properties.length > 0 && <p className="text-center mt-4">Loading more properties...</p>}
 
 
