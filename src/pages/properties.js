@@ -142,94 +142,147 @@ const PropertiesPage = () => {
   // Keep error display prominent
   if (error && properties.length === 0) return <p className="container mt-4 text-danger">Error fetching properties: {error}</p>;
 
-
   return (
-    <div className="container-fluid properties-page-content pt-3">
-      <div className="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
-        <h1 className="h2" data-i18n="propertiesPage.title">Properties</h1>
-        {isAdmin && ( // Show Add button only to admins
-          <div className="btn-toolbar mb-2 mb-md-0">
-            <button type="button" className="btn btn-primary" onClick={handleOpenAddModal} data-i18n="propertiesPage.addNewButton">
-              <i className="bi bi-plus-lg me-1"></i> Add New Property
-            </button>
+    // Main container for the page, Tailwind classes can be added here if needed for overall page background or max-width etc.
+    // For now, assuming MainLayout handles overall page chrome.
+    <>
+      <header className="sticky top-6 z-40 mx-6 mb-8"> {/* Adjusted top to align with sidebar's top-6, assuming topbar is gone or different */}
+        <div className="backdrop-blur-xl bg-white/80 border border-white/20 rounded-2xl shadow-xl shadow-black/5 p-6">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <div className="relative flex-1 max-w-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400">
+                  <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <input
+                  type="text"
+                  className="file:text-foreground placeholder:text-muted-foreground focus-visible:ring-ring hover:bg-muted/50 inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-xl border-0 bg-transparent px-3 py-2 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 pl-10 bg-white/60 border-slate-200 focus:bg-white"
+                  placeholder="Search properties..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => console.log('Filter clicked')}
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-slate-200 bg-white/60 px-3 py-2 text-sm font-medium text-slate-700 ring-offset-background transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1.5"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-filter w-4 h-4">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                  </svg>
+                  Filter
+                </button>
+                <div className="flex rounded-lg border border-slate-200 bg-white/60 p-1">
+                  <button
+                    onClick={() => console.log('Grid view clicked')}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-700 ring-offset-background transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-100"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-grid w-4 h-4">
+                      <rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect>
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => console.log('List view clicked')}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-700 ring-offset-background transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list w-4 h-4">
+                      <line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={handleOpenAddModal}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white ring-offset-background transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-lg shadow-blue-500/20 gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus w-4 h-4">
+                  <path d="M5 12h14"></path><path d="M12 5v14"></path>
+                </svg>
+                Add Property
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <section className="px-6 pb-12">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-slate-900 mb-2" data-i18n="propertiesPage.title">Properties</h2>
+          <p className="text-slate-600 max-w-2xl" data-i18n="propertiesPage.description">Manage and monitor all your properties from one central dashboard. Track maintenance tasks, view property details, and stay organized.</p>
+        </div>
+
+        {error && <div className="alert alert-danger">Error: {error}</div>}
+        {/* loading state is handled by the initial page load check */}
+        {/* {!loading && properties.length === 0 below handles no properties after load */}
+
+        {!loading && properties.length === 0 ? (
+          <p data-i18n="propertiesPage.noPropertiesFound">No properties found.</p>
+        ) : (
+          <div className="row g-4" id="propertyCardsContainer"> {/* Using Bootstrap grid classes for cards for now */}
+            {properties.map(property => (
+              <div className="col-lg-4 col-md-6 mb-4" key={property.id}>
+                <Link href={`/property-details/${property.id}`} passHref legacyBehavior>
+                  <a className="card property-card-link h-100 shadow-sm text-decoration-none d-block"> {/* These are Bootstrap card classes */}
+                    <img
+                      src={property.property_image_url || '/assets/images/card1.png'}
+                      className="card-img-top property-card-img"
+                      alt={`Property ${property.property_name || 'Unnamed'}`}
+                      onError={(e) => { e.target.onerror = null; e.target.src='/assets/images/card_placeholder.png'; }}
+                    />
+                    <div className="card-body d-flex flex-column">
+                      <h5 className="card-title text-primary">{property.property_name || 'N/A'}</h5>
+                      <p className="card-text text-secondary flex-grow-1">
+                        {property.address || 'N/A'}
+                      </p>
+                      <p className="card-text">
+                        <small className="text-muted">Type: {property.property_type || 'N/A'}</small>
+                      </p>
+                      <div className="mt-auto d-flex justify-content-between align-items-center pt-2">
+                        {property.qr_code_image_url && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary qr-code-button"
+                            title="Show QR Code"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleShowQrCode(property.qr_code_image_url, property.property_name);
+                            }}
+                          >
+                            <i className="bi bi-qr-code"></i>
+                          </button>
+                        )}
+                         {/* Replaced span with a more descriptive text or keep as is if design implies icon only */}
+                        <span className="text-primary small fw-medium">View Details</span>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div className="card-footer bg-light d-flex justify-content-end">
+                          <button onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleOpenEditModal(property);
+                          }} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
+                          <button onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteProperty(property.id);
+                          }} className="btn btn-sm btn-outline-danger">Delete</button>
+                      </div>
+                    )}
+                  </a>
+                </Link>
+              </div>
+            ))}
           </div>
         )}
-      </div>
+         {/* Loading indicator for infinite scroll */}
+        {loading && properties.length > 0 && <p className="text-center mt-4">Loading more properties...</p>}
 
-      <div className="row mb-3">
-        <div className="col-md-4">
-          <input type="text" className="form-control" placeholder="Search by name or address..." value={searchQuery} onChange={handleSearchChange} />
-        </div>
-      </div>
 
-      {error && <div className="alert alert-danger">Error: {error}</div>}
-      {loading && <p>Loading...</p>}
-
-      {!loading && properties.length === 0 ? (
-        <p data-i18n="propertiesPage.noPropertiesFound">No properties found.</p>
-      ) : (
-        <div className="row g-4" id="propertyCardsContainer">
-          {properties.map(property => (
-            <div className="col-lg-4 col-md-6 mb-4" key={property.id}>
-              <Link href={`/property-details/${property.id}`} passHref legacyBehavior>
-                <a className="card property-card-link h-100 shadow-sm text-decoration-none d-block">
-                  <img
-                    src={property.property_image_url || '/assets/images/card1.png'}
-                  className="card-img-top property-card-img"
-                  alt={`Property ${property.property_name || 'Unnamed'}`}
-                  onError={(e) => { e.target.onerror = null; e.target.src='/assets/images/card_placeholder.png'; }}
-                />
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title text-primary">{property.property_name || 'N/A'}</h5>
-                  <p className="card-text text-secondary flex-grow-1">
-                    {property.address || 'N/A'}
-                  </p>
-                  <p className="card-text">
-                    <small className="text-muted">Type: {property.property_type || 'N/A'}</small>
-                  </p>
-                  <div className="mt-auto d-flex justify-content-between align-items-center pt-2">
-                    {property.qr_code_image_url && (
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-secondary qr-code-button"
-                        title="Show QR Code"
-                        data-qr-url={property.qr_code_image_url}
-                        data-property-name={property.property_name}
-                        onClick={(e) => {
-                          e.preventDefault(); // Added
-                          e.stopPropagation();
-                          handleShowQrCode(property.qr_code_image_url, property.property_name);
-                        }}
-                        // data-i18n="propertiesPage.card.showQrButton" // data-i18n can be added if needed
-                      >
-                        <i className="bi bi-qr-code"></i>
-                      </button>
-                    )}
-                    <span className="btn btn-sm btn-outline-primary align-self-start">View Details</span>
-                  </div>
-                </div>
-                {isAdmin && ( // Show Edit/Delete only to admins
-                  <div className="card-footer bg-light d-flex justify-content-end">
-                      <button onClick={(e) => {
-                        e.preventDefault(); // Add this
-                        e.stopPropagation();
-                        handleOpenEditModal(property);
-                      }} className="btn btn-sm btn-outline-secondary me-2">Edit</button>
-                      <button onClick={(e) => {
-                        e.preventDefault(); // Add this
-                        e.stopPropagation();
-                        handleDeleteProperty(property.id);
-                      }} className="btn btn-sm btn-outline-danger">Delete</button>
-                  </div>
-                )}
-                </a>
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Pagination controls removed for infinite scroll */}
+      </section>
 
       {isModalOpen && (
         <AddEditPropertyModal

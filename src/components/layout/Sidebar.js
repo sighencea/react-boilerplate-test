@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react'; // Added forwardRef
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 const getIconForPath = (path, iconClassName) => {
   switch (path) {
@@ -40,9 +41,26 @@ const getIconForPath = (path, iconClassName) => {
   }
 };
 
+// Define CustomToggle for the Dropdown
+const CustomToggle = forwardRef(({ children, onClick }, ref) => (
+  <button
+    ref={ref}
+    onClick={(e) => {
+      e.preventDefault();
+      onClick(e);
+    }}
+    // Apply existing Tailwind classes from the button that was replaced
+    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 size-9 h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200 flex-shrink-0"
+    aria-label="User menu options"
+  >
+    {children}
+  </button>
+));
+CustomToggle.displayName = 'CustomToggle';
+
 const Sidebar = () => {
   const router = useRouter();
-  const { isAdmin, loading: authLoading, user } = useAuth();
+  const { isAdmin, loading: authLoading, user, signOut } = useAuth(); // Added signOut
 
   const isActive = (path) => router.pathname === path;
 
@@ -75,6 +93,11 @@ const Sidebar = () => {
     name: "Alex Johnson",
     email: "alex.johnson@example.com",
     avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg"
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/'); // Redirect to SignIn page
   };
 
   return (
@@ -131,9 +154,26 @@ const Sidebar = () => {
               <h3 className="font-semibold text-slate-900 text-sm truncate leading-tight">{profileUser.name || (user ? (user.user_metadata?.first_name || 'User') : 'Guest')}</h3>
               <p className="text-xs text-slate-500 truncate leading-relaxed mt-0.5">{user ? user.email : 'Not logged in'}</p>
             </div>
-            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-accent/50 size-9 h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200 flex-shrink-0" aria-label="User menu options">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-ellipsis-vertical h-4 w-4"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-            </button>
+            <Dropdown align="end" drop="up">
+              <Dropdown.Toggle as={CustomToggle} id="sidebar-user-options">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-ellipsis-vertical h-4 w-4">
+                  <circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle>
+                </svg>
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="shadow-lg mb-2">
+                <Dropdown.Item as={Link} href="/account" legacyBehavior={false}>
+                  <a className="dropdown-item flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings w-4 h-4"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    Account Settings
+                  </a>
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item onClick={handleSignOut} className="text-danger flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out w-4 h-4"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                  Sign Out
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </div>
         </div>
         <div className="pt-3 border-t border-slate-200">

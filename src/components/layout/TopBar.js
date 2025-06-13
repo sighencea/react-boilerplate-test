@@ -1,88 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
-import Dropdown from 'react-bootstrap/Dropdown';
+import React from 'react'; // Removed useState, useEffect, Link, useRouter, useAuth, Dropdown
 
 const TopBar = () => {
-  const router = useRouter();
-  const { user, isAdmin, signOut } = useAuth(); // Get signOut from AuthContext
-
-  const [pageTitle, setPageTitle] = useState('Dashboard');
-  // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Removed
+  // Removed router, user, isAdmin, signOut, pageTitle, useEffect for page title, handleSignOut
 
   const handleSidebarToggle = () => {
     document.getElementById('sidebar')?.classList.toggle('active-sidebar');
     document.querySelector('.sidebar-overlay')?.classList.toggle('active-sidebar');
   };
 
-  const handleSignOut = async () => {
-    const { error } = await signOut(); // Call signOut from AuthContext
-    if (error) {
-      console.error('Error signing out:', error);
-      // Optionally display an error to the user using a toast or alert component
-    } else {
-      router.push('/'); // Redirect to SignIn page (root) after sign out
-    }
-  };
-
-  useEffect(() => {
-    const pathTitleMapping = {
-      '/dashboard': 'Dashboard',
-      '/properties': 'Properties',
-      '/tasks': 'Tasks',
-      '/staff': 'Staff',
-      '/notifications': 'Notifications',
-      '/account': 'Account Settings',
-      '/agency-setup': 'Agency Setup',
-      '/property-details/:propertyId': 'Property Details'
-    };
-    // Match dynamic routes like /property-details/:propertyId
-    let title = 'Property Hub';
-    for (const key in pathTitleMapping) {
-      const regex = new RegExp(`^${key.replace(/:\w+/g, '[^/]+')}$`);
-      if (regex.test(router.pathname)) {
-        title = pathTitleMapping[key];
-        break;
-      }
-    }
-    setPageTitle(title);
-  }, [router.pathname]);
-
   // Access Denied Modal Logic removed from TopBar as it's handled in MainLayout
 
   return (
-    <div className="top-bar">
+    //Topbar is now only for mobile, to toggle the sidebar.
+    //It's sticky, has a backdrop blur, shadow, and border. Hidden on md screens and up.
+    <div className="sticky top-0 z-30 flex md:hidden items-center justify-between p-3 bg-white/80 backdrop-blur-xl shadow-lg border-b border-white/20">
+      {/* This button is specifically for mobile to toggle the sidebar */}
       <button
-        className="btn d-lg-none me-2"
+        className="btn text-slate-900 p-1" // Adjusted padding for better touch target
         type="button"
-        id="sidebarToggler"
+        id="sidebarToggler" // This ID is used by the JS functions
         aria-label="Toggle sidebar"
         onClick={handleSidebarToggle}
       >
-        <i className="bi bi-list"></i>
+        {/* Using a larger icon for better visibility on mobile */}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-panel-left-open w-6 h-6">
+            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+            <path d="M9 3v18"></path>
+            <path d="m14 9 3 3-3 3"></path>
+        </svg>
       </button>
-      <div className="page-title">
-        <span data-i18n={`${pageTitle.toLowerCase().replace(' ', '')}Page.header`}>{pageTitle}</span>
-      </div>
-      <div className="top-bar-icons d-flex align-items-center">
-        <Link href="/notifications" legacyBehavior={false}><a className="nav-link"><i className="bi bi-bell-fill"></i></a></Link>
-
-        <Dropdown align="end">
-          <Dropdown.Toggle variant="link" id="dropdown-user-settings" className="dropdown-toggle-no-caret p-0">
-            <i className="bi bi-person-gear" style={{ fontSize: '1.5em', color: '#6B7280' }}></i>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item as={Link} href="/account" legacyBehavior={false}>
-              <i className="bi bi-gear-fill me-2"></i>Account Settings
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item onClick={handleSignOut} style={{ color: 'red' }}>
-              <i className="bi bi-box-arrow-right me-2"></i>Sign Out
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
+      {/* Placeholder for a mobile logo or title if needed, otherwise empty */}
+      <div></div>
+      {/* Placeholder for any right-aligned mobile icons if needed, otherwise empty */}
+      <div></div>
     </div>
   );
 };
