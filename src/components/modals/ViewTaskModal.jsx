@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'; // For user ID if needed fo
 
 const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdated }) => {
   const modalRef = useRef(null);
+  const modalInstanceRef = useRef(null);
   const { user, isAdmin } = useAuth();
   const [taskDetails, setTaskDetails] = useState(null);
   const [files, setFiles] = useState([]);
@@ -102,48 +103,79 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
   };
 
   useEffect(() => {
-    console.log('[ViewTaskModal] useEffect triggered. isOpen:', isOpen, 'Ref:', modalRef.current);
     const modalElement = modalRef.current;
-    if (!modalElement) return;
-
-    if (!window.bootstrap || !window.bootstrap.Modal) {
-      console.log('[ViewTaskModal] Bootstrap Modal JS not available yet.');
+    // If the modal element isn't available yet, or if the modal isn't supposed to be open, do nothing.
+    if (!modalElement) {
+      console.log('[ViewTaskModal] Modal element ref is null, cannot proceed.');
       return;
     }
 
-    console.log('[ViewTaskModal] window.bootstrap:', window.bootstrap);
-    console.log('[ViewTaskModal] window.bootstrap.Modal:', window.bootstrap ? window.bootstrap.Modal : 'undefined');
-    const bsModal = new window.bootstrap.Modal(modalElement);
+    if (!isOpen) {
+      // If the modal is supposed to be closed:
+      // Hide and dispose of the modal instance if it exists and is shown.
+      if (modalInstanceRef.current) {
+        console.log('[ViewTaskModal] isOpen is false. Hiding and disposing modal.');
+        // Check if modal is shown before trying to hide to prevent errors
+        const bsInstance = window.bootstrap.Modal.getInstance(modalElement);
+        if (bsInstance && bsInstance._isShown) {
+          bsInstance.hide();
+        }
+        modalInstanceRef.current.dispose(); // Dispose the instance we stored
+        modalInstanceRef.current = null;
+      }
+      return; // Early exit if modal is not supposed to be open
+    }
 
-    if (isOpen) {
-      console.log('[ViewTaskModal] Attempting to call bsModal.show()');
-      bsModal.show();
-    } else {
-      try {
-          const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
-          if (currentModalInstance && currentModalInstance._isShown) { // Check if shown
-               console.log('[ViewTaskModal] Attempting to call bsModal.hide()');
-               currentModalInstance.hide();
-          }
-      } catch (e) {
-        // console.warn("Error hiding modal:", e);
+    // If isOpen is true, proceed to initialize and show:
+    let attempts = 0;
+    const maxAttempts = 20; // Try for up to 2 seconds (20 * 100ms)
+    const intervalTime = 100; // ms
+    let pollerTimeoutId = null;
+
+    function tryInitializeModal() {
+      console.log(`[ViewTaskModal] Attempting to initialize modal (attempt ${attempts + 1}). isOpen:`, isOpen);
+
+      if (window.bootstrap && window.bootstrap.Modal) {
+        console.log('[ViewTaskModal] Bootstrap is NOW available.');
+        if (!modalInstanceRef.current) { // Create new instance only if one doesn't exist or was disposed
+          modalInstanceRef.current = new window.bootstrap.Modal(modalElement);
+          modalElement.addEventListener('hidden.bs.modal', () => {
+            // This event listener helps sync state if the modal is closed by Bootstrap (e.g., ESC key)
+            console.log('[ViewTaskModal] hidden.bs.modal event triggered.');
+            if (isOpen && onClose) { // Check React's state (isOpen) before calling onClose
+              onClose();
+            }
+          });
+        }
+        console.log('[ViewTaskModal] Attempting to call modalInstanceRef.current.show()');
+        modalInstanceRef.current.show();
+      } else {
+        attempts++;
+        if (attempts < maxAttempts) {
+          console.warn(`[ViewTaskModal] Bootstrap Modal JS not available (attempt ${attempts}). Retrying in ${intervalTime}ms...`);
+          pollerTimeoutId = setTimeout(tryInitializeModal, intervalTime);
+        } else {
+          console.error('[ViewTaskModal] Bootstrap Modal JS did not load after multiple attempts.');
+        }
       }
     }
 
-    const handleExternalClose = () => {
-      if (isOpen) {
-        onClose();
-      }
-    };
-    modalElement.addEventListener('hidden.bs.modal', handleExternalClose);
+    // Start the process if the modal is supposed to be open
+    tryInitializeModal();
 
+    // Cleanup function
     return () => {
-      modalElement.removeEventListener('hidden.bs.modal', handleExternalClose);
-      if (window.bootstrap && window.bootstrap.Modal) {
-          const currentModalInstance = window.bootstrap.Modal.getInstance(modalElement);
-          if (currentModalInstance) {
-              currentModalInstance.dispose();
-          }
+      console.log('[ViewTaskModal] useEffect cleanup. isOpen:', isOpen);
+      clearTimeout(pollerTimeoutId); // Clear any pending timeout from the poller
+
+      if (modalInstanceRef.current) {
+        console.log('[ViewTaskModal] Disposing modal instance in cleanup.');
+        const bsInstance = window.bootstrap.Modal.getInstance(modalElement);
+        if (bsInstance && bsInstance._isShown) {
+           bsInstance.hide();
+        }
+        modalInstanceRef.current.dispose();
+        modalInstanceRef.current = null;
       }
     };
   }, [isOpen, onClose]);
