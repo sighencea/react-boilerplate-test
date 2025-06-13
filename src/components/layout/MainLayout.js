@@ -26,22 +26,25 @@ const MainLayout = ({ children }) => {
   };
 
   const handleOverlayClick = () => {
-    document.getElementById('sidebar')?.classList.remove('active');
-    document.querySelector('.sidebar-overlay')?.classList.remove('active');
+    document.getElementById('sidebar')?.classList.remove('active-sidebar');
+    document.querySelector('.sidebar-overlay')?.classList.remove('active-sidebar');
   };
 
   return (
     <>
-      <div className="d-flex main-layout-container"> {/* Flex container for sidebar and main content */}
-        <Sidebar />
-        <div className="flex-grow-1 main-content-area main-content"> {/* Main content area takes remaining space, added main-content */}
-          <TopBar />
-          <main className="p-3 page-content"> {/* Padding for content area */}
-            {children}
-          </main>
-        </div>
+      {/* Sidebar is positioned fixed, so it's not part of this flex container directly affecting layout flow of main-content-area on mobile */}
+      <Sidebar />
+      {/* On md screens and up, main-content-area will have ml applied to account for the sidebar that is always visible */}
+      <div className="flex flex-col flex-1 md:ml-[calc(16rem+1.5rem)]"> {/* main-content-area equivalent */}
+        <TopBar /> {/* TopBar might need to span full width or be contained within this column */}
+        <main className="p-3 page-content flex-1"> {/* Padding for content area, flex-1 to take available space */}
+          {children}
+        </main>
       </div>
-      <div className="sidebar-overlay d-lg-none" onClick={handleOverlayClick}></div> {/* Kept outside main flex layout for now */}
+      <div
+        className="fixed inset-0 bg-black/50 z-40 hidden md:hidden sidebar-overlay"
+        onClick={handleOverlayClick}
+      ></div>
 
       <Modal show={showAccessDeniedModal} onHide={handleCloseAccessDenied} backdrop="static" keyboard={false} centered>
         <Modal.Header> {/* No closeButton as per original data-bs-keyboard="false" and static backdrop */}

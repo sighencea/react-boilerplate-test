@@ -12,8 +12,8 @@ const TopBar = () => {
   // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Removed
 
   const handleSidebarToggle = () => {
-    document.getElementById('sidebar')?.classList.toggle('active');
-    document.querySelector('.sidebar-overlay')?.classList.toggle('active');
+    document.getElementById('sidebar')?.classList.toggle('active-sidebar');
+    document.querySelector('.sidebar-overlay')?.classList.toggle('active-sidebar');
   };
 
   const handleSignOut = async () => {
