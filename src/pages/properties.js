@@ -301,7 +301,7 @@ const PropertiesPage = () => {
           propertyName={currentQrPropertyName}
         />
       )}
-    </div>
+    </>
   );
 };
 
