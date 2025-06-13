@@ -1,15 +1,19 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.css';
 import '../styles/style.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Head from 'next/head';
 import { AuthProvider } from '../context/AuthContext';
 import MainLayout from '../components/layout/MainLayout.js';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
   const authPaths = ['/', '/404']; // Sign-in page and 404 page
+
+  useEffect(() => {
+    import('bootstrap/dist/js/bootstrap.bundle.min.js');
+  }, []);
 
   return (
     <AuthProvider>
