@@ -8,6 +8,11 @@ import { useRouter } from 'next/router';
 const MainLayout = ({ children }) => {
   const router = useRouter();
   const [showAccessDeniedModal, setShowAccessDeniedModal] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
 
   const handleShowAccessDenied = () => setShowAccessDeniedModal(true);
   const handleCloseAccessDenied = () => setShowAccessDeniedModal(false);
@@ -33,9 +38,13 @@ const MainLayout = ({ children }) => {
   return (
     <>
       {/* Sidebar is positioned fixed, so it's not part of this flex container directly affecting layout flow of main-content-area on mobile */}
-      <Sidebar />
+      <Sidebar isSidebarCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
       {/* On md screens and up, main-content-area will have ml applied to account for the sidebar that is always visible */}
-      <div className="flex flex-col flex-1 md:ml-[calc(16rem+1.5rem)]"> {/* main-content-area equivalent */}
+      <div
+        className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${
+          isSidebarCollapsed ? 'md:ml-[calc(5rem+1.5rem)]' : 'md:ml-[calc(16rem+1.5rem)]'
+        }`}
+      > {/* main-content-area equivalent */}
         <TopBar /> {/* TopBar might need to span full width or be contained within this column */}
         <main className="p-3 page-content flex-1"> {/* Padding for content area, flex-1 to take available space */}
           {children}
