@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import React, { useState, useEffect, useCallback, useRef } from 'react'; // Added useCallback and useRef
 import QRCode from 'qrcode';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+// import Modal from 'react-bootstrap/Modal'; // Removed
+// import Button from 'react-bootstrap/Button'; // Removed
+// import Form from 'react-bootstrap/Form';   // Removed
 // Row and Col are not strictly necessary for this layout if mb-3 provides enough spacing
+
+// SVG Icon Component for Close button
+const IconX = ({ className = "w-5 h-5" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 // Helper function for QR Code processing
 async function processQrCodeForProperty(newProperty, currentUser, supabaseClient) {
@@ -274,73 +281,143 @@ const AddEditPropertyModal = ({ isOpen, onClose, property, onSave }) => {
     onClose();
   };
 
+  const modalRef = useRef(null);
+  const [animationClass, setAnimationClass] = useState('opacity-0 scale-95');
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        setAnimationClass('opacity-100 scale-100');
+      });
+    } else {
+      setAnimationClass('opacity-0 scale-95');
+    }
+  }, [isOpen]);
+
+  const handleBackdropClick = (e) => {
+    if (modalRef.current && e.target === modalRef.current) {
+      // Static backdrop: do nothing
+      return;
+    }
+  };
+
+  if (!isOpen && animationClass === 'opacity-0 scale-95') {
+    return null;
+  }
+
   return (
-    <Modal show={isOpen} onHide={handleClose} size="lg" centered scrollable backdrop="static">
-      <Modal.Header closeButton disabled={loading}>
-        <Modal.Title>{property ? 'Edit Property' : 'Add New Property'}</Modal.Title>
-      </Modal.Header>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Body>
-          {error && <div className="alert alert-danger">{error}</div>}
+    <div
+      ref={modalRef}
+      onClick={handleBackdropClick}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      aria-labelledby="add-edit-property-modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className={`relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[95vh] transform transition-all duration-300 ease-in-out ${animationClass}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="flex justify-between items-center p-4 border-b border-slate-200">
+          <h3 id="add-edit-property-modal-title" className="text-xl font-semibold text-slate-800">
+            {property ? 'Edit Property' : 'Add New Property'}
+          </h3>
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={loading}
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
+            aria-label="Close modal"
+          >
+            <IconX className="w-5 h-5" />
+          </button>
+        </div>
 
-          <Form.Group className="mb-3" controlId="formPropertyName">
-            <Form.Label>Property Name*</Form.Label>
-            <Form.Control type="text" name="property_name" value={formData.property_name} onChange={handleChange} required disabled={loading} />
-          </Form.Group>
+        <form onSubmit={handleSubmit} id="property-form" className="flex-grow p-6 overflow-y-auto space-y-6">
+            {error &&
+              <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
+                {error}
+              </div>
+            }
 
-          <Form.Group className="mb-3" controlId="formPropertyAddress">
-            <Form.Label>Address*</Form.Label>
-            <Form.Control as="textarea" rows={3} name="address" value={formData.address} onChange={handleChange} required disabled={loading} />
-          </Form.Group>
+            <div>
+              <label htmlFor="formPropertyName" className="block text-sm font-medium text-slate-700 mb-1">Property Name*</label>
+              <input type="text" id="formPropertyName" name="property_name" value={formData.property_name} onChange={handleChange} required disabled={loading}
+                     className="block w-full px-3 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+            </div>
 
-          <Form.Group className="mb-3" controlId="formPropertyType">
-            <Form.Label>Property Type*</Form.Label>
-            <Form.Select name="property_type" value={formData.property_type} onChange={handleChange} required disabled={loading}>
-              <option value="">Select type...</option>
-              <option value="Residential">Residential</option>
-              <option value="Commercial">Commercial</option>
-              <option value="Industrial">Industrial</option>
-              <option value="Land">Land</option>
-              <option value="Other">Other</option>
-            </Form.Select>
-          </Form.Group>
+            <div>
+              <label htmlFor="formPropertyAddress" className="block text-sm font-medium text-slate-700 mb-1">Address*</label>
+              <textarea id="formPropertyAddress" name="address" rows={3} value={formData.address} onChange={handleChange} required disabled={loading}
+                        className="block w-full px-3 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+            </div>
 
-          <Form.Group className="mb-3" controlId="formPropertyOccupier">
-            <Form.Label>Occupier*</Form.Label>
-            <Form.Select name="property_occupier" value={formData.property_occupier} onChange={handleChange} required disabled={loading}>
-              <option value="">Select occupier...</option>
-              <option value="Owner-Occupied">Owner-Occupied</option>
-              <option value="Tenant-Occupied">Tenant-Occupied</option>
-              <option value="Vacant">Vacant</option>
-              <option value="Other">Other</option>
-            </Form.Select>
-          </Form.Group>
+            <div>
+              <label htmlFor="formPropertyType" className="block text-sm font-medium text-slate-700 mb-1">Property Type*</label>
+              <select id="formPropertyType" name="property_type" value={formData.property_type} onChange={handleChange} required disabled={loading}
+                      className="block w-full pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500">
+                <option value="">Select type...</option>
+                <option value="Residential">Residential</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Industrial">Industrial</option>
+                <option value="Land">Land</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
 
-          <Form.Group className="mb-3" controlId="formPropertyDetails">
-            <Form.Label>Property Details</Form.Label>
-            <Form.Control as="textarea" rows={3} name="property_details" value={formData.property_details} onChange={handleChange} disabled={loading} />
-          </Form.Group>
+            <div>
+              <label htmlFor="formPropertyOccupier" className="block text-sm font-medium text-slate-700 mb-1">Occupier*</label>
+              <select id="formPropertyOccupier" name="property_occupier" value={formData.property_occupier} onChange={handleChange} required disabled={loading}
+                      className="block w-full pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500">
+                <option value="">Select occupier...</option>
+                <option value="Owner-Occupied">Owner-Occupied</option>
+                <option value="Tenant-Occupied">Tenant-Occupied</option>
+                <option value="Vacant">Vacant</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
 
-          <Form.Group className="mb-3" controlId="formPropertyImageFile">
-            <Form.Label>Property Image</Form.Label>
-            <Form.Control type="file" name="property_image_file" onChange={handleChange} disabled={loading} accept="image/*" />
-            {imagePreviewUrl ? (
-              <img src={imagePreviewUrl} alt="Image Preview" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
-            ) : formData.property_image_url ? (
-              <img src={formData.property_image_url} alt="Current property" style={{maxWidth: '100%', maxHeight: '200px', marginTop: '10px'}} />
-            ) : (
-              <div className="mt-2" id="imagePreviewPlaceholder" style={{minHeight: '50px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><small>Image preview</small></div>
-            )}
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
-          <Button variant="primary" type="submit" disabled={loading}>
-            {loading ? (property ? 'Saving...' : 'Adding...') : (property ? 'Save Changes' : 'Add Property')}
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+            <div>
+              <label htmlFor="formPropertyDetails" className="block text-sm font-medium text-slate-700 mb-1">Property Details</label>
+              <textarea id="formPropertyDetails" name="property_details" rows={3} value={formData.property_details} onChange={handleChange} disabled={loading}
+                        className="block w-full px-3 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+            </div>
+
+            <div>
+              <label htmlFor="formPropertyImageFile" className="block text-sm font-medium text-slate-700 mb-1">Property Image</label>
+              <input type="file" id="formPropertyImageFile" name="property_image_file" onChange={handleChange} disabled={loading} accept="image/*"
+                     className="block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 disabled:pointer-events-none" />
+              {imagePreviewUrl ? (
+                <img src={imagePreviewUrl} alt="Image Preview" className="mt-2 w-full max-h-48 object-contain rounded border border-slate-200" />
+              ) : formData.property_image_url ? (
+                <img src={formData.property_image_url} alt="Current property" className="mt-2 w-full max-h-48 object-contain rounded border border-slate-200" />
+              ) : (
+                <div className="mt-2 flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500">Image preview</div>
+              )}
+            </div>
+        </form>
+        {/* Modal Footer is now a sibling to the form */}
+        <div className="flex justify-end items-center gap-3 p-4 bg-slate-50 rounded-b-2xl border-t border-slate-200">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={loading}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="property-form" // Link to the form id
+              disabled={loading}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+            >
+              {loading ? (property ? 'Saving...' : 'Adding...') : (property ? 'Save Changes' : 'Add Property')}
+            </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
