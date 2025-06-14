@@ -231,7 +231,7 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
       >
         {/* Modal Header */}
-        <div className="flex justify-between items-center p-5 border-b border-slate-200">
+        <div className="flex justify-between items-center p-3 border-b border-slate-200">
           <h3 id="modal-title" className="text-xl font-semibold text-slate-800">
             {task && task.task_id ? 'Edit Task' : 'Create New Task'}
           </h3>
@@ -379,7 +379,7 @@ const CreateEditTaskModal = ({ isOpen, onClose, task, onSave, propertiesList, st
         </div>
 
         {/* Modal Footer */}
-        <div className="flex justify-end items-center gap-3 p-5 bg-slate-50 rounded-b-2xl border-t border-slate-200">
+        <div className="flex justify-end items-center gap-3 p-3 bg-slate-50 rounded-b-2xl border-t border-slate-200">
           <button
             type="button"
             onClick={handleClose}
