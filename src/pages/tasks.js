@@ -245,7 +245,7 @@ const TasksPage = () => {
             <p className="mt-1 text-sm text-slate-500">No tasks match your current filters or search query.</p>
           </div>
         ) : (
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border-0">
+          <div className="overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border-0">
             <table className="min-w-full text-sm text-left">
               <thead className="text-xs text-slate-700 uppercase bg-slate-50/70">
                 <tr>
