@@ -207,14 +207,14 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex justify-between items-center p-5 border-b border-slate-200">
+        <div className="flex justify-between items-center p-3 border-b border-slate-200">
           <h3 id="view-task-modal-title" className="text-xl font-semibold text-slate-800">
             Task Details
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300"
             aria-label="Close modal"
           >
             <IconX className="w-5 h-5" />
@@ -308,7 +308,7 @@ const ViewTaskModal = ({ isOpen, onClose, task, onAttachmentDeleted, onTaskUpdat
         </div>
 
         {/* Modal Footer */}
-        <div className="flex justify-end items-center gap-3 p-5 bg-slate-50/70 border-t border-slate-200 rounded-b-2xl">
+        <div className="flex justify-end items-center gap-3 p-3 bg-slate-50 rounded-b-2xl border-t border-slate-200">
           <button
             type="button"
             onClick={onClose}
