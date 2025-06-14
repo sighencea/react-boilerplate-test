@@ -150,9 +150,15 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full"></div>
                   )}
                   {getIconForPath(link.path, iconClassName)}
-                  {!isSidebarCollapsed && (
-                    <span className="font-medium">{link.label}</span>
-                  )}
+                  <span
+                    className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
+                      isSidebarCollapsed
+                        ? 'opacity-0 -translate-x-4 pointer-events-none w-0'
+                        : 'opacity-100 translate-x-0 w-auto'
+                    }`}
+                  >
+                    {link.label}
+                  </span>
                 </Link>
               </li>
             );
