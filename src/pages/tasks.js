@@ -2,28 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import CreateEditTaskModal from '../components/modals/CreateEditTaskModal';
-import ViewTaskModal from '../components/modals/ViewTaskModal'; // Import ViewTaskModal
+import ViewTaskModal from '../components/modals/ViewTaskModal';
+import TaskActionsDropdown from '../../components/utils/TaskActionsDropdown'; // Import the new dropdown
 
 const ITEMS_PER_PAGE = 10;
 
-// SVG Icon Components
-const IconEye = ({ className = "w-4 h-4" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>
-  </svg>
-);
-
-const IconPencil = ({ className = "w-4 h-4" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path>
-  </svg>
-);
-
-const IconTrash = ({ className = "w-4 h-4" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
-  </svg>
-);
+// SVG Icon Components are now removed as they are encapsulated in TaskActionsDropdown or not used.
 
 // Helper for badge styling
 const getStatusBadgeClasses = (status) => {
@@ -283,22 +267,14 @@ const TasksPage = () => {
                     <td className="px-6 py-4"><span className={getPriorityBadgeClasses(task.task_priority)}>{task.task_priority || 'N/A'}</span></td>
                     <td className="px-6 py-4 text-slate-700 whitespace-nowrap">{task.task_due_date ? new Date(task.task_due_date).toLocaleDateString() : 'N/A'}</td>
                     <td className="px-6 py-4 text-slate-700 whitespace-nowrap">{(task.assignee_first_name && task.assignee_last_name ? `${task.assignee_first_name} ${task.assignee_last_name}` : task.assignee_email) || <span className="text-slate-500 italic">Unassigned</span>}</td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center space-x-1">
-                        <button onClick={() => handleOpenViewModal(task)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" aria-label="View task">
-                          <IconEye />
-                        </button>
-                        {isAdmin && (
-                          <>
-                            <button onClick={() => handleOpenEditModal(task)} className="p-1.5 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors" aria-label="Edit task">
-                              <IconPencil />
-                            </button>
-                            <button onClick={() => handleDeleteTask(task.task_id)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" aria-label="Delete task">
-                              <IconTrash />
-                            </button>
-                          </>
-                        )}
-                      </div>
+                    <td className="px-6 py-4 text-center"> {/* Adjusted to text-center for better dropdown alignment if needed, or text-right */}
+                      <TaskActionsDropdown
+                        task={task}
+                        isAdmin={isAdmin}
+                        onView={handleOpenViewModal}
+                        onEdit={handleOpenEditModal}
+                        onDelete={handleDeleteTask}
+                      />
                     </td>
                   </tr>
                 ))}
