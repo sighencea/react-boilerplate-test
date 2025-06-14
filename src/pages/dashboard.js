@@ -245,7 +245,7 @@ const DashboardPage = () => {
                 {errorProps && <p className="text-sm text-red-500" data-i18n="dashboardPage.error">Error: {errorProps}</p>}
                 {!loadingProps && !errorProps && (
                   propertyCount > 0
-                  ? <p className="text-4xl font-bold text-slate-800" id="propertyCount">{propertyCount}</p> {/* Slightly darker for count */}
+                  ? <p className="text-4xl font-bold text-slate-800" id="propertyCount">{propertyCount}</p>
                   : <p className="text-sm text-slate-600" data-i18n="dashboardPage.cardProperties.noProperties">You don't have any properties set up yet.</p>
                 )}
               </div>
