@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Added useRef
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext'; // To get company_id
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+
+// SVG Icon Component for Close button
+const IconX = ({ className = "w-5 h-5" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
   const { user } = useAuth(); // For company_id
+  const modalRef = useRef(null);
+  const [animationClass, setAnimationClass] = useState('opacity-0 scale-95');
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -27,6 +31,16 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
       setSuccessMessage('');
     }
   }, [isOpen, roleOptions]);
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        setAnimationClass('opacity-100 scale-100');
+      });
+    } else {
+      setAnimationClass('opacity-0 scale-95');
+    }
+  }, [isOpen]);
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -80,53 +94,111 @@ const InviteStaffModal = ({ isOpen, onClose, onStaffInvited, roleOptions }) => {
     onClose();
   };
 
-  return (
-    <Modal show={isOpen} onHide={handleClose} centered backdrop="static">
-      <Modal.Header closeButton disabled={loading}>
-        <Modal.Title>Invite New Staff Member</Modal.Title>
-      </Modal.Header>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Body>
-          {error && <div className="alert alert-danger">{error}</div>}
-          {successMessage && <div className="alert alert-success">{successMessage}</div>}
+  const handleBackdropClick = (e) => {
+    if (modalRef.current && e.target === modalRef.current) {
+      return; // Static backdrop
+    }
+  };
 
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3" controlId="inviteFirstName">
-                <Form.Label>First Name*</Form.Label>
-                <Form.Control type="text" name="firstName" value={formData.firstName} onChange={handleChange} required disabled={loading} />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3" controlId="inviteLastName">
-                <Form.Label>Last Name*</Form.Label>
-                <Form.Control type="text" name="lastName" value={formData.lastName} onChange={handleChange} required disabled={loading} />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Form.Group className="mb-3" controlId="inviteEmail">
-            <Form.Label>Email Address*</Form.Label>
-            <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required disabled={loading} />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="inviteRole">
-            <Form.Label>Role*</Form.Label>
-            <Form.Select name="role" value={formData.role} onChange={handleChange} required disabled={loading}>
+  if (!isOpen && animationClass === 'opacity-0 scale-95') {
+    return null;
+  }
+
+  return (
+    <div
+      ref={modalRef}
+      onClick={handleBackdropClick}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      aria-labelledby="invite-staff-modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className={`relative bg-white w-full max-w-xl rounded-2xl shadow-2xl flex flex-col max-h-[95vh] transform transition-all duration-300 ease-in-out ${animationClass}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="flex justify-between items-center p-4 border-b border-slate-200">
+          <h3 id="invite-staff-modal-title" className="text-xl font-semibold text-slate-800">
+            Invite New Staff Member
+          </h3>
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={loading}
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300"
+            aria-label="Close modal"
+          >
+            <IconX className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form becomes the scrollable body */}
+        <form onSubmit={handleSubmit} id="invite-staff-form" className="flex-grow p-6 overflow-y-auto space-y-6">
+          {error && (
+            <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg" role="alert">
+              {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg" role="alert">
+              {successMessage}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+            <div>
+              <label htmlFor="inviteFirstName" className="block text-sm font-medium text-slate-700 mb-1">First Name*</label>
+              <input type="text" id="inviteFirstName" name="firstName" value={formData.firstName} onChange={handleChange} required disabled={loading}
+                     className="block w-full px-3 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+            </div>
+            <div>
+              <label htmlFor="inviteLastName" className="block text-sm font-medium text-slate-700 mb-1">Last Name*</label>
+              <input type="text" id="inviteLastName" name="lastName" value={formData.lastName} onChange={handleChange} required disabled={loading}
+                     className="block w-full px-3 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="inviteEmail" className="block text-sm font-medium text-slate-700 mb-1">Email Address*</label>
+            <input type="email" id="inviteEmail" name="email" value={formData.email} onChange={handleChange} required disabled={loading}
+                   className="block w-full px-3 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+          </div>
+
+          <div>
+            <label htmlFor="inviteRole" className="block text-sm font-medium text-slate-700 mb-1">Role*</label>
+            <select id="inviteRole" name="role" value={formData.role} onChange={handleChange} required disabled={loading}
+                    className="block w-full pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500">
               {roleOptions && roleOptions.length > 0 ? (
                 roleOptions.map(r => <option key={r} value={r}>{r}</option>)
               ) : (
                 <option value="" disabled>No roles available</option>
               )}
-            </Form.Select>
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
-          <Button variant="primary" type="submit" disabled={loading}>
+            </select>
+          </div>
+        </form>
+
+        {/* Modal Footer */}
+        <div className="flex justify-end items-center gap-3 p-4 bg-slate-50 rounded-b-2xl border-t border-slate-200">
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={loading}
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="invite-staff-form"
+            disabled={loading}
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+          >
             {loading ? 'Sending Invitation...' : 'Send Invitation'}
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

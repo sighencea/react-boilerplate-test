@@ -3,8 +3,22 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import InviteStaffModal from '../components/modals/InviteStaffModal';
 import EditStaffModal from '../components/modals/EditStaffModal';
+import StaffActionsDropdown from '../components/utils/StaffActionsDropdown'; // Import the new dropdown
 
 const ITEMS_PER_PAGE = 10;
+
+// Helper for status badge styling
+const getStaffStatusBadgeClasses = (status) => {
+  let baseClasses = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium";
+  switch (status?.toLowerCase()) {
+    case 'active': return `${baseClasses} bg-green-100 text-green-800`;
+    case 'invited': return `${baseClasses} bg-amber-100 text-amber-800`;
+    case 'new': return `${baseClasses} bg-sky-100 text-sky-800`; // Using sky for 'New' to differentiate from 'Invited'
+    case 'inactive': return `${baseClasses} bg-slate-100 text-slate-800`;
+    case 'locked': return `${baseClasses} bg-red-100 text-red-800`;
+    default: return `${baseClasses} bg-gray-100 text-gray-800`;
+  }
+};
 
 const StaffPage = () => {
   const { user, isAdmin } = useAuth();
@@ -83,34 +97,198 @@ const StaffPage = () => {
 
 
   if (!isAdmin && !loading) return <div className="container mt-4 alert alert-danger" role="alert">{error || "Access Denied."}</div>;
-  if (loading && staffList.length === 0) return <p className="container mt-4">Loading staff members...</p>;
-  if (error && staffList.length === 0 && !loading) return <p className="container mt-4 text-danger">Error fetching staff: {error}</p>;
+  if (loading && staffList.length === 0 && !searchQuery && !roleFilter && !statusFilter) return <p className="px-6 py-4 text-slate-700">Loading staff members...</p>;
+  if (error && staffList.length === 0 && !loading && !searchQuery && !roleFilter && !statusFilter) return <p className="px-6 py-4 text-red-600">Error fetching staff: {error}</p>;
+  if (!isAdmin && !loading) return <div className="px-6 py-4 text-red-600">Access Denied.</div>;
+
 
   return (
-    <div className="container-fluid pt-3">
-      {/* Header and Filters (same as before) */}
-      <div className="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom"><h1 className="h2">Staff Management</h1>{isAdmin && (<div className="btn-toolbar mb-2 mb-md-0"><button type="button" className="btn btn-primary" onClick={handleOpenInviteModal}><i className="bi bi-person-plus-fill me-1"></i> Invite Staff Member</button></div>)}</div>
-      <div className="row mb-3 gx-2"><div className="col-md-4"><input type="text" className="form-control" placeholder="Search..." value={searchQuery} onChange={handleSearchChange} /></div><div className="col-md-3"><select className="form-select" value={roleFilter} onChange={handleRoleFilterChange}><option value="">All Roles</option>{roleOptions.map(role => <option key={role} value={role}>{role}</option>)}</select></div><div className="col-md-3"><select className="form-select" value={statusFilter} onChange={handleStatusFilterChange}><option value="">All Statuses</option>{statusOptions.map(status => <option key={status} value={status}>{status}</option>)}</select></div></div>
-      {error && staffList.length > 0 && <div className="alert alert-warning mt-2">Could not fully load staff data: {error}</div>}
-      {loading && <p>Loading...</p>}
-      {!loading && staffList.length === 0 && !error ? (<p>No staff members found.</p>) : (
-        <div className="table-responsive"><table className="table table-hover">
-            <thead className="table-light"><tr><th>Profile</th><th>Name</th><th>Email</th><th>Role</th><th>Assigned Tasks</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody>{staffList.map(staff => ( <tr key={staff.id}>
-                <td><img src={staff.avatar_url || '/assets/images/placeholder-avatar.png'} alt={`${`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Staff'}'s profile`} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} onError={(e) => {
-                  e.target.onerror = null; // Prevent future errors on this image element from re-triggering
-                  e.target.src = '/assets/images/placeholder-avatar.png'; // Attempt to load placeholder
-                }} /></td>
-                <td>{`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'N/A'}</td><td>{staff.email}</td><td>{staff.user_role || 'N/A'}</td>
-                <td className="text-center">N/A</td>
-                <td><span className={`badge bg-${staff.user_status === 'Active' ? 'success' : (staff.user_status === 'Invited' || staff.user_status === 'New' ? 'warning text-dark' : 'secondary')}`}>{staff.user_status || 'N/A'}</span></td>
-                <td>{isAdmin && (<span> <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => handleOpenEditModal(staff)} title="Edit"><i className="bi bi-pencil"></i></button> <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteStaff(staff)} title="Deactivate"><i className="bi bi-person-x"></i></button> </span>)}</td>
-            </tr>))}</tbody>
-        </table></div>)}
-      {/* Pagination (simplified for brevity) */}
-      {totalPages > 1 && ( <nav className="mt-4"><ul className="pagination justify-content-center"><li className={`page-item ${page === 1 ? 'disabled' : ''}`}><button className="page-link" onClick={() => setPage(p => p - 1)} disabled={page === 1}>Previous</button></li>{[...Array(totalPages).keys()].map(num => ( <li key={num + 1} className={`page-item ${page === num + 1 ? 'active' : ''}`}><button className="page-link" onClick={() => setPage(num + 1)}>{num + 1}</button></li>))}<li className={`page-item ${page === totalPages ? 'disabled' : ''}`}><button className="page-link" onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>Next</button></li></ul></nav> )}
+    <>
+      <header className="sticky top-6 z-40 mx-6 mb-8">
+        <div className="backdrop-blur-xl bg-white/80 border border-white/20 rounded-2xl shadow-xl shadow-black/5 p-6">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              {/* Search Bar */}
+              <div className="flex items-center flex-1 max-w-md border border-slate-200 rounded-md bg-white/60 shadow-xs h-9 transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-search w-4 h-4 text-slate-400 mx-2 flex-shrink-0"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <input
+                  type="text"
+                  className="h-full flex-1 min-w-0 bg-transparent px-2 py-1 text-base md:text-sm placeholder:text-muted-foreground focus:outline-none"
+                  placeholder="Search staff..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+              </div>
+              {/* Filters */}
+              <div className="flex gap-2">
+                <div className="relative">
+                  <select
+                    value={roleFilter}
+                    onChange={handleRoleFilterChange}
+                    className="appearance-none inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-slate-200 bg-white/60 px-3 py-2 text-sm font-medium text-slate-700 ring-offset-background transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 min-w-[120px] pr-8"
+                  >
+                    <option value="">All Roles</option>
+                    {roleOptions.map(role => <option key={role} value={role}>{role}</option>)}
+                  </select>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"><path d="m6 9 6 6 6-6"></path></svg>
+                </div>
+                <div className="relative">
+                  <select
+                    value={statusFilter}
+                    onChange={handleStatusFilterChange}
+                    className="appearance-none inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-slate-200 bg-white/60 px-3 py-2 text-sm font-medium text-slate-700 ring-offset-background transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 min-w-[120px] pr-8"
+                  >
+                    <option value="">All Statuses</option>
+                    {statusOptions.map(status => <option key={status} value={status}>{status}</option>)}
+                  </select>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"><path d="m6 9 6 6 6-6"></path></svg>
+                </div>
+              </div>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={handleOpenInviteModal}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white ring-offset-background transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-lg shadow-blue-500/20 gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus w-4 h-4"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                Invite Staff Member
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <section className="px-6 pb-12">
+        {error && staffList.length > 0 && <div className="my-2 p-3 bg-red-100 text-red-700 border border-red-200 rounded-md">Could not fully load staff data: {error}</div>}
+        {loading && staffList.length > 0 && <p className="py-4 text-slate-700 text-center">Updating staff list...</p>} {/* Loading more or filtering */}
+
+        {!loading && staffList.length === 0 && (searchQuery || roleFilter || statusFilter) ? (
+             <div className="text-center py-10 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="mt-2 text-lg font-medium text-slate-800">No Staff Found</h3>
+                <p className="mt-1 text-sm text-slate-500">No staff members match your current filters or search query.</p>
+            </div>
+        ) : !loading && staffList.length === 0 && !error ? (
+             <div className="text-center py-10 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                 </svg>
+                <h3 className="mt-2 text-lg font-medium text-slate-800">No Staff Members</h3>
+                <p className="mt-1 text-sm text-slate-500">Get started by inviting your first staff member.</p>
+            </div>
+        ) : staffList.length > 0 ? (
+          <div className="overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border-0">
+            <table className="min-w-full text-sm text-left">
+              <thead className="text-xs text-slate-700 uppercase bg-slate-50/70">
+                <tr>
+                  <th scope="col" className="px-6 py-3 font-medium text-center">Profile</th>
+                  <th scope="col" className="px-6 py-3 font-medium">Name</th>
+                  <th scope="col" className="px-6 py-3 font-medium">Email</th>
+                  <th scope="col" className="px-6 py-3 font-medium">Role</th>
+                  <th scope="col" className="px-6 py-3 font-medium text-center">Assigned Tasks</th>
+                  <th scope="col" className="px-6 py-3 font-medium">Status</th>
+                  <th scope="col" className="px-6 py-3 font-medium text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {staffList.map((staff, index) => (
+                  <tr key={staff.id} className={`bg-white/90 hover:bg-slate-50/90 transition-colors duration-150 ${index === staffList.length - 1 ? '' : 'border-b border-slate-200/80'}`}>
+                    <td className="px-6 py-4 text-center">
+                      <img
+                        src={staff.avatar_url || '/assets/images/placeholder-avatar.png'}
+                        alt={`${`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'Staff'}'s profile`}
+                        className="w-10 h-10 rounded-full object-cover mx-auto" // Tailwind classes for profile image
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/assets/images/placeholder-avatar.png';
+                        }}
+                      />
+                    </td>
+                    <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{`${staff.first_name || ''} ${staff.last_name || ''}`.trim() || 'N/A'}</td>
+                    <td className="px-6 py-4 text-slate-700 whitespace-nowrap">{staff.email}</td>
+                    <td className="px-6 py-4 text-slate-700 whitespace-nowrap">{staff.user_role || 'N/A'}</td>
+                    <td className="px-6 py-4 text-slate-700 whitespace-nowrap text-center">N/A</td> {/* Placeholder for task count */}
+                    <td className="px-6 py-4">
+                      <span className={getStaffStatusBadgeClasses(staff.user_status)}>
+                        {staff.user_status || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {isAdmin && (
+                        <StaffActionsDropdown
+                          staffMember={staff}
+                          isAdmin={isAdmin} // This prop might be redundant if all actions are admin-only in dropdown
+                          onEditStaff={handleOpenEditModal}
+                          onDeactivateStaff={handleDeleteStaff} // handleDeleteStaff is the "Set Inactive" action
+                        />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null }
+        {/* Fallback for other unhandled states, though previous conditions should cover most. */}
+
+        {totalPages > 1 && (
+          <nav className="flex items-center justify-center space-x-1 mt-8" aria-label="Pagination">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className={`px-3 py-1.5 mx-1 text-sm font-medium rounded-md transition-colors ${page === 1 ? 'text-slate-400 cursor-not-allowed bg-slate-100/80' : 'text-slate-700 hover:bg-slate-100/90 active:bg-slate-200/90'}`}
+            >
+              Previous
+            </button>
+            {[...Array(totalPages).keys()].map(num => {
+              const pageNumber = num + 1;
+              const isActive = page === pageNumber;
+              if ( pageNumber === 1 || pageNumber === totalPages || (pageNumber >= page - 1 && pageNumber <= page + 1) ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => setPage(pageNumber)}
+                    className={`px-3 py-1.5 mx-1 text-sm font-medium rounded-md transition-colors ${isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100/90 active:bg-slate-200/90'}`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              } else if ( (pageNumber === page - 2 && page > 3) || (pageNumber === page + 2 && page < totalPages - 2) ) {
+                  return <span key={pageNumber} className="px-3 py-1.5 mx-1 text-sm font-medium text-slate-500">...</span>;
+              }
+              return null;
+            })}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className={`px-3 py-1.5 mx-1 text-sm font-medium rounded-md transition-colors ${page === totalPages ? 'text-slate-400 cursor-not-allowed bg-slate-100/80' : 'text-slate-700 hover:bg-slate-100/90 active:bg-slate-200/90'}`}
+            >
+              Next
+            </button>
+          </nav>
+        )}
+      </section>
 
       {isAdmin && isInviteModalOpen && ( <InviteStaffModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} onStaffInvited={handleStaffInvited} roleOptions={roleOptions} /> )}
       {isAdmin && isEditModalOpen && editingStaffMember && ( <EditStaffModal isOpen={isEditModalOpen} onClose={() => {setIsEditModalOpen(false); setEditingStaffMember(null);}} staffMember={editingStaffMember} onStaffUpdated={handleStaffUpdated} roleOptions={roleOptions} statusOptions={statusOptions} /> )}
-    </div>);};
+    </>
+  );
+};
 export default StaffPage;
