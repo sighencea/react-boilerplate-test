@@ -153,8 +153,8 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
                   <span
                     className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
                       isSidebarCollapsed
-                        ? 'opacity-0 -translate-x-4 pointer-events-none w-0'
-                        : 'opacity-100 translate-x-0 w-auto'
+                        ? 'opacity-0 -translate-x-4 pointer-events-none max-w-0' // Changed w-0 to max-w-0
+                        : 'opacity-100 translate-x-0 max-w-xs' // Changed w-auto to max-w-xs
                     }`}
                   >
                     {link.label}
@@ -202,8 +202,8 @@ const Sidebar = ({ isSidebarCollapsed, toggleSidebar }) => {
         {/* User Profile Section - END */}
 
         {/* Help & Support / Trigger Section - START */}
-        <div className={`pt-3 border-t border-slate-200 ${isSidebarCollapsed ? 'mt-auto' : ''}`}>
-          <div className={`flex items-center ${isSidebarCollapsed ? 'justify-end' : 'justify-between'}`}>
+        <div className={`border-t border-slate-200 ${isSidebarCollapsed ? 'mt-auto flex h-[52px]' : 'pt-3'}`}>
+          <div className={`flex items-center w-full h-full ${isSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
             {!isSidebarCollapsed && (
               <button
                 className="inline-flex items-center whitespace-nowrap text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] hover:bg-accent h-8 rounded-md gap-1.5 px-3 justify-start flex-1 text-slate-600 hover:text-slate-900"
