@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import CreateEditTaskModal from '../components/modals/CreateEditTaskModal';
 import ViewTaskModal from '../components/modals/ViewTaskModal';
-import TaskActionsDropdown from '../../components/utils/TaskActionsDropdown'; // Import the new dropdown
+import TaskActionsDropdown from '../components/utils/TaskActionsDropdown'; // Import path corrected
 
 const ITEMS_PER_PAGE = 10;
 
