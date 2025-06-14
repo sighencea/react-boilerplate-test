@@ -76,56 +76,32 @@ describe('TasksPage', () => {
     jest.clearAllMocks();
 
     // Default Supabase mocks for this page
-    mockSupabaseFrom.mockImplementation((tableName) => {
-      if (tableName === 'detailed_task_assignments') {
-        return {
-          select: jest.fn().mockReturnThis(),
-          order: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          ilike: jest.fn().mockReturnThis(),
-          range: jest.fn().mockResolvedValue({ data: mockTasksData, error: null, count: mockTasksData.length }),
-        };
-      }
-      if (tableName === 'properties') {
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          order: jest.fn().mockResolvedValue({ data: mockPropertiesList, error: null }),
-        };
-      }
-      if (tableName === 'profiles') {
-         return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          neq: jest.fn().mockReturnThis(),
-          order: jest.fn().mockReturnThis(), // Chain order calls
-          mockResolvedValueOnce: jest.fn().mockResolvedValue({ data: mockStaffList, error: null }), // Ensure this is how chained orders are handled or simplify mock
-        };
-      }
-      return { // Default fallback for any other table
-        select: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        neq: jest.fn().mockReturnThis(),
-        ilike: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-      };
-    });
+    // Reset all parts of the mock
+    const mockRange = jest.fn().mockResolvedValue({ data: mockTasksData, error: null, count: mockTasksData.length });
+    const mockIlike = jest.fn().mockReturnValue({ range: mockRange });
+    const mockOrder = jest.fn().mockReturnValue({ ilike: mockIlike, range: mockRange, /* for profiles */ then: (onFulfilled) => onFulfilled({ data: mockStaffList, error: null }) });
+    const mockNeq = jest.fn().mockReturnValue({ order: mockOrder });
+    const mockEq = jest.fn().mockReturnValue({ order: mockOrder, neq: mockNeq, ilike: mockIlike, range: mockRange });
+    const mockDelete = jest.fn().mockReturnThis(); // For delete chain
 
-    // Specific mock for staff list fetch due to multiple order calls
-    const staffQueryMock = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      neq: jest.fn().mockReturnThis(),
-      order: jest.fn().mockImplementation(() => staffQueryMock), // Return self for chaining
-      mockResolvedValue: jest.fn().mockResolvedValue({ data: mockStaffList, error: null }) // Final call
-    };
-    // Override for 'profiles' to use the more specific mock that handles chained 'order'
-     mockSupabaseFrom.mockImplementation((tableName) => {
+    mockSupabaseFrom.mockImplementation((tableName) => {
+      const defaultReturn = {
+        select: jest.fn().mockReturnValue({
+          eq: mockEq,
+          neq: mockNeq,
+          ilike: mockIlike,
+          order: mockOrder,
+          range: mockRange,
+        }),
+        update: jest.fn().mockReturnThis(), // For soft delete in handleDeleteTask
+        delete: jest.fn().mockReturnValue({ eq: mockEq }), // For delete chain
+        eq: mockEq, // For delete chain's .eq()
+      };
+
       if (tableName === 'detailed_task_assignments') {
-        // Keep existing detailed_task_assignments mock
-         return {
-          select: jest.fn((selectString) => ({
+        return {
+          ...defaultReturn,
+          select: jest.fn((selectString) => ({ // Make select more specific if needed
             order: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
             ilike: jest.fn().mockReturnThis(),
@@ -134,69 +110,40 @@ describe('TasksPage', () => {
         };
       }
       if (tableName === 'properties') {
-        // Keep existing properties mock
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          order: jest.fn().mockResolvedValue({ data: mockPropertiesList, error: null }),
-        };
-      }
-      if (tableName === 'profiles') {
-        // Use a more robust mock for profiles that can handle chained calls better
-        const profilesMock = {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          neq: jest.fn().mockReturnThis(),
-          order: jest.fn(function() { // Use function to allow 'this'
-            // Simulate that the final chained call resolves
-            if (this.isFinalCall) { // Add a way to mark the final call or check call count
-                 return Promise.resolve({ data: mockStaffList, error: null });
-            }
-            this.isFinalCall = true; // Example: mark after first order
-            return this;
+         return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({ data: mockPropertiesList, error: null }),
           }),
         };
-         // A simpler approach if chained order doesn't need specific field checks:
-         const simpleProfilesMock = {
-            select: jest.fn().mockReturnThis(),
+      }
+      if (tableName === 'profiles') { // Staff list
+        return {
+          select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnThis(),
             neq: jest.fn().mockReturnThis(),
-            order: jest.fn().mockReturnThis(), // Just return self for all orders
-         };
-         // And then ensure the final method in the chain resolves the value:
-         simpleProfilesMock.order.mockReturnValueOnce(simpleProfilesMock).mockResolvedValueOnce({ data: mockStaffList, error: null });
-         // This is still tricky. For simplicity in tests, often the direct data is mocked.
-         // Let's simplify: assume the chained calls ultimately resolve to the mock data.
-         // The mockSupabaseFrom.mockReturnValue({ select: mockSelect }); structure is better.
-         // We will rely on the default mock for 'profiles' and ensure 'range' or final call resolves.
-         // For now, the default mock structure handles 'profiles' generically.
-         // We will adjust the mockSelect to handle profiles specifically if needed.
-        return { // Fallback to a generic structure that allows chaining and final resolution
-            select: jest.fn().mockReturnThis(),
-            order: jest.fn().mockReturnThis(),
-            eq: jest.fn().mockReturnThis(),
-            neq: jest.fn().mockReturnThis(),
-            ilike: jest.fn().mockReturnThis(),
-            // For profiles, the final call isn't 'range', it's just the end of the chain.
-            // We need to ensure that the mock for 'profiles' resolves correctly.
-            // This part is tricky due to the chained nature.
-            // A common pattern is to mock the final method in the chain.
-            // If `order` is the last call for profiles, it should resolve.
-             then: jest.fn((onFulfilled) => onFulfilled({ data: mockStaffList, error: null })) // Make it thenable
+            order: jest.fn(function() { // Allow chaining of order
+                // Check if this is the second order call for profiles
+                if (this.orderCallCount === 1) {
+                    this.orderCallCount = 0; // Reset for next potential call
+                    return Promise.resolve({ data: mockStaffList, error: null });
+                }
+                this.orderCallCount = (this.orderCallCount || 0) + 1;
+                return this;
+            }),
+          }),
         };
       }
-      // Default fallback for other tables
-      return {
-        select: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        neq: jest.fn().mockReturnThis(),
-        ilike: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-      };
+      if (tableName === 'task_assignments' || tableName === 'task_files' || tableName === 'tasks') {
+        // For handleDeleteTask calls
+        return {
+          delete: jest.fn().mockReturnThis(),
+          update: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockResolvedValue({ error: null }), // Assume delete/update operations succeed
+        };
+      }
+      return defaultReturn;
     });
-
-
   });
 
   test('renders the TasksPage without crashing', async () => {
@@ -236,28 +183,134 @@ describe('TasksPage', () => {
       expect(await screen.findByText(mockTasksData[0].task_title)).toBeInTheDocument();
       expect(screen.getByText(mockTasksData[0].address)).toBeInTheDocument();
       expect(screen.getByText(mockTasksData[1].task_title)).toBeInTheDocument();
-      expect(screen.getByText(mockTasksData[1].assignee_email)).toBeInTheDocument(); // Email shown if name missing
-    });
-
-    test('renders View, Edit, and Delete action buttons for each task', async () => {
-      render(<TasksPage />);
-      await screen.findByText(mockTasksData[0].task_title);
-
-      const rows = screen.getAllByRole('row');
-      // Starting from rows[1] to skip header row
-      mockTasksData.forEach((task, index) => {
-        const currentRow = rows[index + 1];
-        expect(within(currentRow).getByRole('button', { name: /View task/i })).toBeInTheDocument();
-        expect(within(currentRow).getByRole('button', { name: /Edit task/i })).toBeInTheDocument();
-        expect(within(currentRow).getByRole('button', { name: /Delete task/i })).toBeInTheDocument();
-      });
+      expect(screen.getByText(mockTasksData[1].assignee_email)).toBeInTheDocument();
     });
   });
 
+  describe('Task Actions Dropdown', () => {
+    beforeEach(() => {
+      // Ensure isAdmin is true for these tests by default
+      const { useAuth } = require('@/context/AuthContext');
+      useAuth.mockReturnValue({
+        user: mockUser,
+        isAdmin: true,
+        loading: false,
+      });
+    });
+
+    test('renders an ellipsis button for task actions in each row', async () => {
+      render(<TasksPage />);
+      await screen.findByText(mockTasksData[0].task_title);
+      const actionButtons = screen.getAllByRole('button', { name: /task actions/i });
+      expect(actionButtons.length).toBe(mockTasksData.length);
+    });
+
+    test('clicking ellipsis button opens dropdown with View, Edit, Delete for admin', async () => {
+      render(<TasksPage />);
+      await screen.findByText(mockTasksData[0].task_title);
+      const triggerButtons = screen.getAllByRole('button', { name: /task actions/i });
+      fireEvent.click(triggerButtons[0]);
+
+      expect(await screen.findByRole('menuitem', { name: /View/i })).toBeVisible();
+      expect(screen.getByRole('menuitem', { name: /Edit/i })).toBeVisible();
+      expect(screen.getByRole('menuitem', { name: /Delete/i })).toBeVisible();
+    });
+
+    test('dropdown closes after clicking an item (e.g., View)', async () => {
+      render(<TasksPage />);
+      await screen.findByText(mockTasksData[0].task_title);
+      const triggerButtons = screen.getAllByRole('button', { name: /task actions/i });
+      fireEvent.click(triggerButtons[0]);
+
+      const viewMenuItem = await screen.findByRole('menuitem', { name: /View/i });
+      fireEvent.click(viewMenuItem);
+
+      // Modal opens (mocked)
+      expect(await screen.findByTestId('view-task-modal')).toBeInTheDocument();
+      // Dropdown should close (menu items no longer visible/present)
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: /View/i })).not.toBeVisible();
+      });
+    });
+
+    test('clicking Edit from dropdown opens CreateEditTaskModal', async () => {
+        render(<TasksPage />);
+        await screen.findByText(mockTasksData[0].task_title);
+        const triggerButtons = screen.getAllByRole('button', { name: /Task actions/i });
+        fireEvent.click(triggerButtons[0]);
+
+        const editButton = await screen.findByRole('menuitem', { name: /Edit/i });
+        fireEvent.click(editButton);
+
+        expect(await screen.findByTestId('create-edit-task-modal')).toBeInTheDocument();
+         await waitFor(() => {
+            expect(screen.queryByRole('menuitem', { name: /Edit/i })).not.toBeVisible();
+        });
+    });
+
+    test('clicking Delete from dropdown calls confirm and then delete logic', async () => {
+        window.confirm = jest.fn(() => true); // Mock window.confirm
+
+        render(<TasksPage />);
+        await screen.findByText(mockTasksData[0].task_title);
+        const triggerButtons = screen.getAllByRole('button', { name: /Task actions/i });
+        fireEvent.click(triggerButtons[0]);
+
+        const deleteButton = await screen.findByRole('menuitem', { name: /Delete/i });
+        fireEvent.click(deleteButton);
+
+        expect(window.confirm).toHaveBeenCalled();
+        // Check if supabase delete was called (requires mockSupabaseFrom to be more specific for 'tasks' table .delete())
+        // For now, just check if dropdown closes as a proxy.
+        await waitFor(() => {
+            expect(screen.queryByRole('menuitem', { name: /Delete/i })).not.toBeVisible();
+        });
+    });
+
+
+    test('dropdown shows only View for non-admin users', async () => {
+      const { useAuth } = require('@/context/AuthContext');
+      useAuth.mockReturnValue({
+        user: mockUser,
+        isAdmin: false, // Non-admin
+        loading: false,
+      });
+      render(<TasksPage />);
+      await screen.findByText(mockTasksData[0].task_title);
+      const triggerButtons = screen.getAllByRole('button', { name: /task actions/i });
+      fireEvent.click(triggerButtons[0]);
+
+      expect(await screen.findByRole('menuitem', { name: /View/i })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: /Edit/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: /Delete/i })).not.toBeInTheDocument();
+    });
+
+    test('dropdown closes on clicking outside', async () => {
+        render(<TasksPage />);
+        await screen.findByText(mockTasksData[0].task_title);
+        const triggerButton = screen.getAllByRole('button', { name: /Task actions/i })[0];
+        fireEvent.click(triggerButton);
+
+        // Menu should be open
+        expect(await screen.findByRole('menuitem', { name: /View/i })).toBeVisible();
+
+        fireEvent.mouseDown(document.body); // Simulate click outside
+
+        await waitFor(() => {
+            expect(screen.queryByRole('menuitem', { name: /View/i })).not.toBeVisible();
+        });
+    });
+  });
+
+
   describe('Pagination', () => {
     test('renders pagination controls if total tasks exceed items per page', async () => {
-      // Mock tasks to exceed ITEMS_PER_PAGE (10)
       const manyTasks = Array.from({ length: 15 }, (_, i) => ({ ...mockTasksData[0], task_id: `t${i}`, task_title: `Task ${i}` }));
+      // Update the mock for detailed_task_assignments for this specific test
+      const mockRangeFn = jest.fn()
+        .mockResolvedValueOnce({ data: manyTasks.slice(0, 10), error: null, count: manyTasks.length }) // Page 1
+        .mockResolvedValueOnce({ data: manyTasks.slice(10, 15), error: null, count: manyTasks.length }); // Page 2 etc.
+
       mockSupabaseFrom.mockImplementation((tableName) => {
         if (tableName === 'detailed_task_assignments') {
           return {
@@ -265,38 +318,51 @@ describe('TasksPage', () => {
             order: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
             ilike: jest.fn().mockReturnThis(),
-            range: jest.fn().mockResolvedValueOnce({ data: manyTasks.slice(0, 10), error: null, count: manyTasks.length }) // First page
-                       .mockResolvedValueOnce({ data: manyTasks.slice(10,15), error: null, count: manyTasks.length }), // Second page
+            range: mockRangeFn,
           };
         }
-         return { /* mocks for other tables if needed */ };
+        // Fallback for other tables like properties, profiles if needed by modals (though modals are mocked)
+        return {
+            select: jest.fn().mockReturnThis(),
+            order: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            neq: jest.fn().mockReturnThis(),
+            then: (onFulfilled) => onFulfilled({ data: [], error: null }) // Generic thenable
+        };
       });
 
       render(<TasksPage />);
-      expect(await screen.findByText('Task 0')).toBeInTheDocument();
+      expect(await screen.findByText('Task 0')).toBeInTheDocument(); // First item of page 1
       expect(screen.getByRole('button', { name: /Previous/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Next/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: "1" })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: "2" })).toBeInTheDocument();
+
+      // Test clicking next page
+      fireEvent.click(screen.getByRole('button', { name: /Next/i }));
+      expect(await screen.findByText('Task 10')).toBeInTheDocument(); // First item of page 2
+      expect(mockRangeFn).toHaveBeenCalledWith(10, 19);
     });
   });
 
-  describe('Modal Interactions', () => {
+  // Original Modal Interactions tests are now covered by "Dropdown Menu Actions"
+  // but we keep the "Create New Task" button test separate as it's not in the dropdown.
+  describe('Global Modal Interactions', () => {
+     beforeEach(() => {
+      // Ensure isAdmin is true for these tests by default
+      const { useAuth } = require('@/context/AuthContext');
+      useAuth.mockReturnValue({
+        user: mockUser,
+        isAdmin: true,
+        loading: false,
+      });
+    });
     test('clicking "Create New Task" button opens CreateEditTaskModal', async () => {
       render(<TasksPage />);
-      await screen.findByRole('button', { name: /Create New Task/i }); // Ensure page loaded
+      await screen.findByRole('button', { name: /Create New Task/i });
 
       fireEvent.click(screen.getByRole('button', { name: /Create New Task/i }));
       expect(await screen.findByTestId('create-edit-task-modal')).toBeInTheDocument();
-    });
-
-    test('clicking "View" button on a task row opens ViewTaskModal', async () => {
-      render(<TasksPage />);
-      await screen.findByText(mockTasksData[0].task_title); // Wait for tasks to load
-
-      const viewButtons = screen.getAllByRole('button', { name: /View task/i });
-      fireEvent.click(viewButtons[0]);
-      expect(await screen.findByTestId('view-task-modal')).toBeInTheDocument();
     });
   });
 });
